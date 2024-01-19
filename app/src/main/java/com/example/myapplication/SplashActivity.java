@@ -15,8 +15,8 @@ public class SplashActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                // 메인 액티비티로 이동
-                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                // 로그인 액티비티로 이동
+                Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
                 startActivity(intent);
 
                 // 스플래시 액티비티 종료

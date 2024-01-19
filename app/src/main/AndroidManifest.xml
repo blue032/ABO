@@ -22,11 +22,20 @@
             </intent-filter>
         </activity>
 
-        <!-- MainActivity 수정 -->
-        <activity android:name=".MainActivity"
+        <!-- LoginActivity 수정 -->
+        <activity android:name=".LoginActivity"
             android:exported="true">
-            <!-- 여기에 필요한 설정이 있으면 추가합니다 -->
         </activity>
+
+        <activity android:name=".Signup1Activity">
+        </activity>
+
+        <activity android:name=".CeoSignupActivity">
+        </activity>
+
+        <activity android:name=".UserSignupActivity">
+        </activity>
+
     </application>
 
 </manifest>
