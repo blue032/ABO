@@ -16,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
 
         Button btnEmpty = findViewById(R.id.btn_empty);
         Button btnWaiting = findViewById(R.id.btn_waiting);
+        Button btnMap = findViewById(R.id.mapcheckbutton);
 
         btnEmpty.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -31,6 +32,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, CafelistActivity.class);
                 intent.putExtra("viewType", "waitingList");
+                startActivity(intent);
+            }
+        });
+
+        btnMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, MapActivity.class);
                 startActivity(intent);
             }
         });
