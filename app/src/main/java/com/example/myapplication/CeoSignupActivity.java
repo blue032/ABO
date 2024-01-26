@@ -37,7 +37,7 @@ public class CeoSignupActivity extends AppCompatActivity {
         Button signupButton = findViewById(R.id.signupbutton);
 
         backTextView.setOnClickListener(v -> {
-            Intent intent = new Intent(CeoSignupActivity.this, Signup1Activity.class);
+            Intent intent = new Intent(CeoSignupActivity.this, SelectionActivity.class);
             startActivity(intent);
         });
 

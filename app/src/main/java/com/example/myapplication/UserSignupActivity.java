@@ -41,7 +41,7 @@ public class UserSignupActivity extends AppCompatActivity {
 
         // "back" 텍스트뷰 클릭 이벤트
         backTextView.setOnClickListener(v -> {
-            Intent intent = new Intent(UserSignupActivity.this, Signup1Activity.class);
+            Intent intent = new Intent(UserSignupActivity.this, SelectionActivity.class);
             startActivity(intent);
         });
 

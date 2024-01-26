@@ -32,7 +32,7 @@
             android:exported="true">
         </activity>
 
-        <activity android:name=".Signup1Activity">
+        <activity android:name=".SelectionActivity">
         </activity>
 
         <activity android:name=".CeoSignupActivity">
@@ -58,6 +58,22 @@
 
         <activity android:name=".DetailpageActivity">
         </activity>
+
+        <activity android:name=".IdPwSelectionActivity">
+        </activity>
+
+        <activity android:name=".IdSearchActivity">
+        </activity>
+
+        <activity android:name=".CeoIdSearchActivity">
+        </activity>
+
+        <activity android:name=".PwSearchActivity">
+        </activity>
+
+        <activity android:name=".CeoPwSearchActivity">
+        </activity>
+
     </application>
     <meta-data
         android:name="com.google.android.geo.API_KEY"

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,6 +28,7 @@ public class LoginActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.editPassword);
         Button loginButton = findViewById(R.id.loginbutton);
         Button signInButton = findViewById(R.id.signin);
+        TextView idpwTextView = findViewById(R.id.idpw);
 
         // 로그인 버튼 클릭 리스너 설정
         loginButton.setOnClickListener(v -> loginUser());
@@ -36,7 +38,17 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // 인텐트를 생성하여 Signup1 액티비티를 시작합니다
-                Intent intent = new Intent(LoginActivity.this, Signup1Activity.class);
+                Intent intent = new Intent(LoginActivity.this, SelectionActivity.class);
+                intent.putExtra("actionType", "signup");
+                startActivity(intent);
+            }
+        });
+        idpwTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 인텐트를 생성하여 SelectionActivity를 시작합니다
+                Intent intent = new Intent(LoginActivity.this, SelectionActivity.class);
+                intent.putExtra("actionType", "findIdPw");
                 startActivity(intent);
             }
         });
