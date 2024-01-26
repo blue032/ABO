@@ -72,23 +72,23 @@
                     android:text="" />
 
                 <TextView
-                    android:id="@+id/signIDtext"
+                    android:id="@+id/signPhonetext"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="5dp"
-                    android:text="아이디"
+                    android:text="핸드폰번호"
                     android:textColor="#3F51B5"
                     android:textSize="20dp"
                     android:textStyle="bold" />
 
                 <EditText
-                    android:id="@+id/signID"
+                    android:id="@+id/signPhone"
                     android:layout_width="wrap_content"
                     android:layout_height="48dp"
                     android:layout_marginBottom="20dp"
 
                     android:ems="10"
-                    android:hint=" 아이디"
+                    android:hint="핸드폰번호"
                     android:inputType="textPersonName"
                     android:text="" />
 

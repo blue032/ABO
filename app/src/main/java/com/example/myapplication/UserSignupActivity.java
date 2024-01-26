@@ -31,7 +31,7 @@ public class UserSignupActivity extends AppCompatActivity {
         EditText passwordEditText = findViewById(R.id.signPW);
         EditText confirmPasswordEditText = findViewById(R.id.signPW2);
         EditText nameEditText = findViewById(R.id.signName);
-        EditText idEditText = findViewById(R.id.signID);
+        EditText phoneEditText = findViewById(R.id.signPhone);
         EditText birthText = findViewById(R.id.signBirth);
         EditText birth2Text = findViewById(R.id.signBirth2);
         EditText birth3Text = findViewById(R.id.signBirth3);
@@ -66,13 +66,16 @@ public class UserSignupActivity extends AppCompatActivity {
 
             // 기타 필드 데이터
             String name = nameEditText.getText().toString();
-            String id = idEditText.getText().toString();
+            String phone = phoneEditText.getText().toString();
             String signBirth = birthText.getText().toString();
             String signBirth2 = birth2Text.getText().toString();
             String signBirth3 = birth3Text.getText().toString();
 
+            // 생년월일을 하나의 문자열로 합치기
+            String birth = signBirth + "-" + signBirth2 + "-" + signBirth3;
+
             // 입력 데이터 검증
-            if (name.isEmpty() || id.isEmpty() || signBirth.isEmpty() || signBirth2.isEmpty() || password.isEmpty() || email.isEmpty() || !isPasswordConfirmed) {
+            if (name.isEmpty() || phone.isEmpty() || birth.isEmpty() || password.isEmpty() || email.isEmpty() || !isPasswordConfirmed) {
                 Toast.makeText(UserSignupActivity.this, "모든 필드를 입력하고 비밀번호를 확인해주세요!", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -84,7 +87,7 @@ public class UserSignupActivity extends AppCompatActivity {
                             // Authentication 등록 성공 시, Realtime Database에 사용자 정보 저장
                             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
                             String userId = databaseReference.push().getKey();
-                            User user = new User(name, id, password, signBirth, signBirth2, signBirth3, email);
+                            User user = new User(name, phone, password, birth, email); // 수정된 생성자 호출
                             databaseReference.child(userId).setValue(user)
                                     .addOnCompleteListener(taskDb -> {
                                         if (taskDb.isSuccessful()) {
@@ -109,15 +112,13 @@ public class UserSignupActivity extends AppCompatActivity {
 
     // User 클래스
     public static class User {
-        public String name, id, password, birth, birth2, birth3, mail;
+        public String name, phone, password, birth, mail;
 
-        public User(String name, String id, String password, String birth, String birth2, String birth3, String mail) {
+        public User(String name, String phone, String password, String birth, String mail) {
             this.name = name;
-            this.id = id;
+            this.phone = phone;
             this.password = password;
-            this.birth = birth;
-            this.birth2 = birth2;
-            this.birth3 = birth3;
+            this.birth = birth; // 하나의 문자열로 합친 생년월일
             this.mail = mail;
         }
     }

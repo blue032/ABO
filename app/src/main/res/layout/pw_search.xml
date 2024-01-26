@@ -15,7 +15,7 @@
         android:orientation="vertical">
 
         <EditText
-            android:id="@+id/editID"
+            android:id="@+id/editmail"
             android:layout_width="210dp"
             android:layout_height="50dp"
             android:layout_gravity="center"
@@ -44,7 +44,7 @@
             android:inputType="date" />
 
         <EditText
-            android:id="@+id/editmail"
+            android:id="@+id/editphone"
             android:layout_width="210dp"
             android:layout_height="50dp"
             android:layout_gravity="center"
