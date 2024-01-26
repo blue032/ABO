@@ -7,7 +7,7 @@
     android:layout_height="match_parent">
 
     <com.google.android.gms.maps.MapView
-        android:id="@+id/mapView"
+        android:id="@+id/map"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintStart_toStartOf="parent"
@@ -16,8 +16,7 @@
         app:layout_constraintBottom_toTopOf="@id/frameLayout"
         app:layout_constraintHeight_default="percent"
         app:layout_constraintHeight_percent="0.5"
-        android:contentDescription="지도 보기, 현재 위치 표시"
-        tools:ignore="MissingClass" />
+        android:contentDescription="지도 보기, 현재 위치 표시" />
 
     <FrameLayout
         android:id="@+id/frameLayout"
@@ -25,7 +24,7 @@
         android:layout_height="0dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/mapView"
+        app:layout_constraintTop_toBottomOf="@id/map"
         app:layout_constraintBottom_toBottomOf="parent"
         android:background="@drawable/frame_layout">
 
