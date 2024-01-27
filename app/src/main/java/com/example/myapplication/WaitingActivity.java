@@ -24,6 +24,13 @@ public class WaitingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waiting);
 
+        // Intent에서 카페 이름 가져오기
+        String cafeName = getIntent().getStringExtra("cafeName");
+
+        // EditText에 카페 이름 설정
+        EditText editTextCafeName = findViewById(R.id.editcafename);
+        editTextCafeName.setText(cafeName);
+
         // Firebase Database 초기화
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
