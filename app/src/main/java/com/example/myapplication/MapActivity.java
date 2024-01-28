@@ -2,42 +2,94 @@ package com.example.myapplication;
 
 import android.os.Bundle;
 
-import androidx.fragment.app.FragmentActivity;
+import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
+
+    private MapView mapView;
+    private GoogleMap gMap;
+    private static final String MAP_VIEW_BUNDLE_KEY = "MapViewBundleKey";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map);
+        setContentView(R.layout.activity_map); // Make sure you have the correct layout name
 
-        // SupportMapFragment를 가져와서 지도가 준비되면 알림을 받습니다.
-        SupportMapFragment mapFragment = (SupportMapFragment) this.getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        mapView = findViewById(R.id.map);
+        initGoogleMap(savedInstanceState);
+    }
+
+    private void initGoogleMap(Bundle savedInstanceState) {
+        Bundle mapViewBundle = null;
+        if (savedInstanceState != null) {
+            mapViewBundle = savedInstanceState.getBundle(MAP_VIEW_BUNDLE_KEY);
+        }
+        mapView.onCreate(mapViewBundle);
+        mapView.getMapAsync(this);
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        // 다양한 위치에 마커 추가
-        addMarkerWithCustomIcon(googleMap, new LatLng(37.37500867159571, 126.63387174042461), "카페드림(6호관)", R.drawable.location_green);
-        addMarkerWithCustomIcon(googleMap, new LatLng(37.37591543320427, 126.63281734018747), "스낵바(13호관)", R.drawable.location_green);
-        addMarkerWithCustomIcon(googleMap, new LatLng(37.37452483159567, 126.6332926552895), "O.O카페(7호관)", R.drawable.location_green);
-        addMarkerWithCustomIcon(googleMap, new LatLng(37.372401288059535, 126.6313160023207), "미유(29호관)", R.drawable.location_green);
-        addMarkerWithCustomIcon(googleMap, new LatLng(37.37340586676641, 126.62985469283342), "혜윰(기숙사)", R.drawable.location_green);
-        addMarkerWithCustomIcon(googleMap, new LatLng(37.37439777449398, 126.63154896625312), "카페드림(11호관)", R.drawable.location_green);
+        gMap = googleMap;
+
+        // Example: Add a marker in Sydney, Australia and move the camera
+        LatLng sydney = new LatLng(-34, 151);
+        gMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+        gMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
-    // 마커를 추가하고 사용자 지정 아이콘을 설정하는 메소드
-    private void addMarkerWithCustomIcon(GoogleMap map, LatLng position, String title, int iconResId) {
-        map.addMarker(new MarkerOptions().position(position).title(title)
-                .icon(BitmapDescriptorFactory.fromResource(iconResId)));
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mapView.onResume();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mapView.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mapView.onStop();
+    }
+
+    @Override
+    protected void onPause() {
+        mapView.onPause();
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        mapView.onDestroy();
+        super.onDestroy();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Bundle mapViewBundle = outState.getBundle(MAP_VIEW_BUNDLE_KEY);
+        if (mapViewBundle == null) {
+            mapViewBundle = new Bundle();
+            outState.putBundle(MAP_VIEW_BUNDLE_KEY, mapViewBundle);
+        }
+
+        mapView.onSaveInstanceState(mapViewBundle);
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mapView.onLowMemory();
     }
 }
