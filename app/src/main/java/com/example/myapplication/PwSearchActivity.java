@@ -1,12 +1,12 @@
 package com.example.myapplication;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.Button;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -18,12 +18,14 @@ public class PwSearchActivity extends AppCompatActivity {
     private EditText editmail, editName, editBirth, editPhone;
     private Button searchPwButton;
     private DatabaseReference databaseReference;
+    private FirebaseAuth mAuth; // Firebase 인증 객체 추가
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.pw_search);
 
+        mAuth = FirebaseAuth.getInstance(); // Firebase 인증 초기화
         databaseReference = FirebaseDatabase.getInstance().getReference("Users");
 
         editmail = findViewById(R.id.editmail);
@@ -50,19 +52,19 @@ public class PwSearchActivity extends AppCompatActivity {
         databaseReference.orderByChild("mail").equalTo(mail).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                boolean userFound = false;
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     User user = snapshot.getValue(User.class);
-                    String userId = snapshot.getKey();
 
                     if (user != null && user.getName().equals(name) && user.getBirth().equals(birthDate) && user.getPhone().equals(phone)) {
-                        Intent intent = new Intent(PwSearchActivity.this, PwResetActivity.class);
-                        intent.putExtra("userEmail", mail);
-                        intent.putExtra("userId", userId);
-                        startActivity(intent);
-                        return;
+                        userFound = true;
+                        sendPasswordResetEmail(mail);
+                        break;
                     }
                 }
-                Toast.makeText(PwSearchActivity.this, "일치하는 정보가 없습니다.", Toast.LENGTH_LONG).show();
+                if (!userFound) {
+                    Toast.makeText(PwSearchActivity.this, "일치하는 정보가 없습니다.", Toast.LENGTH_LONG).show();
+                }
             }
 
             @Override
@@ -70,6 +72,17 @@ public class PwSearchActivity extends AppCompatActivity {
                 Toast.makeText(PwSearchActivity.this, "오류가 발생했습니다.", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void sendPasswordResetEmail(String email) {
+        mAuth.sendPasswordResetEmail(email)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(PwSearchActivity.this, "비밀번호 재설정 이메일을 보냈습니다.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(PwSearchActivity.this, "이메일 전송에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     // User 클래스가 필요합니다. 이 클래스는 Firebase Realtime Database의 'Users' 노드 구조에 맞춰져 있어야 합니다.
@@ -97,4 +110,6 @@ public class PwSearchActivity extends AppCompatActivity {
             return mail;
         }
     }
+
+
 }

@@ -3,7 +3,6 @@ package com.example.myapplication;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,9 +12,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 public class PwResetActivity extends AppCompatActivity {
 
@@ -23,8 +19,7 @@ public class PwResetActivity extends AppCompatActivity {
     private Button checkPasswordMatchButton, resetPasswordButton;
     private TextView passwordMatchTextView;
     private FirebaseAuth mAuth;
-    private String userEmail, userId;
-    private DatabaseReference databaseReference;
+    private String userEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,9 +37,6 @@ public class PwResetActivity extends AppCompatActivity {
         passwordMatchTextView = findViewById(R.id.pwcheckbutton);
 
         userEmail = getIntent().getStringExtra("userEmail");
-        userId = getIntent().getStringExtra("userId");
-
-        databaseReference = FirebaseDatabase.getInstance().getReference("Users");
 
         // 입력 상태에 따라 버튼 활성화 상태 업데이트
         TextWatcher textWatcher = new TextWatcher() {
@@ -100,34 +92,19 @@ public class PwResetActivity extends AppCompatActivity {
     }
 
     private void resetPassword() {
-        FirebaseUser user = mAuth.getCurrentUser();
-        if (user != null && user.getEmail().equals(userEmail)) {
-            String newPassword = newPasswordEditText.getText().toString();
+        String email = userEmail; // PwSearchActivity에서 가져온 사용자 이메일
 
-            // Firebase에서 비밀번호 재설정
-            user.updatePassword(newPassword)
-                    .addOnCompleteListener(this, task -> {
-                        if (task.isSuccessful()) {
-                            // Firebase Auth에 비밀번호 업데이트 성공 후, Realtime Database에도 저장
-                            savePasswordInDatabase(userId, newPassword);
-                            Toast.makeText(PwResetActivity.this, "비밀번호가 변경되었습니다.", Toast.LENGTH_SHORT).show();
-                            finish();
-                        } else {
-                            Log.e("PasswordResetError", "비밀번호 변경 실패: " + task.getException().getMessage());
-                            Toast.makeText(PwResetActivity.this, "비밀번호 변경 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        }
-    }
-
-    private void savePasswordInDatabase(String userId, String newPassword) {
-        // 사용자의 비밀번호를 Realtime Database에 저장
-        databaseReference.child(userId).child("password").setValue(newPassword)
-                .addOnSuccessListener(aVoid -> {
-                    // 비밀번호 데이터베이스 업데이트 성공
-                })
-                .addOnFailureListener(e -> {
-                    // 데이터베이스 업데이트 실패
+        // Firebase에서 해당 이메일 주소로 비밀번호 재설정 이메일 보내기
+        mAuth.sendPasswordResetEmail(email)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        // 비밀번호 재설정 이메일 전송 성공
+                        Toast.makeText(PwResetActivity.this, "비밀번호 재설정 이메일을 보냈습니다.", Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else {
+                        // 이메일 전송 실패
+                        Toast.makeText(PwResetActivity.this, "비밀번호 재설정 이메일 전송에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                    }
                 });
     }
 }

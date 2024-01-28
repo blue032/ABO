@@ -11,14 +11,17 @@ public class IdKnownActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.id_known);
 
-        // ID를 표시할 TextView 참조
         TextView idTextView = findViewById(R.id.IDknown);
 
-        // 인텐트에서 찾은 이메일 받아오기
-        String foundId = getIntent().getStringExtra("userEmail");
+        // 사용자 버전에서 받아온 이메일(ID)
+        String userId = getIntent().getStringExtra("userEmail");
 
-        // TextView에 ID 설정
+        // CEO 버전에서 받아온 이메일
+        String ceoId = getIntent().getStringExtra("ceoemail");
+
+        // 두 인텐트 중 하나가 null이 아닌 경우 해당 값을 표시
+        String foundId = userId != null ? userId : ceoId;
+
         idTextView.setText(foundId);
     }
 }
-

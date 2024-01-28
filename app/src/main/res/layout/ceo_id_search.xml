@@ -35,7 +35,7 @@
             android:inputType="textPassword" />
 
         <EditText
-            android:id="@+id/editmail"
+            android:id="@+id/editceonumber"
             android:layout_width="210dp"
             android:layout_height="50dp"
             android:layout_gravity="center"

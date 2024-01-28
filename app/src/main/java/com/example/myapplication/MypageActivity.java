@@ -86,7 +86,7 @@ public class MypageActivity extends AppCompatActivity {
         btnResetPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MypageActivity.this, PwResetActivity.class);
+                Intent intent = new Intent(MypageActivity.this, PwSearchActivity.class);
                 startActivity(intent);
             }
         });

@@ -35,6 +35,9 @@ public class CeoSignupActivity extends AppCompatActivity {
         EditText ceoNumberEditText = findViewById(R.id.signceo1);
         Button confirmButton = findViewById(R.id.pwcheckbutton);
         Button signupButton = findViewById(R.id.signupbutton);
+        EditText birthText = findViewById(R.id.signBirth);
+        EditText birth2Text = findViewById(R.id.signBirth2);
+        EditText birth3Text = findViewById(R.id.signBirth3);
 
         backTextView.setOnClickListener(v -> {
             Intent intent = new Intent(CeoSignupActivity.this, SelectionActivity.class);
@@ -59,8 +62,15 @@ public class CeoSignupActivity extends AppCompatActivity {
             String password = passwordEditText.getText().toString().trim();
             String name = nameEditText.getText().toString();
             String ceoNumber = ceoNumberEditText.getText().toString();
+            String signBirth = birthText.getText().toString();
+            String signBirth2 = birth2Text.getText().toString();
+            String signBirth3 = birth3Text.getText().toString();
 
-            if (name.isEmpty() || email.isEmpty() || password.isEmpty() || ceoNumber.isEmpty() || !isPasswordConfirmed) {
+            // 생년월일을 하나의 문자열로 합치기
+            String birth = signBirth + "-" + signBirth2 + "-" + signBirth3;
+
+
+            if (name.isEmpty() || email.isEmpty() ||birth.isEmpty()|| password.isEmpty() || ceoNumber.isEmpty() || !isPasswordConfirmed) {
                 Toast.makeText(CeoSignupActivity.this, "모든 필드를 채우고 비밀번호 확인을 해주세요!", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -70,7 +80,7 @@ public class CeoSignupActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("CeoUsers");
                             String userId = databaseReference.push().getKey();
-                            CeoUser ceoUser = new CeoUser(name, email, password, ceoNumber);
+                            CeoUser ceoUser = new CeoUser(name, email, birth, password, ceoNumber);
                             databaseReference.child(userId).setValue(ceoUser)
                                     .addOnCompleteListener(taskDb -> {
                                         if (taskDb.isSuccessful()) {
@@ -92,11 +102,12 @@ public class CeoSignupActivity extends AppCompatActivity {
     }
 
     public static class CeoUser {
-        public String name, email, password, ceoNumber;
+        public String name, email, birth, password, ceoNumber;
 
-        public CeoUser(String name, String email, String password, String ceoNumber) {
+        public CeoUser(String name, String email, String birth, String password, String ceoNumber) {
             this.name = name;
             this.email = email;
+            this.birth = birth;
             this.password = password;
             this.ceoNumber = ceoNumber;
         }
