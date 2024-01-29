@@ -86,7 +86,9 @@ public class CeoBoardActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
+
     }
+
 
     private void checkForEmptyList() {
         if (postList.isEmpty()) {
@@ -189,4 +191,6 @@ public class CeoBoardActivity extends AppCompatActivity {
             }
         }
     }
+
+
 }

@@ -56,6 +56,27 @@ public class MypageActivity extends AppCompatActivity {
                     // 데이터베이스 오류 처리
                 }
             });
+
+            // 사장님 정보를 조회
+            mDatabase.child("CeoUsers").orderByChild("email").equalTo(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        for (DataSnapshot ceoUserSnapshot : dataSnapshot.getChildren()) {
+                            // 이메일 주소가 일치하는 사장님의 이름을 가져옵니다.
+                            String ceoName = ceoUserSnapshot.child("name").getValue(String.class);
+                            TextView ceoNameTextView = findViewById(R.id.name);
+                            ceoNameTextView.setText(ceoName);
+                            break; // 첫 번째 일치하는 사장님의 이름을 찾았으므로 루프를 종료합니다.
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    // 데이터베이스 오류 처리
+                }
+            });
         }
 
         // 학교 홈페이지로 이동하는 버튼

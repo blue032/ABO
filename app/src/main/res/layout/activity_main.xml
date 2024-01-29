@@ -216,6 +216,17 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/iv_notice"
         app:layout_constraintEnd_toEndOf="parent"/>
+    <Button
+        android:id="@+id/btnCeoBoard"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="사장님 게시판 보기"
+        android:textSize="20sp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintTop_toBottomOf="@id/notice"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation_view"
