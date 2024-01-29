@@ -90,5 +90,15 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+        TextView tvNotice = findViewById(R.id.notice);
+        tvNotice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // NoticeActivity로 이동하는 인텐트를 생성합니다.
+                Intent intent = new Intent(MainActivity.this, CeoBoardActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 }
