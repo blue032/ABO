@@ -73,6 +73,8 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 } else if (itemId == R.id.action_board) {
                     // 게시판 아이템이 선택되었을 때의 동작
+                    Intent intent = new Intent(MainActivity.this, BoardActivity.class);
+                    startActivity(intent);
                     return true;
                 } else if (itemId == R.id.action_notification) {
                     // 알림 아이템이 선택되었을 때의 동작

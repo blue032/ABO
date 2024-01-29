@@ -1,4 +1,3 @@
-/*
 package com.example.myapplication;
 
 import android.content.Intent;
@@ -31,6 +30,7 @@ public class BoardActivity extends AppCompatActivity {
     private BoardPostAdapter adapter;
     private ArrayList<BoardPost> postList;
     private DatabaseReference databaseReference;
+    private TextView tvEmptyView; // TextView for empty list message
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +38,8 @@ public class BoardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_board);
 
         FloatingActionButton fabAddPost = findViewById(R.id.fabAddPost);
+        tvEmptyView = findViewById(R.id.tvEmptyView); // Initialize TextView for empty list
+
         fabAddPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -63,8 +65,15 @@ public class BoardActivity extends AppCompatActivity {
                 postList.clear();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     BoardPost post = snapshot.getValue(BoardPost.class);
-                    postList.add(post);
+                    if (post != null) {
+                        if (post.getTimestamp() == 0) {
+                            // timestamp가 없는 경우 현재 시간을 설정합니다.
+                            post.setTimestamp(System.currentTimeMillis());
+                        }
+                        postList.add(post);
+                    }
                 }
+                checkForEmptyList();
                 adapter.notifyDataSetChanged();
             }
 
@@ -73,6 +82,17 @@ public class BoardActivity extends AppCompatActivity {
                 // 데이터베이스 읽기 실패
             }
         });
+    }
+
+    // 데이터 목록이 비어있는지 확인하고 뷰의 가시성을 설정합니다.
+    private void checkForEmptyList() {
+        if (postList.isEmpty()) {
+            tvEmptyView.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            tvEmptyView.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
     }
 
     // 게시글 데이터 모델
@@ -134,7 +154,6 @@ public class BoardActivity extends AppCompatActivity {
         @NonNull
         @Override
         public BoardPostAdapter.BoardPostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            // 여기에서 게시글을 표시할 레이아웃을 인플레이트합니다.
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_item_layout, parent, false);
             return new BoardPostViewHolder(view);
         }
@@ -144,6 +163,19 @@ public class BoardActivity extends AppCompatActivity {
             BoardPost post = postList.get(position);
             holder.textViewTitle.setText(post.getTitle());
             holder.textViewDate.setText(post.getFormattedDate());
+
+            // 여기서 각 항목의 클릭 이벤트를 설정합니다.
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // 상세 페이지로 이동하는 인텐트를 생성합니다.
+                    Intent intent = new Intent(BoardActivity.this, DetailActivity.class);
+                    intent.putExtra("title", post.getTitle()); // 제목 전달
+                    intent.putExtra("content", post.getContent()); // 내용 전달
+                    intent.putExtra("timestamp", post.getTimestamp()); // 타임스탬프 전달
+                    startActivity(intent);
+                }
+            });
         }
 
         @Override
@@ -164,4 +196,3 @@ public class BoardActivity extends AppCompatActivity {
     }
 
 }
-*/
