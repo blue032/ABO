@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +39,15 @@ public class CeoBoardActivity extends AppCompatActivity {
 
         FloatingActionButton fabAddManagerPost = findViewById(R.id.fabAddPost);
         tvEmptyView = findViewById(R.id.tvEmptyView);
+
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        boolean isCeo = prefs.getBoolean("IsCeo", false);
+
+        if (isCeo) {
+            fabAddManagerPost.setVisibility(View.VISIBLE);
+        } else {
+            fabAddManagerPost.setVisibility(View.GONE);
+        }
 
         fabAddManagerPost.setOnClickListener(new View.OnClickListener() {
             @Override

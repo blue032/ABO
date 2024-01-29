@@ -1,20 +1,28 @@
 package com.example.myapplication;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth; // Firebase Authentication
     private EditText emailEditText;
     private EditText passwordEditText;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,24 +41,17 @@ public class LoginActivity extends AppCompatActivity {
         // 로그인 버튼 클릭 리스너 설정
         loginButton.setOnClickListener(v -> loginUser());
 
-        // 버튼에 클릭 리스너 설정
-        signInButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 인텐트를 생성하여 Signup1 액티비티를 시작합니다
-                Intent intent = new Intent(LoginActivity.this, SelectionActivity.class);
-                intent.putExtra("actionType", "signup");
-                startActivity(intent);
-            }
+        // 회원가입 및 ID/PW 찾기 버튼에 대한 클릭 리스너 설정
+        signInButton.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, SelectionActivity.class);
+            intent.putExtra("actionType", "signup");
+            startActivity(intent);
         });
-        idpwTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 인텐트를 생성하여 SelectionActivity를 시작합니다
-                Intent intent = new Intent(LoginActivity.this, SelectionActivity.class);
-                intent.putExtra("actionType", "findIdPw");
-                startActivity(intent);
-            }
+
+        idpwTextView.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, SelectionActivity.class);
+            intent.putExtra("actionType", "findIdPw");
+            startActivity(intent);
         });
     }
 
@@ -68,14 +69,44 @@ public class LoginActivity extends AppCompatActivity {
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        // 로그인 성공
-                        Toast.makeText(LoginActivity.this, "로그인이 되었습니다.", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                        finish();
+                        // 로그인 성공 후 CeoUsers 경로에서 이메일 확인
+                        checkIfCeo(email);
                     } else {
                         // 로그인 실패
                         Toast.makeText(LoginActivity.this, "다시 입력하세요" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    private void checkIfCeo(String email) {
+        DatabaseReference ceoRef = FirebaseDatabase.getInstance().getReference("CeoUsers");
+        ceoRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                boolean isCeo = false;
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String ceoEmail = snapshot.child("email").getValue(String.class);
+                    if (ceoEmail != null && ceoEmail.equals(email)) {
+                        isCeo = true;
+                        break;
+                    }
+                }
+
+                // SharedPreferences에 사장님 여부 저장
+                SharedPreferences.Editor editor = getSharedPreferences("AppPrefs", MODE_PRIVATE).edit();
+                editor.putBoolean("IsCeo", isCeo);
+                editor.apply();
+
+                // 로그인 성공 후 메인 액티비티로 이동
+                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                finish();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                // 데이터베이스 에러 처리
+                Toast.makeText(LoginActivity.this, "데이터베이스 에러: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
