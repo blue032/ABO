@@ -5,6 +5,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="16dp">
 
+    <!-- 게시글 제목을 표시하는 TextView -->
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="0dp"
@@ -12,21 +13,67 @@
         android:layout_marginTop="32dp"
         android:textSize="20sp"
         android:textStyle="bold"
+        android:text="Title"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:text="Title" />
+        app:layout_constraintEnd_toStartOf="@+id/iconMore" />
 
+    <!-- 게시글 옵션을 위한 "더보기" ImageView -->
+    <ImageView
+        android:id="@+id/iconMore"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/icon_more"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tvTitle"
+        app:layout_constraintBottom_toBottomOf="@id/tvTitle"
+        app:layout_constraintStart_toEndOf="@+id/tvTitle" />
+
+    <!-- 게시글 내용을 표시하는 TextView -->
     <TextView
         android:id="@+id/tvContent"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
         android:textSize="16sp"
+        android:text="Content"
         app:layout_constraintTop_toBottomOf="@id/tvTitle"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/recyclerViewComments"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- 댓글 목록을 표시하는 RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewComments"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/tvContent"
+        app:layout_constraintBottom_toTopOf="@id/etComment"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:text="Content" />
+        android:layout_marginTop="8dp"/>
+
+    <!-- 댓글 입력 필드 -->
+    <EditText
+        android:id="@+id/etComment"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:hint="댓글을 입력하세요"
+        app:layout_constraintBottom_toTopOf="@id/btnSubmitComment"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recyclerViewComments" />
+
+    <!-- 댓글 제출 버튼 -->
+    <Button
+        android:id="@+id/btnSubmitComment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="제출"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etComment"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

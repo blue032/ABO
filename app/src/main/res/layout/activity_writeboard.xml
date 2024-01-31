@@ -26,6 +26,16 @@
         android:minLines="4"
         android:maxLines="10"/>
 
+    <ImageView
+        android:id="@+id/iconPhoto"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center_horizontal"
+        android:clickable="true"
+        android:onClick="onIconPhotoClick"
+        android:src="@drawable/icon_photo"
+        android:contentDescription="사진 추가 버튼"/>
+
     <!-- 게시글 제출 버튼 -->
     <Button
         android:id="@+id/buttonSubmitPost"
