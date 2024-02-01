@@ -46,9 +46,8 @@ public class CeoWriteBoardActivity extends AppCompatActivity {
             // 현재 시간을 타임스탬프로 사용
             long timestamp = System.currentTimeMillis();
 
-            // BoardPost 객체 생성
-            CeoBoardActivity.BoardPost post = new CeoBoardActivity.BoardPost(title, content, timestamp);
-
+            // 여기서 CeoBoardPost 객체를 생성합니다.
+            CeoBoardPost post = new CeoBoardPost(title, content, timestamp);
             // Firebase Realtime Database에 데이터 저장
             databaseReference.push().setValue(post).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {

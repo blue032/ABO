@@ -123,25 +123,25 @@ public class MainActivity extends AppCompatActivity {
         ceoBoardRef.orderByChild("timestamp").limitToLast(5).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                ArrayList<BoardPost> tempList = new ArrayList<>();
+                ArrayList<CeoBoardPost> tempList = new ArrayList<>();
                 ceoBoardPostContainer.removeAllViews(); // 이전에 추가된 뷰들을 제거합니다.
 
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    BoardPost post = postSnapshot.getValue(BoardPost.class);
+                    CeoBoardPost post = postSnapshot.getValue(CeoBoardPost.class);
                     if (post != null) {
                         tempList.add(post);
                     }
                 }
 
                 // tempList를 timestamp의 내림차순으로 정렬합니다.
-                Collections.sort(tempList, new Comparator<BoardPost>() {
+                Collections.sort(tempList, new Comparator<CeoBoardPost>() {
                     @Override
-                    public int compare(BoardPost o1, BoardPost o2) {
+                    public int compare(CeoBoardPost o1, CeoBoardPost o2) {
                         return Long.compare(o2.getTimestamp(), o1.getTimestamp());
                     }
                 });
 
-                for (BoardPost post : tempList) {
+                for (CeoBoardPost post : tempList) {
                     // 각 게시물에 대한 LinearLayout 생성
                     LinearLayout linearLayout = new LinearLayout(MainActivity.this);
                     linearLayout.setLayoutParams(new LinearLayout.LayoutParams(
