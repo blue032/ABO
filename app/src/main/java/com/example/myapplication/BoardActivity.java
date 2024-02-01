@@ -19,12 +19,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
-import java.util.Locale;
 
 public class BoardActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
@@ -93,50 +90,6 @@ public class BoardActivity extends AppCompatActivity {
         }
     }
 
-    public static class BoardPost {
-        private String title;
-        private String content;
-        private long timestamp;
-
-        public BoardPost() {
-        }
-
-        public BoardPost(String title, String content, long timestamp) {
-            this.title = title;
-            this.content = content;
-            this.timestamp = timestamp;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public void setTitle(String title) {
-            this.title = title;
-        }
-
-        public String getContent() {
-            return content;
-        }
-
-        public void setContent(String content) {
-            this.content = content;
-        }
-
-        public long getTimestamp() {
-            return timestamp;
-        }
-
-        public void setTimestamp(long timestamp) {
-            this.timestamp = timestamp;
-        }
-
-        public String getFormattedDate() {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-            return sdf.format(new Date(timestamp));
-        }
-    }
-
     private class BoardPostAdapter extends RecyclerView.Adapter<BoardPostAdapter.BoardPostViewHolder> {
         private final ArrayList<BoardPost> postList;
 
@@ -154,8 +107,9 @@ public class BoardActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull BoardPostViewHolder holder, int position) {
             BoardPost post = postList.get(position);
+            String formattedDateWithUserName = post.getUserName() + " | " + post.getFormattedDate();
+            holder.textViewDate.setText(formattedDateWithUserName);
             holder.textViewTitle.setText(post.getTitle());
-            holder.textViewDate.setText(post.getFormattedDate());
 
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
