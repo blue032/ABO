@@ -22,13 +22,15 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 
 public class CeoBoardActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private BoardPostAdapter adapter;
-    private ArrayList<BoardPost> postList;
+    private ArrayList<CeoBoardPost> postList;
     private DatabaseReference databaseReference;
     private TextView tvEmptyView;
 
@@ -70,14 +72,18 @@ public class CeoBoardActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 postList.clear();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    BoardPost post = snapshot.getValue(BoardPost.class);
+                    CeoBoardPost post = snapshot.getValue(CeoBoardPost.class);
                     if (post != null) {
-                        if (post.getTimestamp() == 0) {
-                            post.setTimestamp(System.currentTimeMillis());
-                        }
                         postList.add(post);
                     }
                 }
+                // 게시글 목록을 timestamp의 내림차순으로 정렬합니다.
+                Collections.sort(postList, new Comparator<CeoBoardPost>() {
+                    @Override
+                    public int compare(CeoBoardPost o1, CeoBoardPost o2) {
+                        return Long.compare(o2.getTimestamp(), o1.getTimestamp());
+                    }
+                });
                 checkForEmptyList();
                 adapter.notifyDataSetChanged();
             }
@@ -86,9 +92,7 @@ public class CeoBoardActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
-
     }
-
 
     private void checkForEmptyList() {
         if (postList.isEmpty()) {
@@ -100,15 +104,15 @@ public class CeoBoardActivity extends AppCompatActivity {
         }
     }
 
-    public static class BoardPost {
+    public static class CeoBoardPost {
         private String title;
         private String content;
         private long timestamp;
 
-        public BoardPost() {
+        public CeoBoardPost() {
         }
 
-        public BoardPost(String title, String content, long timestamp) {
+        public CeoBoardPost(String title, String content, long timestamp) {
             this.title = title;
             this.content = content;
             this.timestamp = timestamp;
@@ -145,9 +149,9 @@ public class CeoBoardActivity extends AppCompatActivity {
     }
 
     private class BoardPostAdapter extends RecyclerView.Adapter<CeoBoardActivity.BoardPostAdapter.BoardPostViewHolder> {
-        private ArrayList<CeoBoardActivity.BoardPost> postList;
+        private final ArrayList<CeoBoardPost> postList;
 
-        public BoardPostAdapter(ArrayList<CeoBoardActivity.BoardPost> postList) {
+        public BoardPostAdapter(ArrayList<CeoBoardPost> postList) {
             this.postList = postList;
         }
 
@@ -160,7 +164,7 @@ public class CeoBoardActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(@NonNull CeoBoardActivity.BoardPostAdapter.BoardPostViewHolder holder, int position) {
-            BoardPost post = postList.get(position);
+            CeoBoardPost post = postList.get(position);
             holder.textViewTitle.setText(post.getTitle());
             holder.textViewDate.setText(post.getFormattedDate());
 
@@ -191,6 +195,4 @@ public class CeoBoardActivity extends AppCompatActivity {
             }
         }
     }
-
-
 }
