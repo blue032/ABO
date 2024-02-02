@@ -3,6 +3,7 @@ package com.example.myapplication;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -86,6 +88,36 @@ public class MypageActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.inu.ac.kr/inu/index.do?epTicket=LOG"));
                 startActivity(browserIntent);
+            }
+        });
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int itemId = item.getItemId();
+
+                if (itemId == R.id.action_home) {
+                    Intent intent = new Intent(MypageActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    return true;
+                } else if (itemId == R.id.action_board) {
+                    // 게시판 아이템이 선택되었을 때의 동작
+                    Intent intent = new Intent(MypageActivity.this, BoardActivity.class);
+                    startActivity(intent);
+                    return true;
+                } else if (itemId == R.id.action_notification) {
+                    // 알림 아이템이 선택되었을 때의 동작
+                    return true;
+                } else if (itemId == R.id.action_mypage) {
+                    // 메뉴 페이지 아이템이 선택되었을 때의 동작
+                    Intent intent = new Intent(MypageActivity.this, MypageActivity.class);
+                    startActivity(intent);
+                    return true;
+                }
+
+                return false; // 아무 항목도 선택되지 않았을 경우
+
             }
         });
 

@@ -3,6 +3,7 @@ package com.example.myapplication;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -24,6 +26,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 public class BoardActivity extends AppCompatActivity {
+
     private RecyclerView recyclerView;
     private BoardPostAdapter adapter;
     private ArrayList<BoardPost> postList;
@@ -76,6 +79,35 @@ public class BoardActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+
+        // BottomNavigationView 설정
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int itemId = item.getItemId();
+
+                if (itemId == R.id.action_home) {
+                    Intent intent = new Intent(BoardActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    return true;
+                } else if (itemId == R.id.action_board) {
+                    // 게시판 아이템이 선택되었을 때의 동작 (현재 화면이 이미 BoardActivity이므로 아무 동작이 필요 없음)
+                    return true;
+                } else if (itemId == R.id.action_notification) {
+                    // 알림 아이템이 선택되었을 때의 동작
+                    // 원하는 동작을 여기에 추가
+                    return true;
+                } else if (itemId == R.id.action_mypage) {
+                    // 메뉴 페이지 아이템이 선택되었을 때의 동작
+                    Intent intent = new Intent(BoardActivity.this, MypageActivity.class);
+                    startActivity(intent);
+                    return true;
+                }
+
+                return false; // 아무 항목도 선택되지 않았을 경우
             }
         });
     }

@@ -1,13 +1,17 @@
 package com.example.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -25,11 +29,37 @@ public class WriteBoardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_writeboard); // 이 layout은 적절히 수정해야 할 수도 있습니다.
 
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int itemId = item.getItemId();
+
+                if (itemId == R.id.action_home) {
+                    Intent intent = new Intent(WriteBoardActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    return true;
+                } else if (itemId == R.id.action_board) {
+                    Intent intent = new Intent(WriteBoardActivity.this, BoardActivity.class);
+                    startActivity(intent);
+                    return true;
+                } else if (itemId == R.id.action_notification) {
+                    // 알림 아이템이 선택되었을 때의 동작
+                    return true;
+                } else if (itemId == R.id.action_mypage) {
+                    Intent intent = new Intent(WriteBoardActivity.this, MypageActivity.class);
+                    startActivity(intent);
+                    return true;
+                }
+
+                return false; // 아무 항목도 선택되지 않았을 경우
+            }
+        });
+
         editTextTitle = findViewById(R.id.editTextPostTitle); // layout의 id와 일치해야 합니다.
         editTextContent = findViewById(R.id.editTextPostContent); // layout의 id와 일치해야 합니다.
         buttonSubmit = findViewById(R.id.buttonSubmitPost); // layout의 id와 일치해야 합니다.
 
-        // Firebase Realtime Database의 'Board' 경로 참조
         databaseReference = FirebaseDatabase.getInstance().getReference("Board");
 
         buttonSubmit.setOnClickListener(new View.OnClickListener() {
@@ -38,14 +68,11 @@ public class WriteBoardActivity extends AppCompatActivity {
                 submitPost();
             }
         });
-        // 현재 로그인한 사용자의 이메일 가져오기
+
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
-            String mail = user.getEmail();
-            // 이메일에서 사용자 이름 추출
-            if (mail != null) {
-                userName = mail;
-            }
+            String email = user.getEmail();
+            userName = email != null ? email : "Anonymous"; // 이메일이 없는 경우 "Anonymous" 사용
         }
     }
 
@@ -53,18 +80,13 @@ public class WriteBoardActivity extends AppCompatActivity {
         String title = editTextTitle.getText().toString().trim();
         String content = editTextContent.getText().toString().trim();
 
-        // 제목과 내용이 비어 있지 않은지 확인
         if (!title.isEmpty() && !content.isEmpty()) {
-            // 현재 시간을 타임스탬프로 사용
             long timestamp = System.currentTimeMillis();
-
-            // 여기서 CeoBoardPost 객체를 생성합니다.
             BoardPost post = new BoardPost(title, content, timestamp, userName);
-            // Firebase Realtime Database에 데이터 저장
             databaseReference.push().setValue(post).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     Toast.makeText(WriteBoardActivity.this, "게시글이 성공적으로 등록되었습니다.", Toast.LENGTH_SHORT).show();
-                    finish(); // 액티비티 종료
+                    finish();
                 } else {
                     Toast.makeText(WriteBoardActivity.this, "게시글 등록에 실패했습니다.", Toast.LENGTH_SHORT).show();
                 }

@@ -1,10 +1,13 @@
 package com.example.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.MenuItem;
 import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -39,6 +42,34 @@ public class WaitingActivity extends AppCompatActivity {
 
         // 주기적으로 데이터 업데이트
         handler.post(runnable);
+
+        // BottomNavigationView 설정
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int itemId = item.getItemId();
+
+                if (itemId == R.id.action_home) {
+                    Intent intent = new Intent(WaitingActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    return true;
+                } else if (itemId == R.id.action_board) {
+                    Intent intent = new Intent(WaitingActivity.this, BoardActivity.class);
+                    startActivity(intent);
+                    return true;
+                } else if (itemId == R.id.action_notification) {
+                    // 알림 아이템이 선택되었을 때의 동작
+                    return true;
+                } else if (itemId == R.id.action_mypage) {
+                    Intent intent = new Intent(WaitingActivity.this, MypageActivity.class);
+                    startActivity(intent);
+                    return true;
+                }
+
+                return false; // 아무 항목도 선택되지 않았을 경우
+            }
+        });
     }
 
     private final Runnable runnable = new Runnable() {
@@ -64,7 +95,6 @@ public class WaitingActivity extends AppCompatActivity {
         }
 
         // Firebase에서 현재 일시에 해당하는 대기번호 가져오기
-        //이 부분을 고쳐야한다.
         mDatabase.child("orders")
                 .child("2024")
                 .child("3")
@@ -77,7 +107,6 @@ public class WaitingActivity extends AppCompatActivity {
                         if (dataSnapshot.exists()) {
                             for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                                 String waitingNumber = snapshot.child("waitnumber").getValue(String.class);
-                                // EditText에 대기 번호 설정
                                 editWaitingNumber.setText(waitingNumber);
                                 break; // 첫 번째 일치하는 항목만 사용
                             }

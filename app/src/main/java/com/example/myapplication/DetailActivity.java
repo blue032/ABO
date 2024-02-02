@@ -9,9 +9,14 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,6 +73,35 @@ public class DetailActivity extends AppCompatActivity {
                     // 댓글이 비어 있지 않으면 추가하는 로직을 구현
                     addComment(commentText);
                 }
+            }
+        });
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int itemId = item.getItemId();
+
+                if (itemId == R.id.action_home) {
+                    Intent intent = new Intent(DetailActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    return true;
+                } else if (itemId == R.id.action_board) {
+                    // 게시판 아이템이 선택되었을 때의 동작
+                    Intent intent = new Intent(DetailActivity.this, BoardActivity.class);
+                    startActivity(intent);
+                    return true;
+                } else if (itemId == R.id.action_notification) {
+                    // 알림 아이템이 선택되었을 때의 동작
+                    return true;
+                } else if (itemId == R.id.action_mypage) {
+                    // 메뉴 페이지 아이템이 선택되었을 때의 동작
+                    Intent intent = new Intent(DetailActivity.this, MypageActivity.class);
+                    startActivity(intent);
+                    return true;
+                }
+
+                return false; // 아무 항목도 선택되지 않았을 경우
             }
         });
     }
