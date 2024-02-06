@@ -167,6 +167,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" /> <!-- 빈 좌석 이미지 -->
 
+    <Button
+        android:id="@+id/button_bluetooth"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="블루투스 기기"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation_view"
+        android:layout_marginBottom="16dp"
+        android:background="@android:drawable/btn_default" />
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation_view"
         android:layout_width="match_parent"

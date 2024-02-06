@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/txtState"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="34dp"
+        android:gravity="center_horizontal"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <Button
+        android:id="@+id/btnSearch"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="검색"
+        android:textSize="34dp"
+        android:onClick="mOnBluetoothSearch"
+        app:layout_constraintTop_toBottomOf="@id/txtState"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="다른 블루투스 기기에서 내 휴대폰을 찾을 수 있도록 합니다."
+        android:textSize="15sp"
+        app:layout_constraintTop_toBottomOf="@id/btnSearch"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <CheckBox
+        android:id="@+id/chkFindme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="mOnChkFindme"
+        app:layout_constraintTop_toBottomOf="@id/btnSearch"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="8dp"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="페어링된 목록"
+        app:layout_constraintTop_toBottomOf="@id/chkFindme"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <ListView
+        android:id="@+id/listPaired"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/chkFindme"
+        app:layout_constraintBottom_toTopOf="@id/listDevice"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintVertical_weight="1"/>
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="검색된 목록"
+        app:layout_constraintTop_toBottomOf="@id/listPaired"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
+
+    <ListView
+        android:id="@+id/listDevice"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/listPaired"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintVertical_weight="1"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
