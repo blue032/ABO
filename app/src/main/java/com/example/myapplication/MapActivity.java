@@ -181,6 +181,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private void updateCongestionStatus() {
         SharedPreferences sharedPreferences = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
         String status = sharedPreferences.getString("CongestionStatus", "icon_green"); // 기본값: icon_green
+        String openStatus = sharedPreferences.getString("CafeOpenStatus", "open"); // 영업 상태 기본값: open
+
 
         BitmapDescriptor iconDescriptor;
         switch(status) {
