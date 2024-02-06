@@ -3,6 +3,8 @@ package com.example.myapplication;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 
 import androidx.annotation.NonNull;
@@ -23,7 +25,19 @@ public class SeatActivity extends AppCompatActivity {
         // EditText에 카페 이름 설정
         EditText editTextCafeName = findViewById(R.id.editcafename);
         editTextCafeName.setText(cafeName);
+        Button bluetoothButton = findViewById(R.id.button_bluetooth);
 
+        // 버튼에 클릭 리스너를 설정합니다.
+        bluetoothButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // BluetoothDeviceActivity로 전환하는 인텐트를 생성합니다.
+                Intent intent = new Intent(SeatActivity.this, BluetoothDeviceActivity.class);
+
+                // 인텐트를 시작합니다.
+                startActivity(intent);
+            }
+        });
         // BottomNavigationView 설정
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
