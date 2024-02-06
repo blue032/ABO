@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.EditText;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class SeatActivity extends AppCompatActivity {
@@ -51,6 +53,7 @@ public class SeatActivity extends AppCompatActivity {
                 return false; // 아무 항목도 선택되지 않았을 경우
             }
         });
+
     }
 }
 
