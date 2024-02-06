@@ -3,6 +3,7 @@ package com.example.myapplication;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,6 +11,8 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.widget.ImageView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +25,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -34,14 +38,30 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private GoogleMap gMap;
     private static final String MAP_VIEW_BUNDLE_KEY = "MapViewBundleKey";
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private Marker cafeMarker;
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
-
         mapView = findViewById(R.id.map);
         initGoogleMap(savedInstanceState);
+
+        sharedPreferences = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
+
+        // 리스너 초기화
+        // 리스너 초기화 및 등록
+        preferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+                if ("CongestionStatus".equals(key)) {
+                    updateCongestionStatus(); // 값이 변경될 때마다 UI 업데이트
+                }
+            }
+        };
+        sharedPreferences.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
@@ -82,7 +102,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         List<LatLng> locations = Arrays.asList(
                 new LatLng(37.37500867159571, 126.63387174042461),
                 new LatLng(37.37591543320427, 126.63281734018747),
-                new LatLng(37.37452483159567, 126.6332926552895),
                 new LatLng(37.372401288059535, 126.6313160023207),
                 new LatLng(37.37340586676641, 126.62985469283342),
                 new LatLng(37.37439777449398, 126.63154896625312)
@@ -93,6 +112,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         for (LatLng location : locations) {
             gMap.addMarker(new MarkerOptions().position(location).icon(icon));
         }
+        LatLng cafeLocation = new LatLng(37.37452483159567, 126.6332926552895); //0.0카페 위치
+        cafeMarker = googleMap.addMarker(new MarkerOptions().position(cafeLocation).icon(icon));
+
+        updateCongestionStatus();
     }
 
     private BitmapDescriptor resizeMapIcons(String iconName, int width, int height){
@@ -148,10 +171,44 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     @Override
-    protected void onResume() {
+    protected void onResume() { //액티비티가 사용자에게 보여질 때마다 호출
         super.onResume();
         mapView.onResume();
+        //혼잡도 정보 기반 아이콘 업뎃
+        updateCongestionStatus();
     }
+
+    private void updateCongestionStatus() {
+        SharedPreferences sharedPreferences = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
+        String status = sharedPreferences.getString("CongestionStatus", "icon_green"); // 기본값: icon_green
+        String openStatus = sharedPreferences.getString("CafeOpenStatus", "open"); // 영업 상태 기본값: open
+
+
+        BitmapDescriptor iconDescriptor;
+        switch(status) {
+            case "icon_green":
+                iconDescriptor = resizeMapIcons("location_green", 100, 100);
+                break;
+            case "icon_blue":
+                iconDescriptor = resizeMapIcons("location_blue", 100, 100);
+                break;
+            case "icon_red":
+                iconDescriptor = resizeMapIcons("location_red", 100, 100);
+                break;
+            default:
+                iconDescriptor = BitmapDescriptorFactory.defaultMarker(); // 기본 마커 아이콘
+                break;
+        }
+
+        if (cafeMarker != null) {
+            cafeMarker.setIcon(iconDescriptor);
+        }
+
+        ImageView imageView10 = findViewById(R.id.imageView10);
+        int drawableId = getResources().getIdentifier(status, "drawable", getPackageName());
+        imageView10.setImageResource(drawableId);
+    }
+
 
     @Override
     protected void onStart() {
@@ -175,8 +232,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     protected void onDestroy() {
         mapView.onDestroy();
         super.onDestroy();
+        if (sharedPreferences != null) {
+            sharedPreferences.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener);
+        }
     }
-
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);

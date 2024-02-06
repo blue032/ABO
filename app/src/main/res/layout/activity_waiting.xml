@@ -21,7 +21,7 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <EditText
-        android:id="@+id/editwaitingNumber"
+        android:id="@+id/tv_waitingNumber"
         android:layout_width="169dp"
         android:layout_height="58dp"
         android:ems="10"
