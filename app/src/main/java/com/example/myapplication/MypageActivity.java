@@ -5,7 +5,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -82,7 +81,7 @@ public class MypageActivity extends AppCompatActivity {
         }
 
         // 학교 홈페이지로 이동하는 버튼
-        Button btnSchoolPage = findViewById(R.id.btnSchoolPage);
+        TextView btnSchoolPage = findViewById(R.id.btn_university);
         btnSchoolPage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -122,7 +121,7 @@ public class MypageActivity extends AppCompatActivity {
         });
 
         // 로그아웃 버튼
-        Button btnLogout = findViewById(R.id.btnLogout);
+        TextView btnLogout = findViewById(R.id.btn_logout);
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -135,7 +134,7 @@ public class MypageActivity extends AppCompatActivity {
         });
 
         // 비밀번호 재설정 페이지로 이동하는 버튼
-        Button btnResetPassword = findViewById(R.id.btnResetPassword);
+        TextView btnResetPassword = findViewById(R.id.btn_reset_password);
         btnResetPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -145,3 +144,4 @@ public class MypageActivity extends AppCompatActivity {
         });
     }
 }
+
