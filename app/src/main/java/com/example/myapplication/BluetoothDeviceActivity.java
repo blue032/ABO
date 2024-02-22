@@ -56,6 +56,9 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
 
         showPairedDevices();
         checkBluetoothState();
+        // 페어링된 기기 목록을 설정합니다.
+        setupPairedDevicesListView();
+
         listAvailableDevices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -246,5 +249,28 @@ public class BluetoothDeviceActivity extends AppCompatActivity {
         }
         pairedDevicesAdapter.notifyDataSetChanged();
     }
+    private void setupPairedDevicesListView() {
+        listPairedDevices.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String info = (String) parent.getItemAtPosition(position);
+                String address = info.substring(info.lastIndexOf("(") + 1, info.length() - 1);
+                BluetoothDevice device = bluetoothAdapter.getRemoteDevice(address);
+                unpairDevice(device);
+            }
+        });
+    }
 
+    private void unpairDevice(BluetoothDevice device) {
+        try {
+            Method method = device.getClass().getMethod("removeBond", (Class[]) null);
+            method.invoke(device, (Object[]) null);
+
+            // After unpairing, update the paired devices list
+            showPairedDevices();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "페어링 해제 실패: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
 }
