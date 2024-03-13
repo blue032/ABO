@@ -3,6 +3,10 @@ package com.example.myapplication;
 public class Comment {
     private String content;
 
+    //기본생성자
+    public Comment() {
+    }
+
     public Comment(String content) {
         this.content = content;
     }
