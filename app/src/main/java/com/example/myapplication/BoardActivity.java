@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,6 +33,7 @@ public class BoardActivity extends AppCompatActivity {
     private ArrayList<BoardPost> postList;
     private DatabaseReference databaseReference;
     private TextView tvEmptyView;
+    private ArrayList<String> keyList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,7 @@ public class BoardActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerViewPosts);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         postList = new ArrayList<>();
+        keyList = new ArrayList<>();
         adapter = new BoardPostAdapter(postList);
         recyclerView.setAdapter(adapter);
 
@@ -61,7 +64,12 @@ public class BoardActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 postList.clear();
+                keyList.clear();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Log.e("BoardActivity","snapshot = " + snapshot.getValue(BoardPost.class).getContent());
+                    //자식키값들을 저장
+                    keyList.add(snapshot.getKey());
+
                     BoardPost post = snapshot.getValue(BoardPost.class);
                     if (post != null) {
                         postList.add(post);
@@ -150,6 +158,7 @@ public class BoardActivity extends AppCompatActivity {
                     intent.putExtra("title", post.getTitle());
                     intent.putExtra("content", post.getContent());
                     intent.putExtra("timestamp", post.getTimestamp());
+                    intent.putExtra("key", keyList.get(position));
                     startActivity(intent);
                 }
             });
