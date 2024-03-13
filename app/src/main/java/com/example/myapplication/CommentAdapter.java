@@ -68,6 +68,10 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     }
 
     private void showPopupMenu(View view,final int position,String content) {
+
+        Log.e("showPopupMenu" , " commentList size = " + commentList.size());
+        Log.e("showPopupMenu" , " keyList size = " + keyList.size());
+        Log.e("showPopupMenu" , "position = " + position);
         // 팝업 메뉴 생성 및 옵션 추가
         PopupMenu popup = new PopupMenu(view.getContext(), view);
         popup.inflate(R.menu.comment_menu); // 메뉴 리소스 파일
@@ -90,15 +94,11 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     }
 
     private void deleteComment(int position) {
-        //Log.e("CommentAdapter","deleteComment = " + databaseReference.child().get);
         // 댓글 삭제 로직
         databaseReference.child("Comment").child(keyList.get(position)).removeValue().addOnCompleteListener(task -> {
             if (task.isSuccessful()){
 
                 Toast.makeText(context,"삭제를 성공했습니다!",Toast.LENGTH_SHORT).show();
-
-                keyList.remove(position);
-                commentList.remove(position);
 
             }else {
                 Toast.makeText(context,"삭제를 실패했습니다!",Toast.LENGTH_SHORT).show();
@@ -135,16 +135,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
                         });
                         break;
                     case 1: // Delete 버튼 클릭
-                        databaseReference.child("Comment").child(keyList.get(position)).removeValue().addOnCompleteListener(task -> {
-                            if (task.isSuccessful()){
-                                Toast.makeText(context,"삭제를 성공했습니다!",Toast.LENGTH_SHORT).show();
-                                dialog.dismiss();
-                                keyList.remove(position);
-                                commentList.remove(position);
-                            }else {
-                                Toast.makeText(context,"삭제를 실패했습니다!",Toast.LENGTH_SHORT).show();
-                            }
-                        });
+                        deleteComment(position);
                         break;
                     case 2: // Cancel 버튼 클릭
                         // 아무 작업도 수행하지 않음
