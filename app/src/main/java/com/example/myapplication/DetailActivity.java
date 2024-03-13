@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,6 +17,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +30,12 @@ public class DetailActivity extends AppCompatActivity {
 
     private EditText etComment; // 댓글 입력 필드 추가
     private List<Comment> commentList; // 댓글 목록을 관리하는 리스트
+    private ArrayList<String> keyList; // 댓글 목록키 관리 리스트
     private CommentAdapter commentAdapter; // 댓글 어댑터
+
+    private String key;
+
+    private DatabaseReference databaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +45,7 @@ public class DetailActivity extends AppCompatActivity {
         // 인텐트에서 데이터 가져오기
         String title = getIntent().getStringExtra("title");
         String content = getIntent().getStringExtra("content");
-
+        key = getIntent().getStringExtra("key");
         // 가져온 데이터로 뷰를 설정
         TextView tvTitle = findViewById(R.id.tvTitle);
         TextView tvContent = findViewById(R.id.tvContent);
@@ -42,6 +53,28 @@ public class DetailActivity extends AppCompatActivity {
 
         tvTitle.setText(title);
         tvContent.setText(content);
+
+        databaseReference = FirebaseDatabase.getInstance().getReference("Board").child(key);
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                keyList.clear();
+                commentList.clear();
+                for (DataSnapshot comment : snapshot.child("Comment").getChildren()){
+
+                    keyList.add(comment.getKey());
+
+                    commentList.add(comment.getValue(Comment.class));
+
+                    commentAdapter.notifyDataSetChanged();
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
 
         // 더보기 아이콘 클릭 이벤트 설정
         iconMore.setOnClickListener(new View.OnClickListener() {
@@ -56,7 +89,8 @@ public class DetailActivity extends AppCompatActivity {
 
         // 댓글 목록 초기화
         commentList = new ArrayList<>();
-        commentAdapter = new CommentAdapter(commentList);
+        keyList = new ArrayList<>();
+        commentAdapter = new CommentAdapter(databaseReference,commentList,keyList,this);
 
         // RecyclerView 설정
         RecyclerView recyclerView = findViewById(R.id.recyclerViewComments);
@@ -142,8 +176,9 @@ public class DetailActivity extends AppCompatActivity {
         // 댓글 추가 로직
         // 예: 댓글을 데이터베이스에 추가하고 화면에 표시
         Comment comment = new Comment(commentText);
-        commentList.add(comment);
-        commentAdapter.notifyDataSetChanged();
+
+        databaseReference.child("Comment").push().setValue(comment);
+
         etComment.getText().clear(); // 댓글 입력 필드 초기화
     }
 }
