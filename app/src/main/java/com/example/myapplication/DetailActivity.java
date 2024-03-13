@@ -12,11 +12,13 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -60,14 +62,14 @@ public class DetailActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 keyList.clear();
                 commentList.clear();
+                Log.e("onDataChange", "onDataChange");
                 for (DataSnapshot comment : snapshot.child("Comment").getChildren()){
-
+                    Log.e("onDataChange", "comment = " + comment.getValue(Comment.class).getContent());
                     keyList.add(comment.getKey());
 
                     commentList.add(comment.getValue(Comment.class));
-
-                    commentAdapter.notifyDataSetChanged();
                 }
+                commentAdapter.notifyDataSetChanged();
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
