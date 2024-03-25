@@ -4,17 +4,19 @@ import java.util.Locale;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-
 public class CeoBoardPost {
     private String title;
     private String content;
     private long timestamp;
+    private String postId;
+    private String photoUrl;
 
     // Constructor with title, content, and timestamp
-    public CeoBoardPost(String title, String content, long timestamp) {
+    public CeoBoardPost(String title, String content, long timestamp, String photoUrl) {
         this.title = title;
         this.content = content;
         this.timestamp = timestamp; // Set the timestamp
+        this.photoUrl = photoUrl;
     }
 
     // Firebase가 기본 생성자를 요구하므로, 매개변수 없는 생성자도 추가
@@ -43,5 +45,18 @@ public class CeoBoardPost {
     public String getFormattedDate() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd", Locale.getDefault());
         return sdf.format(new Date(timestamp));
+    }
+    public void setPostId(String postId){
+        this.postId = postId;
+    }
+    public String getPostId(){
+        return postId;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 }

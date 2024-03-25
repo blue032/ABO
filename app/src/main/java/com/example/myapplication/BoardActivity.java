@@ -64,6 +64,7 @@ public class BoardActivity extends AppCompatActivity {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     BoardPost post = snapshot.getValue(BoardPost.class);
                     if (post != null) {
+                        post.setPostId(snapshot.getKey()); //게시물 객체에 ID설정
                         postList.add(post);
                     }
                 }
@@ -150,6 +151,7 @@ public class BoardActivity extends AppCompatActivity {
                     intent.putExtra("title", post.getTitle());
                     intent.putExtra("content", post.getContent());
                     intent.putExtra("timestamp", post.getTimestamp());
+                    intent.putExtra("postId", post.getPostId()); // 게시글 ID를 인텐트에 추가
                     startActivity(intent);
                 }
             });

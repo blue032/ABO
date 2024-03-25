@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -9,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -35,11 +38,12 @@ public class CeoBoardActivity extends AppCompatActivity {
     private ArrayList<CeoBoardPost> postList;
     private DatabaseReference databaseReference;
     private TextView tvEmptyView;
+    private ActivityResultLauncher<Intent> myActivityResultLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_board);
+        setContentView(R.layout.activity_ceoboard);
 
         FloatingActionButton fabAddManagerPost = findViewById(R.id.fabAddPost);
         tvEmptyView = findViewById(R.id.tvEmptyView);
@@ -76,6 +80,7 @@ public class CeoBoardActivity extends AppCompatActivity {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     CeoBoardPost post = snapshot.getValue(CeoBoardPost.class);
                     if (post != null) {
+                        post.setPostId(snapshot.getKey());
                         postList.add(post);
                     }
                 }
@@ -120,10 +125,21 @@ public class CeoBoardActivity extends AppCompatActivity {
                     startActivity(intent);
                     return true;
                 }
-
                 return false; // 아무 항목도 선택되지 않았을 경우
             }
         });
+
+        //ceowriteboardactivity에서 사진 받기 위해 사용
+        myActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        String photoUriString = result.getData().getStringExtra("photoUri");
+                        Uri photoUri = Uri.parse(photoUriString);
+                        uploadedPhoto.setImageURI(photoUri); // 'uploadedphoto'는 이미지를 표시할 ImageView
+                    }
+                }
+        );
     }
 
     private void checkForEmptyList() {
@@ -140,14 +156,17 @@ public class CeoBoardActivity extends AppCompatActivity {
         private String title;
         private String content;
         private long timestamp;
+        private String postId;
+        private String photoUrl;
 
         public CeoBoardPost() {
         }
 
-        public CeoBoardPost(String title, String content, long timestamp) {
+        public CeoBoardPost(String title, String content, long timestamp, String photoUrl) {
             this.title = title;
             this.content = content;
             this.timestamp = timestamp;
+            this.photoUrl = photoUrl;
         }
 
         public String getTitle() {
@@ -178,6 +197,18 @@ public class CeoBoardActivity extends AppCompatActivity {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
             return sdf.format(new Date(timestamp));
         }
+        public String getPostId(){
+            return postId;
+        }
+        public void setPostId(String postId){
+            this.postId = postId;
+        }
+        public String getPhotoUrl() {
+            return photoUrl;
+        }
+        public void setPhotoUrl(String photoUrl) {
+            this.photoUrl = photoUrl;
+        }
     }
 
     private class BoardPostAdapter extends RecyclerView.Adapter<CeoBoardActivity.BoardPostAdapter.BoardPostViewHolder> {
@@ -200,13 +231,20 @@ public class CeoBoardActivity extends AppCompatActivity {
             holder.textViewTitle.setText(post.getTitle());
             holder.textViewDate.setText(post.getFormattedDate());
 
+            //클릭 리스너 설정
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(CeoBoardActivity.this, DetailActivity.class);
+                    //수정하려는 게시글의 정보를 인텐트에 담음
+                    Intent intent = new Intent(CeoBoardActivity.this, CeoDetailActivity.class);
+                    intent.putExtra("postId", post.getPostId()); // 게시글 ID를 인텐트에 추가
                     intent.putExtra("title", post.getTitle());
                     intent.putExtra("content", post.getContent());
                     intent.putExtra("timestamp", post.getTimestamp());
+
+                    if (post.getPhotoUrl() != null && !post.getPhotoUrl().isEmpty()) {
+                        intent.putExtra("photoUrl", post.getPhotoUrl());
+                    }
                     startActivity(intent);
                 }
             });

@@ -7,7 +7,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <!-- 블루투스 권한 추가 -->
     <uses-permission android:name="android.permission.BLUETOOTH"  android:maxSdkVersion="33" />
@@ -22,6 +21,7 @@
     <!--라이브러리 권한-->
     <uses-permission android:name="android.permission.READ_CALENDAR"/>
     <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <!-- 카메라 하드웨어 기능 사용을 명시. 필수적이지 않음을 나타내기 위해 required="false"로 설정 -->
     <uses-feature android:name="android.hardware.camera" android:required="false" />
@@ -37,6 +37,15 @@
         android:theme="@style/Theme.MyApplication"
         tools:targetApi="31">
 
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
         <!-- SplashActivity 추가 -->
         <activity android:name=".SplashActivity"
@@ -116,6 +125,9 @@
         </activity>
 
         <activity android:name=".CeoWriteBoardActivity">
+        </activity>
+
+        <activity android:name=".CeoDetailActivity">
         </activity>
 
         <activity android:name=".BluetoothDeviceActivity">

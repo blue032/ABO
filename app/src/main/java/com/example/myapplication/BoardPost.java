@@ -10,6 +10,7 @@ public class BoardPost {
     private String content;
     private long timestamp;
     private String userName;
+    private String postId;
 
     // Constructor with title, content, and timestamp
     public BoardPost(String title, String content, long timestamp, String userName) {
@@ -54,5 +55,12 @@ public class BoardPost {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public void setPostId(String postId){
+        this.postId = postId;
+    }
+    public String getPostId(){
+        return postId;
     }
 }

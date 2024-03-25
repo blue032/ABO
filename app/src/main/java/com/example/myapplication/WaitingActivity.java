@@ -35,7 +35,7 @@ public class WaitingActivity extends AppCompatActivity {
     private Runnable runnable;
     private ArrayList<Orders> ordersList = new ArrayList<>();
     private TextView tv_waitingNumber;
-    private TextView textViewSuffix;
+    private TextView textViewSuffix; //~번입니다
     private int totalCount = 0; //전체 대기 수
 
     @Override
