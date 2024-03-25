@@ -189,6 +189,7 @@ public class WaitingActivity extends AppCompatActivity {
         String closeText = "영업종료";
         tv_waitingNumber.setText(closeText);
         textViewSuffix.setVisibility(View.GONE);
+        saveTotalCount(0); // 영업 종료 시 혼잡도 상태를 녹색으로
     }
 
     public void addOrder(Orders newOrder){
@@ -218,7 +219,7 @@ public class WaitingActivity extends AppCompatActivity {
         }
         SharedPreferences sharedPreferences = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("CongestionStatus", status);
+        editor.putString("CongestionStatus", "icon_green");
         editor.apply();
     }
     @Override
