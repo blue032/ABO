@@ -136,7 +136,7 @@ public class CeoBoardActivity extends AppCompatActivity {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                         String photoUriString = result.getData().getStringExtra("photoUri");
                         Uri photoUri = Uri.parse(photoUriString);
-                        uploadedPhoto.setImageURI(photoUri); // 'uploadedphoto'는 이미지를 표시할 ImageView
+                        //uploadedPhoto.setImageURI(photoUri); // 'uploadedphoto'는 이미지를 표시할 ImageView
                     }
                 }
         );

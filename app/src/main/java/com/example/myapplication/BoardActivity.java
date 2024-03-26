@@ -7,14 +7,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -41,12 +42,9 @@ public class BoardActivity extends AppCompatActivity {
         FloatingActionButton fabAddManagerPost = findViewById(R.id.fabAddPost);
         tvEmptyView = findViewById(R.id.tvEmptyView);
 
-        fabAddManagerPost.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(BoardActivity.this, WriteBoardActivity.class);
-                startActivity(intent);
-            }
+        fabAddManagerPost.setOnClickListener(view -> {
+            Intent intent = new Intent(BoardActivity.this, WriteBoardActivity.class);
+            startActivity(intent);
         });
 
         recyclerView = findViewById(R.id.recyclerViewPosts);
@@ -64,52 +62,45 @@ public class BoardActivity extends AppCompatActivity {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     BoardPost post = snapshot.getValue(BoardPost.class);
                     if (post != null) {
-                        post.setPostId(snapshot.getKey()); //게시물 객체에 ID설정
+                        post.setPostId(snapshot.getKey()); // 게시물 객체에 ID 설정
                         postList.add(post);
                     }
                 }
-                Collections.sort(postList, new Comparator<BoardPost>() {
-                    @Override
-                    public int compare(BoardPost o1, BoardPost o2) {
-                        return Long.compare(o2.getTimestamp(), o1.getTimestamp());
-                    }
-                });
+                Collections.sort(postList, (o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
                 checkForEmptyList();
                 adapter.notifyDataSetChanged();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(BoardActivity.this, "Failed to load posts: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
 
         // BottomNavigationView 설정
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int itemId = item.getItemId();
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            int itemId = item.getItemId();
 
-                if (itemId == R.id.action_home) {
-                    Intent intent = new Intent(BoardActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    return true;
-                } else if (itemId == R.id.action_board) {
-                    // 게시판 아이템이 선택되었을 때의 동작 (현재 화면이 이미 BoardActivity이므로 아무 동작이 필요 없음)
-                    return true;
-                } else if (itemId == R.id.action_notification) {
-                    // 알림 아이템이 선택되었을 때의 동작
-                    // 원하는 동작을 여기에 추가
-                    return true;
-                } else if (itemId == R.id.action_mypage) {
-                    // 메뉴 페이지 아이템이 선택되었을 때의 동작
-                    Intent intent = new Intent(BoardActivity.this, MypageActivity.class);
-                    startActivity(intent);
-                    return true;
-                }
-
-                return false; // 아무 항목도 선택되지 않았을 경우
+            if (itemId == R.id.action_home) {
+                Intent intent = new Intent(BoardActivity.this, MainActivity.class);
+                startActivity(intent);
+                return true;
+            } else if (itemId == R.id.action_board) {
+                // 게시판 아이템이 선택되었을 때의 동작 (현재 화면이 이미 BoardActivity이므로 아무 동작이 필요 없음)
+                return true;
+            } else if (itemId == R.id.action_notification) {
+                // 알림 아이템이 선택되었을 때의 동작
+                // 원하는 동작을 여기에 추가
+                return true;
+            } else if (itemId == R.id.action_mypage) {
+                // 메뉴 페이지 아이템이 선택되었을 때의 동작
+                Intent intent = new Intent(BoardActivity.this, MypageActivity.class);
+                startActivity(intent);
+                return true;
             }
+
+            return false; // 아무 항목도 선택되지 않았을 경우
         });
     }
 
@@ -123,7 +114,7 @@ public class BoardActivity extends AppCompatActivity {
         }
     }
 
-    private class BoardPostAdapter extends RecyclerView.Adapter<BoardPostAdapter.BoardPostViewHolder> {
+    private static class BoardPostAdapter extends RecyclerView.Adapter<BoardPostAdapter.BoardPostViewHolder> {
         private final ArrayList<BoardPost> postList;
 
         public BoardPostAdapter(ArrayList<BoardPost> postList) {
@@ -144,16 +135,13 @@ public class BoardActivity extends AppCompatActivity {
             holder.textViewDate.setText(formattedDateWithUserName);
             holder.textViewTitle.setText(post.getTitle());
 
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(BoardActivity.this, DetailActivity.class);
-                    intent.putExtra("title", post.getTitle());
-                    intent.putExtra("content", post.getContent());
-                    intent.putExtra("timestamp", post.getTimestamp());
-                    intent.putExtra("postId", post.getPostId()); // 게시글 ID를 인텐트에 추가
-                    startActivity(intent);
-                }
+            holder.itemView.setOnClickListener(v -> {
+                Intent intent = new Intent(v.getContext(), DetailActivity.class);
+                intent.putExtra("title", post.getTitle());
+                intent.putExtra("content", post.getContent());
+                intent.putExtra("timestamp", post.getTimestamp());
+                intent.putExtra("postId", post.getPostId()); // 게시글 ID를 인텐트에 추가
+                v.getContext().startActivity(intent);
             });
         }
 
@@ -162,7 +150,7 @@ public class BoardActivity extends AppCompatActivity {
             return postList.size();
         }
 
-        class BoardPostViewHolder extends RecyclerView.ViewHolder {
+        static class BoardPostViewHolder extends RecyclerView.ViewHolder {
             TextView textViewTitle, textViewDate;
 
             public BoardPostViewHolder(@NonNull View itemView) {

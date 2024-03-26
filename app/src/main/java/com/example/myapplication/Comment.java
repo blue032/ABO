@@ -16,7 +16,7 @@ public class Comment {
     }
 
     // 필요한 경우 setter 메서드를 추가할 수 있습니다.
-    // public void setContent(String content) {
-    //     this.content = content;
-    // }
+    public void setContent(String content) {
+        this.content = content;
+    }
 }
