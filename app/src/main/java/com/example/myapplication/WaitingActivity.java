@@ -231,3 +231,4 @@ public class WaitingActivity extends AppCompatActivity {
         handler.removeCallbacks(runnable);
     }
 }
+//충돌 없음
