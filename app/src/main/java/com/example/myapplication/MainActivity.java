@@ -41,94 +41,59 @@ public class MainActivity extends AppCompatActivity {
         Button btnWaiting = findViewById(R.id.btn_waiting);
         Button btnMap = findViewById(R.id.mapcheckbutton);
 
-        btnEmpty.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, CafelistActivity.class);
-                intent.putExtra("viewType", "emptySeats");
-                startActivity(intent);
-            }
-        });
-
-        btnWaiting.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, CafelistActivity.class);
-                intent.putExtra("viewType", "waitingList");
-                startActivity(intent);
-            }
-        });
-
-        btnMap.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, MapActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        TextView tvCafeOO = findViewById(R.id.abo2);
-
-        tvCafeOO.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // O.O카페 TextView가 클릭되었을 때 수행할 동작
-                Intent intent = new Intent(MainActivity.this, DetailpageActivity.class);
-                // 필요한 경우 intent에 추가 데이터를 넣습니다.
-                startActivity(intent);
-            }
-        });
-
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int itemId = item.getItemId();
-
-                if (itemId == R.id.action_home) {
-                    Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    return true;
-                } else if (itemId == R.id.action_board) {
-                    // 게시판 아이템이 선택되었을 때의 동작
-                    Intent intent = new Intent(MainActivity.this, BoardActivity.class);
-                    startActivity(intent);
-                    return true;
-                } else if (itemId == R.id.action_notification) {
-                    // 알림 아이템이 선택되었을 때의 동작
-                    return true;
-                } else if (itemId == R.id.action_mypage) {
-                    // 메뉴 페이지 아이템이 선택되었을 때의 동작
-                    Intent intent = new Intent(MainActivity.this, MypageActivity.class);
-                    startActivity(intent);
-                    return true;
-                }
-
-                return false; // 아무 항목도 선택되지 않았을 경우
-
-            }
-        });
-
         TextView tvNotice = findViewById(R.id.notice);
         tvNotice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // NoticeActivity로 이동하는 인텐트를 생성합니다.
+                // CeoBoardActivity로 이동하는 인텐트 생성 및 시작
                 Intent intent = new Intent(MainActivity.this, CeoBoardActivity.class);
                 startActivity(intent);
             }
         });
 
+        btnEmpty.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, CafelistActivity.class);
+            intent.putExtra("viewType", "emptySeats");
+            startActivity(intent);
+        });
+
+        btnWaiting.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, CafelistActivity.class);
+            intent.putExtra("viewType", "waitingList");
+            startActivity(intent);
+        });
+
+        btnMap.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, MapActivity.class);
+            startActivity(intent);
+        });
+
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+            if (itemId == R.id.action_home) {
+                startActivity(new Intent(MainActivity.this, MainActivity.class));
+                return true;
+            } else if (itemId == R.id.action_board) {
+                startActivity(new Intent(MainActivity.this, BoardActivity.class));
+                return true;
+            } else if (itemId == R.id.action_notification) {
+                return true;
+            } else if (itemId == R.id.action_mypage) {
+                startActivity(new Intent(MainActivity.this, MypageActivity.class));
+                return true;
+            }
+            return false;
+        });
+
         LinearLayout ceoBoardPostContainer = findViewById(R.id.ceoBoardPostContainer);
         DatabaseReference ceoBoardRef = FirebaseDatabase.getInstance().getReference("ceoBoard");
-        Button btnCeoBoard = findViewById(R.id.btnCeoBoard);
-        btnCeoBoard.setVisibility(View.GONE);
 
         ceoBoardRef.orderByChild("timestamp").limitToLast(5).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 ArrayList<CeoBoardPost> tempList = new ArrayList<>();
-                ceoBoardPostContainer.removeAllViews(); // 이전에 추가된 뷰들을 제거합니다.
+                ceoBoardPostContainer.removeAllViews();
 
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     CeoBoardPost post = postSnapshot.getValue(CeoBoardPost.class);
@@ -137,59 +102,43 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                // tempList를 timestamp의 내림차순으로 정렬합니다.
-                Collections.sort(tempList, new Comparator<CeoBoardPost>() {
-                    @Override
-                    public int compare(CeoBoardPost o1, CeoBoardPost o2) {
-                        return Long.compare(o2.getTimestamp(), o1.getTimestamp());
-                    }
-                });
+                Collections.sort(tempList, Comparator.comparingLong(CeoBoardPost::getTimestamp).reversed());
 
                 for (CeoBoardPost post : tempList) {
-                    // 각 게시물에 대한 LinearLayout 생성
                     LinearLayout linearLayout = new LinearLayout(MainActivity.this);
                     linearLayout.setLayoutParams(new LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.MATCH_PARENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT));
                     linearLayout.setOrientation(LinearLayout.HORIZONTAL);
 
-                    // 제목을 위한 TextView 생성
                     TextView titleView = new TextView(MainActivity.this);
                     titleView.setText(post.getTitle());
                     titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
                     titleView.setTextColor(Color.BLACK);
                     titleView.setLayoutParams(new LinearLayout.LayoutParams(
                             0,
-                            LinearLayout.LayoutParams.WRAP_CONTENT, 1f)); // 가중치 1
+                            LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
-                    // 날짜를 위한 TextView 생성
                     TextView dateView = new TextView(MainActivity.this);
                     dateView.setText(post.getFormattedDate());
-                    dateView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14); // 작은 글자 크기
+                    dateView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
                     dateView.setTextColor(Color.BLACK);
                     dateView.setLayoutParams(new LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.WRAP_CONTENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT));
                     dateView.setGravity(Gravity.RIGHT);
 
-                    // LinearLayout에 제목과 날짜 TextView 추가
                     linearLayout.addView(titleView);
                     linearLayout.addView(dateView);
 
-                    // 클릭 리스너 추가
-                    linearLayout.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            // 인텐트 생성 및 시작
-                            Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-                            intent.putExtra("title", post.getTitle());
-                            intent.putExtra("content", post.getContent());
-                            intent.putExtra("timestamp", post.getTimestamp());
-                            startActivity(intent);
-                        }
+                    linearLayout.setOnClickListener(v -> {
+                        Intent intent = new Intent(MainActivity.this, CeoDetailActivity.class);
+                        intent.putExtra("postId", post.getPostId());
+                        intent.putExtra("title", post.getTitle());
+                        intent.putExtra("content", post.getContent());
+                        startActivity(intent);
                     });
 
-                    // 부모 뷰에 LinearLayout 추가
                     ceoBoardPostContainer.addView(linearLayout);
                 }
             }
@@ -230,4 +179,3 @@ public class MainActivity extends AppCompatActivity {
                 .check();
     }
 }
-
