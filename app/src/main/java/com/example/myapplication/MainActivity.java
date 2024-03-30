@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.Gravity;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -42,6 +41,18 @@ public class MainActivity extends AppCompatActivity {
         Button btnMap = findViewById(R.id.mapcheckbutton);
 
         TextView tvNotice = findViewById(R.id.notice);
+
+        TextView tvCafeOO = findViewById(R.id.abo2);
+        tvCafeOO.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // O.O카페 TextView가 클릭되었을 때 수행할 동작
+                Intent intent = new Intent(MainActivity.this, DetailpageActivity.class);
+                // 필요한 경우 intent에 추가 데이터를 넣습니다.
+                startActivity(intent);
+            }
+        });
+
         tvNotice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
