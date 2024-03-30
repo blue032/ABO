@@ -14,15 +14,25 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.core.Camera;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.Preview;
+import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.common.util.concurrent.ListenableFuture;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -31,10 +41,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.core.content.FileProvider;
+import java.util.concurrent.ExecutionException;
 
 public class CeoWriteBoardActivity extends AppCompatActivity {
 
@@ -43,77 +50,65 @@ public class CeoWriteBoardActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     private String postId;
     private boolean isEditing;
-    private String currentPhotoPath; //이미지 파일 경로를 저장할 변수
+    private String currentPhotoPath;
     private ActivityResultLauncher<Intent> cameraActivityResultLauncher;
     private ActivityResultLauncher<Intent> galleryActivityResultLauncher;
     private ImageView uploadedPhoto;
-    private Uri imageUri; //이미지 url 저장
+    private Uri imageUri;
+    private PreviewView previewView;
+    private static final int REQUEST_CODE_PERMISSIONS = 10;
+    private static final String[] REQUIRED_PERMISSIONS = new String[]{"android.permission.CAMERA", "android.permission.WRITE_EXTERNAL_STORAGE"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ceowriteboard); // 이 layout은 적절히 수정해야 할 수도 있습니다.
+        setContentView(R.layout.activity_ceowriteboard);
 
-        editTextTitle = findViewById(R.id.editTextPostTitle); // layout의 id와 일치해야 합니다.
-        editTextContent = findViewById(R.id.editTextPostContent); // layout의 id와 일치해야 합니다.
+        editTextTitle = findViewById(R.id.editTextPostTitle);
+        editTextContent = findViewById(R.id.editTextPostContent);
         uploadedPhoto = findViewById(R.id.iconPhoto);
-        buttonSubmit = findViewById(R.id.buttonSubmitPost); // layout의 id와 일치해야 합니다.
+        buttonSubmit = findViewById(R.id.buttonSubmitPost);
+        previewView = findViewById(R.id.previewView);
 
-        // Firebase 데이터베이스 참조 "ceoBoard" 초기화
         databaseReference = FirebaseDatabase.getInstance().getReference("ceoBoard");
 
-        // 인텐트에서 데이터 추출
         Intent intent = getIntent();
         isEditing = intent.getBooleanExtra("isEditing", false);
-        // 수정 모드일 때만 제목과 내용, postId를 인텐트에서 가져와서 설정
         if (isEditing) {
             editTextTitle.setText(intent.getStringExtra("title"));
             editTextContent.setText(intent.getStringExtra("content"));
-            postId = intent.getStringExtra("postId"); // postId를 멤버 변수에 저장
-        if (intent.hasExtra("photoUri")) {
-            String imageUriString = intent.getStringExtra("photoUri");
-            Uri imageUri = Uri.parse(imageUriString);
-            uploadedPhoto.setImageURI(imageUri);
-            uploadedPhoto.setVisibility(View.VISIBLE);
-        }
-
-        }
-        initializeActivityResultLaunchers(); // ActivityResultLauncher 초기화를 별도 메소드로
-
-
-        buttonSubmit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                submitPost();
+            postId = intent.getStringExtra("postId");
+            if (intent.hasExtra("photoUri")) {
+                String imageUriString = intent.getStringExtra("photoUri");
+                Uri imageUri = Uri.parse(imageUriString);
+                uploadedPhoto.setImageURI(imageUri);
+                uploadedPhoto.setVisibility(View.VISIBLE);
             }
-        });
+        }
+
+        initializeActivityResultLaunchers();
+
+        if (!allPermissionsGranted()) {
+            ActivityCompat.requestPermissions(this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS);
+        }
+
+        buttonSubmit.setOnClickListener(v -> submitPost());
+
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int itemId = item.getItemId();
-
-                if (itemId == R.id.action_home) {
-                    Intent intent = new Intent(CeoWriteBoardActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    return true;
-                } else if (itemId == R.id.action_board) {
-                    // 게시판 아이템이 선택되었을 때의 동작
-                    Intent intent = new Intent(CeoWriteBoardActivity.this, BoardActivity.class);
-                    startActivity(intent);
-                    return true;
-                } else if (itemId == R.id.action_notification) {
-                    // 알림 아이템이 선택되었을 때의 동작
-                    return true;
-                } else if (itemId == R.id.action_mypage) {
-                    // 메뉴 페이지 아이템이 선택되었을 때의 동작
-                    Intent intent = new Intent(CeoWriteBoardActivity.this, MypageActivity.class);
-                    startActivity(intent);
-                    return true;
-                }
-
-                return false; // 아무 항목도 선택되지 않았을 경우
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.action_home) {
+                startActivity(new Intent(CeoWriteBoardActivity.this, MainActivity.class));
+                return true;
+            } else if (item.getItemId() == R.id.action_board) {
+                startActivity(new Intent(CeoWriteBoardActivity.this, BoardActivity.class));
+                return true;
+            } else if (item.getItemId() == R.id.action_notification) {
+                return true;
+            } else if (item.getItemId() == R.id.action_mypage) {
+                startActivity(new Intent(CeoWriteBoardActivity.this, MypageActivity.class));
+                return true;
             }
+            return false;
         });
     }
 
@@ -123,8 +118,8 @@ public class CeoWriteBoardActivity extends AppCompatActivity {
                 result -> {
                     if (result.getResultCode() == RESULT_OK) {
                         Uri contentUri = Uri.fromFile(new File(currentPhotoPath));
-                        uploadedPhoto.setImageURI(contentUri); // 'uploadedphoto' ImageView에 이미지 설정
-                        imageUri = contentUri; // 전역 변수에 저장
+                        uploadedPhoto.setImageURI(contentUri);
+                        imageUri = contentUri;
                     }
                 });
 
@@ -133,24 +128,22 @@ public class CeoWriteBoardActivity extends AppCompatActivity {
                 result -> {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                         Uri selectedImageUri = result.getData().getData();
-                        uploadedPhoto.setImageURI(selectedImageUri); // 'uploadedphoto' ImageView에 이미지 설정
-                        imageUri = selectedImageUri; // 전역 변수에 저장
+                        uploadedPhoto.setImageURI(selectedImageUri);
+                        imageUri = selectedImageUri;
                     }
                 });
     }
 
     public void onIconPhotoClick(View view) {
-        // 옵션을 담은 배열
-        final CharSequence[] options = { "촬영하기", "갤러리에서 찾기", "취소" };
+        final CharSequence[] options = {"촬영하기", "갤러리에서 찾기", "취소"};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(CeoWriteBoardActivity.this);
         builder.setTitle("사진 업로드");
-
         builder.setItems(options, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int item) {
                 if (options[item].equals("촬영하기")) {
-                    takePhotoFromCamera();
+                    takePhotoWithCameraX();
                 } else if (options[item].equals("갤러리에서 찾기")) {
                     choosePhotoFromGallery();
                 } else if (options[item].equals("취소")) {
@@ -161,47 +154,94 @@ public class CeoWriteBoardActivity extends AppCompatActivity {
         builder.show();
     }
 
-    //카메라앱 호출하여 사진 촬영, 촬영한 사진은 createImageFile 메소드를 통해 생성된 파일에 저장 ,
-    //FileProvider를 사용하여 안전하게 파일 URL를 공유
-    private void takePhotoFromCamera() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            File photoFile = null;
-            try {
-                photoFile = createImageFile();
-            } catch (IOException ex) {
-                // Error occurred while creating the File
-                // Log statement
+
+    private boolean allPermissionsGranted() {
+        for (String permission : REQUIRED_PERMISSIONS) {
+            if (ContextCompat.checkSelfPermission(getBaseContext(), permission) != PackageManager.PERMISSION_GRANTED) {
+                return false;
             }
-            if (photoFile != null) {
-                Uri photoURI = FileProvider.getUriForFile(this,
-                        "com.example.myapplication.fileprovider",
-                        photoFile);
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-                cameraActivityResultLauncher.launch(takePictureIntent);
+        }
+        return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE_PERMISSIONS) {
+            if (!allPermissionsGranted()) {
+                Toast.makeText(this, "Permissions not granted by the user.", Toast.LENGTH_SHORT).show();
+                finish();
             }
         }
     }
-    //갤러리에서 사진 선택
+
+
+    private void takePhotoWithCameraX() {
+        ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(this);
+        cameraProviderFuture.addListener(() -> {
+            try {
+                ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+                Preview preview = new Preview.Builder().build();
+                CameraSelector cameraSelector = new CameraSelector.Builder()
+                        .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                        .build();
+
+                ImageCapture imageCapture = new ImageCapture.Builder()
+                        .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                        .build();
+
+                preview.setSurfaceProvider(previewView.getSurfaceProvider());
+                cameraProvider.unbindAll();
+                cameraProvider.bindToLifecycle((LifecycleOwner) this, cameraSelector, preview, imageCapture);
+
+                // 사진 촬영 버튼 클릭 리스너 구현
+                findViewById(R.id.button_take_photo).setOnClickListener(view -> {
+                    File photoFile = new File(getExternalFilesDir(null), System.currentTimeMillis() + ".jpg");
+                    ImageCapture.OutputFileOptions outputFileOptions = new ImageCapture.OutputFileOptions.Builder(photoFile).build();
+
+                    imageCapture.takePicture(outputFileOptions, ContextCompat.getMainExecutor(this), new ImageCapture.OnImageSavedCallback() {
+                        @Override
+                        public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
+                            Uri savedUri = Uri.fromFile(photoFile);
+                            runOnUiThread(() -> {
+                                // ImageView에 사진 표시
+                                uploadedPhoto.setImageURI(savedUri);
+                                // 사진의 URI를 사용하여 추가 처리(예: Firebase에 업로드)
+                                imageUri = savedUri; // 클래스 변수에 사진 URI 저장
+                                Toast.makeText(CeoWriteBoardActivity.this, "Photo Capture Succeeded", Toast.LENGTH_SHORT).show();
+                            });
+                        }
+
+                        @Override
+                        public void onError(@NonNull ImageCaptureException exception) {
+                            // 사진 촬영 실패 처리
+                            runOnUiThread(() -> Toast.makeText(CeoWriteBoardActivity.this, "Photo Capture Failed: " + exception.getMessage(), Toast.LENGTH_SHORT).show());
+                        }
+                    });
+                });
+
+            } catch (ExecutionException | InterruptedException e) {
+                // CameraProvider를 가져오는 데 실패한 경우
+                Toast.makeText(this, "Error starting camera", Toast.LENGTH_SHORT).show();
+            }
+        }, ContextCompat.getMainExecutor(this));
+    }
+
+
     private void choosePhotoFromGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         galleryActivityResultLauncher.launch(intent);
     }
-    //촬영한 사진을 저장할 파일을 생성하고 해당 파일의 경로를 currentPhotoPath에 저장, 파일 이름은 현재시간 기반
+
     private File createImageFile() throws IOException {
-        // 이미지 파일 이름 생성
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-        // 파일: 경로를 변수에 저장
+        File image = File.createTempFile(imageFileName, ".jpg", storageDir);
         currentPhotoPath = image.getAbsolutePath();
         return image;
     }
+
     private void submitPost() {
         String title = editTextTitle.getText().toString().trim();
         String content = editTextContent.getText().toString().trim();
@@ -209,41 +249,27 @@ public class CeoWriteBoardActivity extends AppCompatActivity {
 
         if (!title.isEmpty() && !content.isEmpty()) {
             if (isEditing && postId != null) {
-                // postId를 사용하여 해당 게시물을 데이터베이스에서 찾고 업데이트
-                CeoBoardPost post = new CeoBoardPost(title, content, System.currentTimeMillis(), photoUrl); // CeoBoardPost 객체 생성
+                CeoBoardPost post = new CeoBoardPost(title, content, System.currentTimeMillis(), photoUrl);
                 databaseReference.child(postId).setValue(post)
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
-                                // 수정완료 후 CeoBoardActivity로 이동
                                 Toast.makeText(CeoWriteBoardActivity.this, "게시글이 성공적으로 업데이트되었습니다.", Toast.LENGTH_SHORT).show();
-                                Intent intent = new Intent(CeoWriteBoardActivity.this, CeoBoardActivity.class);
-                                startActivity(intent);
-                                finish(); // 현재 액티비티 종료
+                                finish();
                             } else {
-                                // 실패하면 에러 메시지 표시
                                 Toast.makeText(CeoWriteBoardActivity.this, "게시글 업데이트에 실패했습니다.", Toast.LENGTH_SHORT).show();
                             }
                         });
-            }else {
-                // 새 게시물 추가 로직
+            } else {
                 String key = databaseReference.push().getKey();
                 CeoBoardPost post = new CeoBoardPost(title, content, System.currentTimeMillis(), photoUrl);
                 if (key != null) {
-                    post.setPostId(key);
                     databaseReference.child(key).setValue(post)
-                            .addOnSuccessListener(aVoid -> {
-                                // 성공적으로 추가 되었을 때의 로직
-                                Toast.makeText(CeoWriteBoardActivity.this, "게시글이 성공적으로 등록되었습니다.", Toast.LENGTH_SHORT).show();
-                                finish();
-                            })
-                            .addOnFailureListener(e -> {
-                                // 추가 실패시
-                                Toast.makeText(CeoWriteBoardActivity.this, "게시글 등록에 실패했습니다.", Toast.LENGTH_SHORT).show();
-                            });
+                            .addOnSuccessListener(aVoid -> Toast.makeText(CeoWriteBoardActivity.this, "게시글이 성공적으로 등록되었습니다.", Toast.LENGTH_SHORT).show())
+                            .addOnFailureListener(e -> Toast.makeText(CeoWriteBoardActivity.this, "게시글 등록에 실패했습니다.", Toast.LENGTH_SHORT).show());
+                    finish();
                 }
             }
         } else {
-            // 제목이나 내용이 비어 있으면 사용자에게 알림
             Toast.makeText(this, "제목과 내용을 모두 입력해주세요.", Toast.LENGTH_SHORT).show();
         }
     }
