@@ -76,7 +76,7 @@ public class WaitingActivity extends AppCompatActivity {
                     startActivity(intent);
                     return true;
                 } else if (itemId == R.id.action_notification) {
-                    // 알림 아이템이 선택되었을 때의 동작
+                    startActivity(new Intent(WaitingActivity.this, NotificationActivity.class));
                     return true;
                 } else if (itemId == R.id.action_mypage) {
                     Intent intent = new Intent(WaitingActivity.this, MypageActivity.class);

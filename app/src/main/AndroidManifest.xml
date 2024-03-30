@@ -21,7 +21,6 @@
     <!--라이브러리 권한-->
     <uses-permission android:name="android.permission.READ_CALENDAR"/>
     <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <!-- 카메라 하드웨어 기능 사용을 명시. 필수적이지 않음을 나타내기 위해 required="false"로 설정 -->
@@ -45,7 +44,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths"></meta-data>
+                android:resource="@xml/file_paths" />
         </provider>
 
         <!-- SplashActivity 추가 -->
@@ -130,6 +129,10 @@
 
         <activity android:name=".CeoDetailActivity">
         </activity>
+
+        <activity android:name=".NotificationActivity">
+        </activity>
+
 
         <activity android:name=".BluetoothDeviceActivity">
         </activity>

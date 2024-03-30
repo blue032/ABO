@@ -78,29 +78,24 @@ public class BoardActivity extends AppCompatActivity {
         });
 
         // BottomNavigationView 설정
+
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             int itemId = item.getItemId();
-
             if (itemId == R.id.action_home) {
-                Intent intent = new Intent(BoardActivity.this, MainActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(BoardActivity.this, MainActivity.class));
                 return true;
             } else if (itemId == R.id.action_board) {
-                // 게시판 아이템이 선택되었을 때의 동작 (현재 화면이 이미 BoardActivity이므로 아무 동작이 필요 없음)
+                startActivity(new Intent(BoardActivity.this, BoardActivity.class));
                 return true;
             } else if (itemId == R.id.action_notification) {
-                // 알림 아이템이 선택되었을 때의 동작
-                // 원하는 동작을 여기에 추가
+                startActivity(new Intent(BoardActivity.this, NotificationActivity.class)); // 알림 항목 클릭 시 NotificationActivity로 이동
                 return true;
             } else if (itemId == R.id.action_mypage) {
-                // 메뉴 페이지 아이템이 선택되었을 때의 동작
-                Intent intent = new Intent(BoardActivity.this, MypageActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(BoardActivity.this, MypageActivity.class));
                 return true;
             }
-
-            return false; // 아무 항목도 선택되지 않았을 경우
+            return false;
         });
     }
 

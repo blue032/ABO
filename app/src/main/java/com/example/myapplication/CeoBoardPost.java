@@ -10,13 +10,24 @@ public class CeoBoardPost {
     private long timestamp;
     private String postId;
     private String photoUrl;
+    private String userName; // 사용자 이름을 저장할 새 필드
 
-    // Constructor with title, content, and timestamp
+    // Constructor with title, content, timestamp, photoUrl, and userName
+    public CeoBoardPost(String title, String content, long timestamp, String photoUrl, String userName) {
+        this.title = title;
+        this.content = content;
+        this.timestamp = timestamp;
+        this.photoUrl = photoUrl;
+        this.userName = userName; // 사용자 이름 초기화
+    }
+
+    // userName 매개변수 없이 호출할 수 있는 새로운 생성자 추가
     public CeoBoardPost(String title, String content, long timestamp, String photoUrl) {
         this.title = title;
         this.content = content;
-        this.timestamp = timestamp; // Set the timestamp
+        this.timestamp = timestamp;
         this.photoUrl = photoUrl;
+        this.userName = ""; // userName을 빈 문자열로 초기화하거나 다른 기본값 설정
     }
 
     // Firebase가 기본 생성자를 요구하므로, 매개변수 없는 생성자도 추가
@@ -29,7 +40,6 @@ public class CeoBoardPost {
     }
 
     public long getTimestamp() {
-        // Make sure this method returns a long value
         return this.timestamp;
     }
 
@@ -46,9 +56,11 @@ public class CeoBoardPost {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd", Locale.getDefault());
         return sdf.format(new Date(timestamp));
     }
+
     public void setPostId(String postId){
         this.postId = postId;
     }
+
     public String getPostId(){
         return postId;
     }
@@ -56,7 +68,17 @@ public class CeoBoardPost {
     public String getPhotoUrl() {
         return photoUrl;
     }
+
     public void setPhotoUrl(String photoUrl) {
         this.photoUrl = photoUrl;
+    }
+
+    // userName에 대한 getter 및 setter 추가
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

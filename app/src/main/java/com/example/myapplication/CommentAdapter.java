@@ -1,7 +1,6 @@
 package com.example.myapplication;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -18,9 +17,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.database.DatabaseReference;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentViewHolder> {
@@ -45,11 +47,18 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CommentViewHolder holder, @SuppressLint("RecyclerView") int position) {
+    public void onBindViewHolder(@NonNull CommentViewHolder holder, int position) {
         Comment comment = commentList.get(position);
         holder.tvComment.setText(comment.getContent());
+        holder.tvCommentTimestamp.setText(getReadableTimestamp(comment.getTimestamp()));
+        holder.tvCommentAuthor.setText(comment.getUserId());
 
         holder.iconMore.setOnClickListener(view -> showPopupMenu(view, position, comment.getContent()));
+    }
+
+    private String getReadableTimestamp(long timestamp) {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+        return formatter.format(new Date(timestamp));
     }
 
     private void showPopupMenu(View view, final int position, String content) {
@@ -74,9 +83,9 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
             databaseReference.child(commentKey).removeValue().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     // Firebase에서만 삭제하고 RecyclerView에서는 제거하지 않음
-                    Toast.makeText(context, "Comment deleted successfully.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "댓글이 삭제되었습니다.", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(context, "Failed to delete comment.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "다시 시도해주세요.", Toast.LENGTH_SHORT).show();
                 }
             });
         } else {
@@ -91,8 +100,8 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         input.setText(content);
         builder.setView(input);
 
-        builder.setTitle("Edit Comment");
-        builder.setItems(new CharSequence[]{"Edit", "Delete", "Cancel"}, (dialog, which) -> {
+        builder.setTitle("댓글 수정");
+        builder.setItems(new CharSequence[]{"수정", "삭제", "취소"}, (dialog, which) -> {
             if (which == 0) {
                 editComment(position, input.getText().toString());
             } else if (which == 1) {
@@ -113,13 +122,14 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
                 if (task.isSuccessful()) {
                     commentList.get(position).setContent(newContent);
                     notifyItemChanged(position);
-                    Toast.makeText(context, "Comment edited successfully.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "댓글이 수정되었습니다..", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(context, "Failed to edit comment.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "다시 시도해주세요.", Toast.LENGTH_SHORT).show();
                 }
             });
         }
     }
+
 
     @Override
     public int getItemCount() {
@@ -128,11 +138,15 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
     static class CommentViewHolder extends RecyclerView.ViewHolder {
         TextView tvComment;
+        TextView tvCommentAuthor;
+        TextView tvCommentTimestamp;
         ImageView iconMore;
 
         CommentViewHolder(View itemView) {
             super(itemView);
             tvComment = itemView.findViewById(R.id.tvComment);
+            tvCommentAuthor = itemView.findViewById(R.id.tvCommentAuthor);
+            tvCommentTimestamp = itemView.findViewById(R.id.tvCommentTimestamp);
             iconMore = itemView.findViewById(R.id.iconMore);
         }
     }

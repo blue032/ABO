@@ -64,7 +64,7 @@ public class WriteBoardActivity extends AppCompatActivity {
                     startActivity(intent);
                     return true;
                 } else if (itemId == R.id.action_notification) {
-                    // 알림 아이템이 선택되었을 때의 동작
+                    startActivity(new Intent(WriteBoardActivity.this, NotificationActivity.class));
                     return true;
                 } else if (itemId == R.id.action_mypage) {
                     Intent intent = new Intent(WriteBoardActivity.this, MypageActivity.class);

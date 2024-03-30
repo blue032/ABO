@@ -117,7 +117,7 @@ public class CeoBoardActivity extends AppCompatActivity {
                     startActivity(intent);
                     return true;
                 } else if (itemId == R.id.action_notification) {
-                    // 알림 아이템이 선택되었을 때의 동작
+                    startActivity(new Intent(CeoBoardActivity.this, NotificationActivity.class));
                     return true;
                 } else if (itemId == R.id.action_mypage) {
                     // 메뉴 페이지 아이템이 선택되었을 때의 동작

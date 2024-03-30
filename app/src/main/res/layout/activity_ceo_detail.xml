@@ -61,38 +61,9 @@
         android:textSize="16sp"
         android:text="Content"
         app:layout_constraintTop_toBottomOf="@id/tvTitle"
-        app:layout_constraintBottom_toTopOf="@id/recyclerViewComments"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewComments"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/tvContent"
-        app:layout_constraintBottom_toTopOf="@id/etComment"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="8dp"/>
-
-    <EditText
-        android:id="@+id/etComment"
-        android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:hint="댓글을 입력하세요"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/btnSubmitComment"
-        app:layout_constraintBottom_toTopOf="@id/bottom_navigation_view"
-        android:layout_marginBottom="8dp" />
-
-    <Button
-        android:id="@+id/btnSubmitComment"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
-        android:text="제출"
-        app:layout_constraintBottom_toBottomOf="@id/etComment"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/etComment" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation_view"

@@ -73,6 +73,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 startActivity(new Intent(MapActivity.this, BoardActivity.class));
                 return true;
             } else if (itemId == R.id.action_notification) {
+                startActivity(new Intent(MapActivity.this, NotificationActivity.class));
                 return true;
             } else if (itemId == R.id.action_mypage) {
                 startActivity(new Intent(MapActivity.this, MypageActivity.class));

@@ -63,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+
+
         btnMap.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, MapActivity.class);
             startActivity(intent);
@@ -78,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, BoardActivity.class));
                 return true;
             } else if (itemId == R.id.action_notification) {
+                startActivity(new Intent(MainActivity.this, NotificationActivity.class)); // 알림 항목 클릭 시 NotificationActivity로 이동
                 return true;
             } else if (itemId == R.id.action_mypage) {
                 startActivity(new Intent(MainActivity.this, MypageActivity.class));
