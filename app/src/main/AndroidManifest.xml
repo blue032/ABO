@@ -9,16 +9,14 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <!-- 블루투스 권한 추가 -->
-    <uses-permission android:name="android.permission.BLUETOOTH"  android:maxSdkVersion="33" />
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="33" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="33" />
-
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <!--라이브러리 권한-->
+
+    <!-- 라이브러리 권한 -->
     <uses-permission android:name="android.permission.READ_CALENDAR"/>
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -46,6 +44,8 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
+        <!-- 기타 액티비티 및 메타데이터 구성이 여기에 포함됩니다. -->
 
         <!-- SplashActivity 추가 -->
         <activity android:name=".SplashActivity"
@@ -145,8 +145,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyD_vN-SWRGT_iXf9PspbbjgLSkiG3DXvqo" />
 
+
     </application>
 
 </manifest>
-
-<!--수정
