@@ -10,8 +10,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import android.widget.PopupMenu;
 
 public class CeoDetailActivity extends AppCompatActivity {
@@ -19,6 +22,8 @@ public class CeoDetailActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     private String postId;
     private ImageView uploadedImageView;
+    private TextView tvTitle;
+    private TextView tvContent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,26 +31,41 @@ public class CeoDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_ceo_detail);
 
         uploadedImageView = findViewById(R.id.uploadedImageView);
-        postId = getIntent().getStringExtra("postId");
-        databaseReference = FirebaseDatabase.getInstance().getReference("ceoBoard");
-
-        Intent intent = getIntent();
-        String title = intent.getStringExtra("title");
-        String content = intent.getStringExtra("content");
-        String photoUrl = intent.getStringExtra("photoUrl");
-
-        TextView tvTitle = findViewById(R.id.tvTitle);
-        TextView tvContent = findViewById(R.id.tvContent);
+        tvTitle = findViewById(R.id.tvTitle);
+        tvContent = findViewById(R.id.tvContent);
         ImageView iconMore = findViewById(R.id.iconMore);
 
-        tvTitle.setText(title);
-        tvContent.setText(content);
+        postId = getIntent().getStringExtra("postId");
+        if (postId != null) {
+            databaseReference = FirebaseDatabase.getInstance().getReference("ceoBoard").child(postId);
+            databaseReference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        String title = dataSnapshot.child("title").getValue(String.class);
+                        String content = dataSnapshot.child("content").getValue(String.class);
+                        String photoUrl = dataSnapshot.child("photoUrl").getValue(String.class);
 
-        if (photoUrl != null && !photoUrl.isEmpty()) {
-            Uri photoUri = Uri.parse(photoUrl);
-            uploadedImageView.setImageURI(photoUri);
+                        tvTitle.setText(title);
+                        tvContent.setText(content);
+
+                        if (photoUrl != null && !photoUrl.isEmpty()) {
+                            Uri photoUri = Uri.parse(photoUrl);
+                            uploadedImageView.setImageURI(photoUri);
+                        } else {
+                            uploadedImageView.setVisibility(View.GONE);
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Toast.makeText(CeoDetailActivity.this, "데이터를 불러오는데 실패했습니다.", Toast.LENGTH_SHORT).show();
+                }
+            });
         } else {
-            uploadedImageView.setVisibility(View.GONE);
+            Toast.makeText(this, "오류: 게시물 ID가 없습니다.", Toast.LENGTH_SHORT).show();
+            finish(); // postId가 없으면 활동을 종료합니다.
         }
 
         iconMore.setOnClickListener(this::showPopupMenu);
@@ -53,44 +73,34 @@ public class CeoDetailActivity extends AppCompatActivity {
 
     private void showPopupMenu(View view) {
         PopupMenu popup = new PopupMenu(this, view);
-        popup.inflate(R.menu.menu_edit_options); // 메뉴 리소스를 팝업 메뉴에 추가
+        popup.inflate(R.menu.menu_edit_options);
         popup.setOnMenuItemClickListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.action_edit) {
-                // 사용자가 '편집'을 선택한 경우
+            int id = item.getItemId();
+            if (id == R.id.action_edit) {
                 editPost();
                 return true;
-            } else if (itemId == R.id.action_delete) {
-                // 사용자가 '삭제'를 선택한 경우
+            } else if (id == R.id.action_delete) {
                 deletePost();
                 return true;
             }
-            // 다른 메뉴 아이템이 선택된 경우 기본 처리
             return false;
         });
         popup.show();
     }
 
-
     private void editPost() {
-        Intent intentFromDetail = getIntent();
-        String title = intentFromDetail.getStringExtra("title");
-        String content = intentFromDetail.getStringExtra("content");
-        String postId = intentFromDetail.getStringExtra("postId");
-        String photoUrl = intentFromDetail.getStringExtra("photoUrl");
-
         Intent intentToEdit = new Intent(CeoDetailActivity.this, CeoWriteBoardActivity.class);
-        intentToEdit.putExtra("title", title);
-        intentToEdit.putExtra("content", content);
+        intentToEdit.putExtra("title", tvTitle.getText().toString());
+        intentToEdit.putExtra("content", tvContent.getText().toString());
         intentToEdit.putExtra("isEditing", true);
         intentToEdit.putExtra("postId", postId);
-        intentToEdit.putExtra("photoUrl", photoUrl);
+        // 여기서는 photoUrl을 직접 전달하지 않고, 필요하다면 수정 화면에서 다시 불러와야 합니다.
         startActivity(intentToEdit);
     }
 
     public void deletePost() {
         if (postId != null) {
-            databaseReference.child(postId).removeValue().addOnCompleteListener(task -> {
+            databaseReference.removeValue().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     Toast.makeText(CeoDetailActivity.this, "게시글이 삭제되었습니다.", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(CeoDetailActivity.this, CeoBoardActivity.class);

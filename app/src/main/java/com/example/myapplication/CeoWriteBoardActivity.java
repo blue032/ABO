@@ -178,8 +178,9 @@ public class CeoWriteBoardActivity extends AppCompatActivity {
         String userName = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         if (!title.isEmpty() && !content.isEmpty()) {
-            CeoBoardPost post = new CeoBoardPost(title, content, System.currentTimeMillis(), photoUrl, userName);
             if (isEditing && postId != null) {
+                CeoBoardPost post = new CeoBoardPost(title, content, System.currentTimeMillis(), photoUrl, userName);
+                post.setPostId(postId); // postId 설정
                 databaseReference.child(postId).setValue(post)
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
@@ -190,8 +191,11 @@ public class CeoWriteBoardActivity extends AppCompatActivity {
                             }
                         });
             } else {
+                // 새 게시글 생성
                 String key = databaseReference.push().getKey();
                 if (key != null) {
+                    CeoBoardPost post = new CeoBoardPost(title, content, System.currentTimeMillis(), photoUrl, userName);
+                    post.setPostId(key); // 새로운 postId 설정
                     databaseReference.child(key).setValue(post)
                             .addOnSuccessListener(aVoid -> {
                                 Toast.makeText(CeoWriteBoardActivity.this, "게시글이 성공적으로 등록되었습니다.", Toast.LENGTH_SHORT).show();
@@ -206,4 +210,5 @@ public class CeoWriteBoardActivity extends AppCompatActivity {
             Toast.makeText(this, "제목과 내용을 모두 입력해주세요.", Toast.LENGTH_SHORT).show();
         }
     }
+
 }
