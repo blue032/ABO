@@ -1,11 +1,14 @@
 package com.example.myapplication;
 
+import android.content.ClipData;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -17,18 +20,26 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.collection.BuildConfig;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class CeoWriteBoardActivity extends AppCompatActivity {
 
@@ -42,31 +53,58 @@ public class CeoWriteBoardActivity extends AppCompatActivity {
     private ActivityResultLauncher<Intent> galleryActivityResultLauncher;
     private ImageView uploadedPhoto;
     private Uri imageUri; // 이미지 URI 저장
-
+    private boolean isNewImageSelected = false; // 클래스 멤버 변수로 추가
+    private ArrayList<Uri> imageUriList = new ArrayList<>();
+    private RecyclerView imagesRecyclerView;
+    private ImageAdapter imageAdapter;
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        // 현재 이미지 URI가 있을 경우, 상태에 저장합니다.
+        if (imageUri != null) {
+            outState.putString("imageUri", imageUri.toString());
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ceowriteboard);
 
+        // UI 컴포넌트 초기화
         editTextTitle = findViewById(R.id.editTextPostTitle);
         editTextContent = findViewById(R.id.editTextPostContent);
-        uploadedPhoto = findViewById(R.id.iconPhoto);
         buttonSubmit = findViewById(R.id.buttonSubmitPost);
+        imagesRecyclerView = findViewById(R.id.imagesRecyclerView);
 
+        // RecyclerView 설정
+        imagesRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        imageUriList = new ArrayList<>();
+        imageAdapter = new ImageAdapter(this, new ArrayList<>()); // 초기 상태에서는 비어 있는 어댑터
+        imagesRecyclerView.setAdapter(imageAdapter);
+
+        // Firebase 데이터베이스 참조
         databaseReference = FirebaseDatabase.getInstance().getReference("ceoBoard");
 
         Intent intent = getIntent();
         isEditing = intent.getBooleanExtra("isEditing", false);
+        postId = intent.getStringExtra("postId");
+
         if (isEditing) {
             editTextTitle.setText(intent.getStringExtra("title"));
             editTextContent.setText(intent.getStringExtra("content"));
-            postId = intent.getStringExtra("postId");
-            if (intent.hasExtra("photoUri")) {
-                String imageUriString = intent.getStringExtra("photoUri");
-                imageUri = Uri.parse(imageUriString);
-                uploadedPhoto.setImageURI(imageUri);
-                uploadedPhoto.setVisibility(View.VISIBLE);
+
+
+            // String 리스트를 사용하는 대신 Uri 리스트를 사용
+            ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra("imageUris");
+            if (imageUris != null) {
+                imageAdapter.setImageUris(imageUris);
+                imageAdapter.notifyDataSetChanged();
             }
+        }
+
+        // 이전 상태 복원 (회전 등으로 인한 재생성 처리)
+        if (savedInstanceState != null) {
+            imageUri = savedInstanceState.getString("imageUri") != null ? Uri.parse(savedInstanceState.getString("imageUri")) : null;
         }
 
         initializeActivityResultLaunchers();
@@ -100,18 +138,30 @@ public class CeoWriteBoardActivity extends AppCompatActivity {
                 result -> {
                     if (result.getResultCode() == RESULT_OK) {
                         Uri contentUri = Uri.fromFile(new File(currentPhotoPath));
-                        uploadedPhoto.setImageURI(contentUri);
-                        imageUri = contentUri;
+                        imageUriList.add(contentUri);
+                        imageAdapter.setImageUris(imageUriList);
+                        imageAdapter.notifyDataSetChanged();
+                        isNewImageSelected = true; // 사용자가 새 이미지를 선택했습니다
                     }
                 });
+        ArrayList<Uri> selectedImageUris = new ArrayList<>();
 
         galleryActivityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        Uri selectedImageUri = result.getData().getData();
-                        uploadedPhoto.setImageURI(selectedImageUri);
-                        imageUri = selectedImageUri;
+                        ClipData clipData = result.getData().getClipData();
+                        if (clipData != null) {
+                            for (int i = 0; i < clipData.getItemCount(); i++) {
+                                Uri imageUri = clipData.getItemAt(i).getUri();
+                                imageUriList.add(imageUri);
+                            }
+                        } else {
+                            Uri imageUri = result.getData().getData();
+                            imageUriList.add(imageUri);
+                        }
+                        imageAdapter.setImageUris(imageUriList);
+                        imageAdapter.notifyDataSetChanged();
                     }
                 });
     }
@@ -124,7 +174,7 @@ public class CeoWriteBoardActivity extends AppCompatActivity {
             if (options[item].equals("촬영하기")) {
                 takePhotoFromCamera();
             } else if (options[item].equals("갤러리에서 찾기")) {
-                choosePhotoFromGallery();
+                choosePhotosFromGallery();
             } else if (options[item].equals("취소")) {
                 dialog.dismiss();
             }
@@ -145,11 +195,8 @@ public class CeoWriteBoardActivity extends AppCompatActivity {
             }
 
             // photoURI 변수를 if 블록 바깥으로 이동
-            Uri photoURI = null;
             if (photoFile != null) {
-                photoURI = FileProvider.getUriForFile(this,
-                        getPackageName() + ".provider",
-                        photoFile);
+                Uri photoURI = FileProvider.getUriForFile(this, getPackageName() + ".provider", photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 cameraActivityResultLauncher.launch(takePictureIntent);
             }
@@ -157,10 +204,12 @@ public class CeoWriteBoardActivity extends AppCompatActivity {
     }
 
 
-    private void choosePhotoFromGallery() {
+    private void choosePhotosFromGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         galleryActivityResultLauncher.launch(intent);
     }
+
 
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
@@ -174,36 +223,60 @@ public class CeoWriteBoardActivity extends AppCompatActivity {
     private void submitPost() {
         String title = editTextTitle.getText().toString().trim();
         String content = editTextContent.getText().toString().trim();
-        String photoUrl = (imageUri != null) ? imageUri.toString() : "";
         String userName = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        if (!title.isEmpty() && !content.isEmpty()) {
-            CeoBoardPost post = new CeoBoardPost(title, content, System.currentTimeMillis(), photoUrl, userName);
-            if (isEditing && postId != null) {
-                databaseReference.child(postId).setValue(post)
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                Toast.makeText(CeoWriteBoardActivity.this, "게시글이 성공적으로 업데이트되었습니다.", Toast.LENGTH_SHORT).show();
-                                finish();
-                            } else {
-                                Toast.makeText(CeoWriteBoardActivity.this, "게시글 업데이트에 실패했습니다.", Toast.LENGTH_SHORT).show();
-                            }
-                        });
-            } else {
-                String key = databaseReference.push().getKey();
-                if (key != null) {
-                    databaseReference.child(key).setValue(post)
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(CeoWriteBoardActivity.this, "게시글이 성공적으로 등록되었습니다.", Toast.LENGTH_SHORT).show();
-                                finish();
-                            })
-                            .addOnFailureListener(e -> {
-                                Toast.makeText(CeoWriteBoardActivity.this, "게시글 등록에 실패했습니다.", Toast.LENGTH_SHORT).show();
-                            });
+        if (!title.isEmpty() && !content.isEmpty() && !imageUriList.isEmpty()) {
+            uploadImages(imageUriList, new OnAllImagesUploadedListener() {
+                @Override
+                public void onAllImagesUploaded(List<String> imageUrls) {
+                    savePostToDatabase(title, content, imageUrls, userName);
                 }
-            }
+            });
         } else {
-            Toast.makeText(this, "제목과 내용을 모두 입력해주세요.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "제목, 내용, 사진을 모두 입력해주세요.", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void uploadImages(ArrayList<Uri> imageUris, final OnAllImagesUploadedListener listener) {
+        final List<String> uploadedImageUrls = new ArrayList<>();
+        AtomicInteger uploadCounter = new AtomicInteger();
+
+        for (Uri imageUri : imageUris) {
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("postImages/" + System.currentTimeMillis() + "_" + getFileExtension(imageUri));
+            storageReference.putFile(imageUri).addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl().addOnSuccessListener(uri -> {
+                uploadedImageUrls.add(uri.toString());
+                if (uploadCounter.incrementAndGet() == imageUris.size()) {
+                    listener.onAllImagesUploaded(uploadedImageUrls);
+                }
+            })).addOnFailureListener(e -> Toast.makeText(CeoWriteBoardActivity.this, "Failed to upload image: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+        }
+    }
+
+    private String getFileExtension(Uri uri) {
+        ContentResolver contentResolver = getContentResolver();
+        MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+        return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
+    }
+
+    private void savePostToDatabase(String title, String content, List<String> imageUrls, String userName) {
+        DatabaseReference newPostRef = databaseReference.push();
+        CeoBoardPost newPost = new CeoBoardPost(title, content, System.currentTimeMillis(), imageUrls, userName);
+        newPostRef.setValue(newPost).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(CeoWriteBoardActivity.this, "Post uploaded successfully", Toast.LENGTH_SHORT).show();
+                finish();
+            } else {
+                Toast.makeText(CeoWriteBoardActivity.this, "Failed to upload post: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    interface OnAllImagesUploadedListener {
+        void onAllImagesUploaded(List<String> imageUrls);
+    }
+
+    private void navigateToBoardActivity() {
+        Intent intent = new Intent(this, CeoBoardActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

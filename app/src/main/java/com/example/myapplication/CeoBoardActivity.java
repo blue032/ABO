@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class CeoBoardActivity extends AppCompatActivity {
@@ -37,6 +38,8 @@ public class CeoBoardActivity extends AppCompatActivity {
     private BoardPostAdapter adapter;
     private ArrayList<CeoBoardPost> postList;
     private DatabaseReference databaseReference;
+
+
     private TextView tvEmptyView;
     private ActivityResultLauncher<Intent> myActivityResultLauncher;
 
@@ -157,16 +160,17 @@ public class CeoBoardActivity extends AppCompatActivity {
         private String content;
         private long timestamp;
         private String postId;
-        private String photoUrl;
-
+        private List<String> photoUrls;
+        private String userName;
         public CeoBoardPost() {
         }
 
-        public CeoBoardPost(String title, String content, long timestamp, String photoUrl) {
+        public CeoBoardPost(String title, String content, long timestamp, List<String> photoUrls, String userName) {
             this.title = title;
             this.content = content;
             this.timestamp = timestamp;
-            this.photoUrl = photoUrl;
+            this.photoUrls = photoUrls;
+            this.userName = userName;
         }
 
         public String getTitle() {
@@ -203,11 +207,17 @@ public class CeoBoardActivity extends AppCompatActivity {
         public void setPostId(String postId){
             this.postId = postId;
         }
-        public String getPhotoUrl() {
-            return photoUrl;
+        public List<String> getPhotoUrls() {
+            return photoUrls;
         }
-        public void setPhotoUrl(String photoUrl) {
-            this.photoUrl = photoUrl;
+        public void setPhotoUrls(List<String> photoUrls) {
+            this.photoUrls = photoUrls;
+        }
+        public String getUserName() {
+            return userName;
+        }
+        public void setUserName(String userName) {
+            this.userName = userName;
         }
     }
 
@@ -242,8 +252,10 @@ public class CeoBoardActivity extends AppCompatActivity {
                     intent.putExtra("content", post.getContent());
                     intent.putExtra("timestamp", post.getTimestamp());
 
-                    if (post.getPhotoUrl() != null && !post.getPhotoUrl().isEmpty()) {
-                        intent.putExtra("photoUrl", post.getPhotoUrl());
+                    if (post.getPhotoUrls() != null && !post.getPhotoUrls().isEmpty()) {
+                        // List<String>을 ArrayList<String>으로 변환
+                        ArrayList<String> photoUrls = new ArrayList<>(post.getPhotoUrls());
+                        intent.putStringArrayListExtra("photoUrls", photoUrls);
                     }
                     startActivity(intent);
                 }

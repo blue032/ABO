@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import java.util.List;
 import java.util.Locale;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -9,24 +10,24 @@ public class CeoBoardPost {
     private String content;
     private long timestamp;
     private String postId;
-    private String photoUrl;
+    private List<String> photoUrls;
     private String userName; // 사용자 이름을 저장할 새 필드
 
     // Constructor with title, content, timestamp, photoUrl, and userName
-    public CeoBoardPost(String title, String content, long timestamp, String photoUrl, String userName) {
+    public CeoBoardPost(String title, String content, long timestamp, List<String> photoUrls, String userName) {
         this.title = title;
         this.content = content;
         this.timestamp = timestamp;
-        this.photoUrl = photoUrl;
+        this.photoUrls = photoUrls;
         this.userName = userName; // 사용자 이름 초기화
     }
 
     // userName 매개변수 없이 호출할 수 있는 새로운 생성자 추가
-    public CeoBoardPost(String title, String content, long timestamp, String photoUrl) {
+    public CeoBoardPost(String title, String content, long timestamp, List<String> photoUrls) {
         this.title = title;
         this.content = content;
         this.timestamp = timestamp;
-        this.photoUrl = photoUrl;
+        this.photoUrls = photoUrls;
         this.userName = ""; // userName을 빈 문자열로 초기화하거나 다른 기본값 설정
     }
 
@@ -65,12 +66,12 @@ public class CeoBoardPost {
         return postId;
     }
 
-    public String getPhotoUrl() {
-        return photoUrl;
+    public List<String> getPhotoUrls() {
+        return photoUrls;
     }
 
-    public void setPhotoUrl(String photoUrl) {
-        this.photoUrl = photoUrl;
+    public void setPhotoUrls(List<String> photoUrls) {
+        this.photoUrls = photoUrls;
     }
 
     // userName에 대한 getter 및 setter 추가

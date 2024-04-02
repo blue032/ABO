@@ -9,30 +9,40 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import android.widget.PopupMenu;
+import java.util.ArrayList;
 
 public class CeoDetailActivity extends AppCompatActivity {
 
     private DatabaseReference databaseReference;
     private String postId;
-    private ImageView uploadedImageView;
+    private RecyclerView imagesRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ceo_detail);
 
-        uploadedImageView = findViewById(R.id.uploadedImageView);
         postId = getIntent().getStringExtra("postId");
         databaseReference = FirebaseDatabase.getInstance().getReference("ceoBoard");
 
         Intent intent = getIntent();
         String title = intent.getStringExtra("title");
         String content = intent.getStringExtra("content");
-        String photoUrl = intent.getStringExtra("photoUrl");
+        ArrayList<String> stringUris = intent.getStringArrayListExtra("imageUris");
+
+        // String 리스트를 Uri 리스트로 변환
+        ArrayList<Uri> imageUris = new ArrayList<>();
+        if (stringUris != null) {
+            for (String stringUri : stringUris) {
+                imageUris.add(Uri.parse(stringUri));
+            }
+        }
 
         TextView tvTitle = findViewById(R.id.tvTitle);
         TextView tvContent = findViewById(R.id.tvContent);
@@ -41,12 +51,10 @@ public class CeoDetailActivity extends AppCompatActivity {
         tvTitle.setText(title);
         tvContent.setText(content);
 
-        if (photoUrl != null && !photoUrl.isEmpty()) {
-            Uri photoUri = Uri.parse(photoUrl);
-            uploadedImageView.setImageURI(photoUri);
-        } else {
-            uploadedImageView.setVisibility(View.GONE);
-        }
+        imagesRecyclerView = findViewById(R.id.imagesRecyclerView);
+        imagesRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        ImageAdapter adapter = new ImageAdapter(this, imageUris);
+        imagesRecyclerView.setAdapter(adapter);
 
         iconMore.setOnClickListener(this::showPopupMenu);
     }
@@ -71,31 +79,30 @@ public class CeoDetailActivity extends AppCompatActivity {
         popup.show();
     }
 
-
     private void editPost() {
         Intent intentFromDetail = getIntent();
         String title = intentFromDetail.getStringExtra("title");
         String content = intentFromDetail.getStringExtra("content");
+        // postId를 다시 얻어오는 부분을 추가
         String postId = intentFromDetail.getStringExtra("postId");
-        String photoUrl = intentFromDetail.getStringExtra("photoUrl");
+        ArrayList<Uri> imageUris = intentFromDetail.getParcelableArrayListExtra("imageUris");
 
         Intent intentToEdit = new Intent(CeoDetailActivity.this, CeoWriteBoardActivity.class);
         intentToEdit.putExtra("title", title);
         intentToEdit.putExtra("content", content);
         intentToEdit.putExtra("isEditing", true);
-        intentToEdit.putExtra("postId", postId);
-        intentToEdit.putExtra("photoUrl", photoUrl);
+        intentToEdit.putExtra("postId", postId); // 여기에 postId를 다시 추가
+        // 이미지 URI 목록을 Intent에 추가하는 코드
+        intentToEdit.putParcelableArrayListExtra("imageUris", imageUris);
         startActivity(intentToEdit);
     }
+
 
     public void deletePost() {
         if (postId != null) {
             databaseReference.child(postId).removeValue().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     Toast.makeText(CeoDetailActivity.this, "게시글이 삭제되었습니다.", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(CeoDetailActivity.this, CeoBoardActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    startActivity(intent);
                     finish();
                 } else {
                     Toast.makeText(CeoDetailActivity.this, "게시글 삭제에 실패했습니다.", Toast.LENGTH_SHORT).show();
