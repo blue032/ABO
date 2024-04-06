@@ -3,6 +3,7 @@ package com.example.myapplication;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -22,6 +23,7 @@ public class CeoDetailActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     private String postId;
     private RecyclerView imagesRecyclerView;
+    private ArrayList<String> photoUrls; // 사진 URL을 저장할 멤버 변수 선언
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,13 +36,13 @@ public class CeoDetailActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String title = intent.getStringExtra("title");
         String content = intent.getStringExtra("content");
-        ArrayList<String> stringUris = intent.getStringArrayListExtra("imageUris");
+        ArrayList<String> photoUrlsString = getIntent().getStringArrayListExtra("photoUrls");
 
-        // String 리스트를 Uri 리스트로 변환
-        ArrayList<Uri> imageUris = new ArrayList<>();
-        if (stringUris != null) {
-            for (String stringUri : stringUris) {
-                imageUris.add(Uri.parse(stringUri));
+        // String URL 리스트를 Uri 리스트로 변환
+        ArrayList<Uri> photoUris = new ArrayList<>();
+        if (photoUrlsString != null) {
+            for (String photoUrl : photoUrlsString) {
+                photoUris.add(Uri.parse(photoUrl));
             }
         }
 
@@ -53,7 +55,7 @@ public class CeoDetailActivity extends AppCompatActivity {
 
         imagesRecyclerView = findViewById(R.id.imagesRecyclerView);
         imagesRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        ImageAdapter adapter = new ImageAdapter(this, imageUris);
+        ImageAdapter adapter = new ImageAdapter(this, photoUris);
         imagesRecyclerView.setAdapter(adapter);
 
         iconMore.setOnClickListener(this::showPopupMenu);
@@ -83,20 +85,22 @@ public class CeoDetailActivity extends AppCompatActivity {
         Intent intentFromDetail = getIntent();
         String title = intentFromDetail.getStringExtra("title");
         String content = intentFromDetail.getStringExtra("content");
-        // postId를 다시 얻어오는 부분을 추가
         String postId = intentFromDetail.getStringExtra("postId");
-        ArrayList<Uri> imageUris = intentFromDetail.getParcelableArrayListExtra("imageUris");
+
+        ArrayList<String> photoUrlsString = getIntent().getStringArrayListExtra("photoUrls"); // 이미 있는 photoUrlsString을 직접 사용
 
         Intent intentToEdit = new Intent(CeoDetailActivity.this, CeoWriteBoardActivity.class);
         intentToEdit.putExtra("title", title);
         intentToEdit.putExtra("content", content);
         intentToEdit.putExtra("isEditing", true);
         intentToEdit.putExtra("postId", postId); // 여기에 postId를 다시 추가
-        // 이미지 URI 목록을 Intent에 추가하는 코드
-        intentToEdit.putParcelableArrayListExtra("imageUris", imageUris);
+        // 이미지 URI를 String으로 변환하여 ArrayList에 추가
+        // 변환된 String 리스트를 인텐트에 추가
+        if(photoUrlsString != null) {
+            intentToEdit.putStringArrayListExtra("photoUrls", photoUrlsString);
+        }
         startActivity(intentToEdit);
     }
-
 
     public void deletePost() {
         if (postId != null) {

@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
@@ -92,16 +93,19 @@ public class CeoWriteBoardActivity extends AppCompatActivity {
         if (isEditing) {
             editTextTitle.setText(intent.getStringExtra("title"));
             editTextContent.setText(intent.getStringExtra("content"));
+            // 인텐트로부터 이미지 URI String 리스트를 받아 Uri 객체 리스트로 변환
+            ArrayList<String> imageUriStrings = intent.getStringArrayListExtra("photoUrls");
+            if (imageUriStrings != null) {
+                ArrayList<Uri> imageUris = new ArrayList<>();
+                for (String uriString : imageUriStrings) {
+                    imageUris.add(Uri.parse(uriString)); // String을 Uri 객체로 변환하여 추가
+                }
 
-
-            // String 리스트를 사용하는 대신 Uri 리스트를 사용
-            ArrayList<Uri> imageUris = intent.getParcelableArrayListExtra("imageUris");
-            if (imageUris != null) {
+                // 변환된 Uri 객체 리스트를 어댑터에 설정
                 imageAdapter.setImageUris(imageUris);
                 imageAdapter.notifyDataSetChanged();
             }
         }
-
         // 이전 상태 복원 (회전 등으로 인한 재생성 처리)
         if (savedInstanceState != null) {
             imageUri = savedInstanceState.getString("imageUri") != null ? Uri.parse(savedInstanceState.getString("imageUri")) : null;
@@ -225,15 +229,25 @@ public class CeoWriteBoardActivity extends AppCompatActivity {
         String content = editTextContent.getText().toString().trim();
         String userName = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        if (!title.isEmpty() && !content.isEmpty() && !imageUriList.isEmpty()) {
-            uploadImages(imageUriList, new OnAllImagesUploadedListener() {
-                @Override
-                public void onAllImagesUploaded(List<String> imageUrls) {
-                    savePostToDatabase(title, content, imageUrls, userName);
-                }
-            });
+        // 제목과 내용이 비어있지 않은지 확인
+        if (!title.isEmpty() && !content.isEmpty()) {
+            // 이미지가 있는 경우와 없는 경우를 구분하여 처리
+            if (!imageUriList.isEmpty()) {
+                // 이미지 업로드 후 게시글 업로드
+                uploadImages(imageUriList, new OnAllImagesUploadedListener() {
+                    @Override
+                    public void onAllImagesUploaded(List<String> imageUrls) {
+                        // 이미지 업로드 성공 후 게시글 정보와 함께 저장
+                        savePostToDatabase(title, content, imageUrls, userName);
+                    }
+                });
+            } else {
+                // 이미지 없이 게시글 정보만 저장
+                savePostToDatabase(title, content, new ArrayList<>(), userName);
+            }
         } else {
-            Toast.makeText(this, "제목, 내용, 사진을 모두 입력해주세요.", Toast.LENGTH_SHORT).show();
+            // 제목이나 내용이 비어 있는 경우 사용자에게 알림
+            Toast.makeText(this, "제목과 내용을 입력해주세요.", Toast.LENGTH_SHORT).show();
         }
     }
 
