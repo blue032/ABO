@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -40,6 +41,10 @@ public class DetailActivity extends AppCompatActivity {
     private String postUserName;
     private String postOwnerId;
     private ImageView iconMore;
+    private DatabaseReference databaseReference;
+    private RecyclerView imagesRecyclerView;
+    private ArrayList<String> photoUrls; // 사진 URL을 저장할 멤버 변수 선언
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +52,7 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
 
         postId = getIntent().getStringExtra("postId");
+        databaseReference = FirebaseDatabase.getInstance().getReference("Board");
         postReference = FirebaseDatabase.getInstance().getReference("Board").child(postId);
         commentReference = FirebaseDatabase.getInstance().getReference("Comments").child(postId);
         notificationsReference = FirebaseDatabase.getInstance().getReference("Notifications");
@@ -65,6 +71,28 @@ public class DetailActivity extends AppCompatActivity {
                     String content = snapshot.child("content").getValue(String.class);
                     tvTitle.setText(title);
                     tvContent.setText(content);
+
+                    // 사진 URL 리스트 불러오기
+                    ArrayList<String> photoUrlsString = new ArrayList<>();
+                    for (DataSnapshot photoSnapshot : snapshot.child("photoUrls").getChildren()) {
+                        String photoUrl = photoSnapshot.getValue(String.class);
+                        photoUrlsString.add(photoUrl);
+                    }
+
+                    // Uri 리스트 업데이트 (이미 존재하는 코드를 사용)
+                    ArrayList<Uri> photoUris = new ArrayList<>();
+                    if (photoUrlsString != null) {
+                        for (String photoUrl : photoUrlsString) {
+                            photoUris.add(Uri.parse(photoUrl));
+                        }
+                    }
+
+                    // RecyclerView 업데이트 (이미 존재하는 코드를 재사용)
+                    imagesRecyclerView = findViewById(R.id.imagesRecyclerView);
+                    imagesRecyclerView.setLayoutManager(new LinearLayoutManager(DetailActivity.this, LinearLayoutManager.HORIZONTAL, false));
+                    ImageAdapter adapter = new ImageAdapter(DetailActivity.this, photoUris);
+                    imagesRecyclerView.setAdapter(adapter);
+
                 } else {
                     Toast.makeText(DetailActivity.this, "게시글을 찾을 수 없습니다.", Toast.LENGTH_SHORT).show();
                 }
@@ -142,18 +170,23 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void editPost() {
-        // 인텐트로부터 제목, 내용, 게시물 id를 가져옴
         Intent intentFromDetail = getIntent();
         String title = intentFromDetail.getStringExtra("title");
         String content = intentFromDetail.getStringExtra("content");
         String postId = intentFromDetail.getStringExtra("postId");
 
-        // WriteBoardActivity로 전환하는 인텐트를 생성하고 제목과 내용을 담음
+        ArrayList<String> photoUrlsString = getIntent().getStringArrayListExtra("photoUrls"); // 이미 있는 photoUrlsString을 직접 사용
+
         Intent intentToEdit = new Intent(DetailActivity.this, WriteBoardActivity.class);
         intentToEdit.putExtra("title", title);
         intentToEdit.putExtra("content", content);
         intentToEdit.putExtra("isEditing", true);
-        intentToEdit.putExtra("postId", postId);
+        intentToEdit.putExtra("postId", postId); // 여기에 postId를 다시 추가
+        // 이미지 URI를 String으로 변환하여 ArrayList에 추가
+        // 변환된 String 리스트를 인텐트에 추가
+        if(photoUrlsString != null) {
+            intentToEdit.putStringArrayListExtra("photoUrls", photoUrlsString);
+        }
         startActivity(intentToEdit);
     }
 

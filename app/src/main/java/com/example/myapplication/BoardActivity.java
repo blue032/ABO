@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -9,6 +10,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -34,6 +37,7 @@ public class BoardActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     private TextView tvEmptyView;
 
+    private ActivityResultLauncher<Intent> myActivityResultLauncher;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,6 +101,18 @@ public class BoardActivity extends AppCompatActivity {
             }
             return false;
         });
+
+        //ceowriteboardactivity에서 사진 받기 위해 사용
+        myActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        String photoUriString = result.getData().getStringExtra("photoUri");
+                        Uri photoUri = Uri.parse(photoUriString);
+                        //uploadedPhoto.setImageURI(photoUri); // 'uploadedphoto'는 이미지를 표시할 ImageView
+                    }
+                });
+
     }
 
     private void checkForEmptyList() {
@@ -109,7 +125,7 @@ public class BoardActivity extends AppCompatActivity {
         }
     }
 
-    private static class BoardPostAdapter extends RecyclerView.Adapter<BoardPostAdapter.BoardPostViewHolder> {
+    private class BoardPostAdapter extends RecyclerView.Adapter<BoardPostAdapter.BoardPostViewHolder> {
         private final ArrayList<BoardPost> postList;
 
         public BoardPostAdapter(ArrayList<BoardPost> postList) {
@@ -129,14 +145,24 @@ public class BoardActivity extends AppCompatActivity {
             String formattedDateWithUserName = post.getUserName() + " | " + post.getFormattedDate();
             holder.textViewDate.setText(formattedDateWithUserName);
             holder.textViewTitle.setText(post.getTitle());
+            //클릭 리스너 설정
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //수정하려는 게시글의 정보를 인텐트에 담음
+                    Intent intent = new Intent(BoardActivity.this, DetailActivity.class);
+                    intent.putExtra("postId", post.getPostId()); // 게시글 ID를 인텐트에 추가
+                    intent.putExtra("title", post.getTitle());
+                    intent.putExtra("content", post.getContent());
+                    intent.putExtra("timestamp", post.getTimestamp());
 
-            holder.itemView.setOnClickListener(v -> {
-                Intent intent = new Intent(v.getContext(), DetailActivity.class);
-                intent.putExtra("title", post.getTitle());
-                intent.putExtra("content", post.getContent());
-                intent.putExtra("timestamp", post.getTimestamp());
-                intent.putExtra("postId", post.getPostId()); // 게시글 ID를 인텐트에 추가
-                v.getContext().startActivity(intent);
+                    if (post.getPhotoUrls() != null && !post.getPhotoUrls().isEmpty()) {
+                        // List<String>을 ArrayList<String>으로 변환
+                        ArrayList<String> photoUrls = new ArrayList<>(post.getPhotoUrls());
+                        intent.putStringArrayListExtra("photoUrls", photoUrls);
+                    }
+                    startActivity(intent);
+                }
             });
         }
 
@@ -145,7 +171,7 @@ public class BoardActivity extends AppCompatActivity {
             return postList.size();
         }
 
-        static class BoardPostViewHolder extends RecyclerView.ViewHolder {
+        class BoardPostViewHolder extends RecyclerView.ViewHolder {
             TextView textViewTitle, textViewDate;
 
             public BoardPostViewHolder(@NonNull View itemView) {

@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import java.util.List;
 import java.util.Locale;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -11,12 +12,14 @@ public class BoardPost {
     private long timestamp;
     private String userName;
     private String postId;
+    private List<String> photoUrls;
 
     // Constructor with title, content, and timestamp
-    public BoardPost(String title, String content, long timestamp, String userName) {
+    public BoardPost(String title, String content, long timestamp, List<String> photoUrls, String userName) {
         this.title = title;
         this.content = content;
         this.timestamp = timestamp; // Set the timestamp
+        this.photoUrls = photoUrls;
         this.userName = userName;
 
     }
@@ -63,4 +66,12 @@ public class BoardPost {
     public String getPostId(){
         return postId;
     }
+    public List<String> getPhotoUrls() {
+        return photoUrls;
+    }
+
+    public void setPhotoUrls(List<String> photoUrls) {
+        this.photoUrls = photoUrls;
+    }
+
 }
