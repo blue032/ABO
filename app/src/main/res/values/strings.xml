@@ -3,4 +3,6 @@
     <string name="red_icon_description">Red icon indicating high congestion</string>
     <string name="blue_icon_description">Blue icon indicating medium congestion</string>
     <string name="green_icon_description">Green icon indicating low congestion</string>
+    <string name="upload_image_description">Upload image</string>
+
 </resources>
