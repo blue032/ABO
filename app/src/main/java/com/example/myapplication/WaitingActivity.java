@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,8 +23,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class WaitingActivity extends AppCompatActivity {
 
@@ -35,6 +39,8 @@ public class WaitingActivity extends AppCompatActivity {
     private TextView tv_waitingNumber;
     private TextView textViewSuffix; //~번입니다
     private int totalCount = 0; //전체 대기 수
+    private EditText etEstimatedTimeInput;
+    private TextView tvEstimatedCompletionTime;
 
 
     @Override
@@ -62,6 +68,8 @@ public class WaitingActivity extends AppCompatActivity {
         // TextView
         tv_waitingNumber = findViewById(R.id.tv_waitingNumber);
         textViewSuffix = findViewById(R.id.textView);
+        tvEstimatedCompletionTime = findViewById(R.id.tv_estimatedCompletionTime);
+
 
         //파이어베이스 초기화
         setupFirebaseListener();
@@ -97,6 +105,7 @@ public class WaitingActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void setupFirebaseListener() {
         database = FirebaseDatabase.getInstance();
@@ -181,6 +190,8 @@ public class WaitingActivity extends AppCompatActivity {
                 // 주문 완료 시간이 현재 시간을 지나지 않았으면 대기번호 증가
                 if (orderEndTimeMillis > nowMillis) {
                     currentCount++;
+                    // 예상 완료 시간을 포맷하여 표시
+                    updateEstimatedCompletionTime(orderEndTimeMillis);
                 } else {
                     // 주문의 완료 시간이 현재 시간을 지났고 currentCount가 0보다 크면 대기번호 감소
                     if (currentCount > 0) {
@@ -204,11 +215,27 @@ public class WaitingActivity extends AppCompatActivity {
     public void addOrder(Orders newOrder){
         // 새 주문을 주문 리스트에 추가
         ordersList.add(newOrder);
-        //대기번호 증가
+        // 대기번호 증가
         totalCount++;
         // UI 업데이트
         updateUIWithCurrentCount();
     }
+    private void updateEstimatedCompletionTime(long millis) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(millis);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        String formattedTime = dateFormat.format(calendar.getTime());
+
+        // UI 스레드에서 TextView의 텍스트를 설정합니다.
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                tvEstimatedCompletionTime.setText(formattedTime);
+            }
+        });
+    }
+
+
 
     private void updateUIWithCurrentCount() {
         tv_waitingNumber.setText(Integer.toString(totalCount));
@@ -240,4 +267,3 @@ public class WaitingActivity extends AppCompatActivity {
         handler.removeCallbacks(runnable);
     }
 }
-//충돌 없음
