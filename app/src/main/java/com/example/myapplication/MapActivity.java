@@ -10,7 +10,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -114,7 +117,29 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             gMap.addMarker(new MarkerOptions().position(location).icon(icon));
         }
         LatLng cafeLocation = new LatLng(37.37452483159567, 126.6332926552895); //0.0카페 위치
-        cafeMarker = googleMap.addMarker(new MarkerOptions().position(cafeLocation).icon(icon));
+        cafeMarker = googleMap.addMarker(new MarkerOptions().position(cafeLocation).icon(icon)
+                .position(cafeLocation)
+                .title("O.O 카페") // 카페 이름
+                .icon(icon)
+                .snippet("대기번호: , 대기시간: "));
+
+        // 마커 클릭 이벤트 리스너 설정
+        gMap.setOnMarkerClickListener(marker -> {
+            // 팝업창에 사용할 레이아웃 인플레이션
+            LayoutInflater inflater = getLayoutInflater();
+            View dialogLayout = inflater.inflate(R.layout.dialong_map_time, null);
+            EditText editWaitNumber = dialogLayout.findViewById(R.id.edit_time1);
+            EditText editWaitTime = dialogLayout.findViewById(R.id.edit_time2);
+
+
+            // 팝업창 생성 및 표시
+            new AlertDialog.Builder(MapActivity.this)
+                    .setTitle(marker.getTitle()) // 팝업창 제목에 카페 이름 설정
+                    .setView(dialogLayout)
+                    .setPositiveButton("닫기", (dialog, which) -> dialog.dismiss()) // 닫기 버튼
+                    .show();
+            return true; // 이벤트가 처리되었음을 알림 (true 반환)
+        });
 
         updateCongestionStatus();
     }

@@ -2,14 +2,14 @@
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/refresh_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        xmlns:tools="http://schemas.android.com/tools">
+        android:layout_height="match_parent">
 
         <TextView
             android:id="@+id/tv_top"
@@ -25,6 +25,31 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
+        <EditText
+            android:id="@+id/editcafename"
+            android:layout_width="140dp"
+            android:layout_height="58dp"
+            android:ems="10"
+            android:hint="카페 이름 입력"
+            android:inputType="text"
+            android:text=""
+            android:gravity="center"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="135dp"
+            android:layout_marginTop="125dp" />
+
+        <FrameLayout
+            android:id="@+id/frameLayout"
+            android:layout_width="337dp"
+            android:layout_height="183dp"
+            android:background="@drawable/frame_layout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="37dp"
+            android:layout_marginTop="233dp">
+
+        </FrameLayout>
 
         <EditText
             android:id="@+id/tv_waitingNumber"
@@ -53,65 +78,6 @@
             android:layout_marginStart="246dp"
             android:layout_marginTop="302dp" />
 
-        <TextView
-            android:id="@+id/wait"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="대기번호는"
-            android:textColor="@color/black"
-            android:textSize="20dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginStart="159dp"
-            android:layout_marginTop="183dp" />
-
-        <TextView
-            android:id="@+id/tv_estimatedCompletionTime"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/frameLayout"
-            android:layout_marginTop="8dp"
-            android:text="예상 완료 시간"/>
-
-        <TextView
-            android:id="@+id/current"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="184dp"
-            android:layout_marginTop="92dp"
-            android:text="현재"
-            android:textColor="@color/black"
-            android:textSize="20dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <EditText
-            android:id="@+id/editcafename"
-            android:layout_width="140dp"
-            android:layout_height="58dp"
-            android:ems="10"
-            android:hint="카페 이름 입력"
-            android:inputType="text"
-            android:text=""
-            android:gravity="center"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginStart="135dp"
-            android:layout_marginTop="125dp" />
-
-        <FrameLayout
-            android:id="@+id/frameLayout"
-            android:layout_width="337dp"
-            android:layout_height="183dp"
-            android:background="@drawable/frame_layout"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginStart="37dp"
-            android:layout_marginTop="233dp">
-        </FrameLayout>
-
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottom_navigation_view"
             android:layout_width="match_parent"
@@ -120,8 +86,74 @@
             app:itemBackground="@android:color/white"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent">
-        </com.google.android.material.bottomnavigation.BottomNavigationView>
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/frameLayout2"
+            android:layout_width="332dp"
+            android:layout_height="138dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/frame_layout"
+            app:layout_constraintTop_toBottomOf="@+id/frameLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:id="@+id/tv_minutes"
+                android:layout_width="125dp"
+                android:layout_height="32dp"
+                android:text="분 입니다."
+                android:textSize="20sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- 여기에서 bias 값을 조정합니다 -->
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <EditText
+            android:id="@+id/waitingTime"
+            android:layout_width="169dp"
+            android:layout_height="58dp"
+            android:ems="10"
+            android:hint="최대대기시간"
+            android:inputType="numberDecimal"
+            android:textSize="28dp"
+            android:gravity="center"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="65dp"
+            android:layout_marginTop="470dp" />
+
+        <ImageView
+            android:id="@+id/imageViewCeoOrderChange"
+            android:layout_width="35dp"
+            android:layout_height="53dp"
+            android:layout_marginBottom="24dp"
+            android:src="@drawable/orderchange"
+            app:layout_constraintBottom_toTopOf="@id/bottom_navigation_view"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.265"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/waitingTime"
+            app:layout_constraintVertical_bias="1.0" />
+
+        <ImageView
+            android:id="@+id/imageViewCeoTimeChange"
+            android:layout_width="35dp"
+            android:layout_height="53dp"
+            android:layout_marginBottom="24dp"
+            android:src="@drawable/timechange"
+            app:layout_constraintBottom_toTopOf="@id/bottom_navigation_view"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.731"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/waitingTime"
+            app:layout_constraintVertical_bias="1.0" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

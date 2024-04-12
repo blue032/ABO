@@ -1,5 +1,7 @@
 package com.example.myapplication;
 
+import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -7,9 +9,18 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.NumberPicker;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -40,9 +51,13 @@ public class WaitingActivity extends AppCompatActivity {
     private TextView textViewSuffix; //~번입니다
     private int totalCount = 0; //전체 대기 수
     private EditText etEstimatedTimeInput;
-    private TextView tvEstimatedCompletionTime;
+
+    // 멤버 변수로 ScrollView와 TextView의 높이를 저장할 수 있습니다.
+    private ScrollView scrollViewNumbers;
+    private int textViewHeight = 0;
 
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,7 +83,6 @@ public class WaitingActivity extends AppCompatActivity {
         // TextView
         tv_waitingNumber = findViewById(R.id.tv_waitingNumber);
         textViewSuffix = findViewById(R.id.textView);
-        tvEstimatedCompletionTime = findViewById(R.id.tv_estimatedCompletionTime);
 
 
         //파이어베이스 초기화
@@ -76,6 +90,60 @@ public class WaitingActivity extends AppCompatActivity {
 
         //Runnable 초기화 및 시작
         setupRunnable();
+
+        // ImageView 참조
+        ImageView imageViewTimeChange = findViewById(R.id.imageViewCeoTimeChange);
+        ImageView imageViewOrderChange = findViewById(R.id.imageViewCeoOrderChange);
+
+        //사장님이 최대대기시간 변경할 수 있도록
+        imageViewTimeChange.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showTimeChangeDialog();
+            }
+        });
+
+        //사장님이 주문 내역을 변경할 수 있도록
+        /*
+        imageViewOrderChange.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showTimeChangeDialog();
+            }
+        });
+        */
+/*
+        // '-' 버튼 클릭 리스너 설정
+        findViewById(R.id.button_decrease).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showNumberPickerDialog(false);
+            }
+        });
+
+        // '+' 버튼 클릭 리스너 설정
+        findViewById(R.id.button_increase).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showNumberPickerDialog(true);
+            }
+        });
+
+ */
+
+        // SharedPreferences에서 사장님 여부 확인
+        SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
+        boolean isCeo = prefs.getBoolean("IsCeo", false);
+
+        // 사장님일 경우에만 ImageView를 보이게 설정
+        if (isCeo) {
+            imageViewTimeChange.setVisibility(View.VISIBLE);
+            imageViewOrderChange.setVisibility(View.VISIBLE);
+        } else {
+            imageViewTimeChange.setVisibility(View.GONE);
+            imageViewOrderChange.setVisibility(View.GONE);
+        }
+
 
         // BottomNavigationView 설정
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
@@ -226,13 +294,6 @@ public class WaitingActivity extends AppCompatActivity {
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
         String formattedTime = dateFormat.format(calendar.getTime());
 
-        // UI 스레드에서 TextView의 텍스트를 설정합니다.
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                tvEstimatedCompletionTime.setText(formattedTime);
-            }
-        });
     }
 
 
@@ -266,4 +327,98 @@ public class WaitingActivity extends AppCompatActivity {
         }
         handler.removeCallbacks(runnable);
     }
+
+    // 팝업 다이얼로그를 표시하는 메소드
+    private void showTimeChangeDialog() {
+        // 커스텀 레이아웃을 사용하여 다이얼로그 생성
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_time_change);
+
+        // 다이얼로그 크기 설정
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        }
+
+        // EditText, Button 참조
+        EditText editTime = dialog.findViewById(R.id.edit_time);
+        Button buttonConfirm = dialog.findViewById(R.id.button_confirm);
+        Button buttonDecrease = dialog.findViewById(R.id.button_decrease);
+        Button buttonIncrease = dialog.findViewById(R.id.button_increase);
+        Button buttonCancel = dialog.findViewById(R.id.button_cancel); // 취소 버튼 참조
+
+        // 확인 버튼 리스너 설정
+        buttonConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 시간 변경 로직
+                // 예시: String newTime = editTime.getText().toString();
+                dialog.dismiss();
+            }
+        });
+
+        // 증가, 감소 버튼 리스너 설정
+        buttonDecrease.setOnClickListener(v -> {
+            // 시간 감소 로직
+        });
+
+        buttonIncrease.setOnClickListener(v -> {
+            // 시간 증가 로직
+        });
+        // 취소 버튼 리스너 설정
+        buttonCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss(); // 다이얼로그 닫기
+            }
+        });
+
+        dialog.show();
+    }
+/*
+    private void showNumberPickerDialog(boolean isIncrease) {
+        final Dialog d = new Dialog(WaitingActivity.this);
+        d.setTitle("NumberPicker");
+        d.setContentView(R.layout.number_picker_dialog);
+
+        Button btnSet = (Button) d.findViewById(R.id.button1);
+        Button btnCancel = (Button) d.findViewById(R.id.button2);
+        final NumberPicker np = (NumberPicker) d.findViewById(R.id.number_picker);
+
+        np.setMaxValue(18); // 숫자 90에 해당
+        np.setMinValue(1);  // 숫자 5에 해당
+        String[] nums = new String[18];
+        for(int i=0; i<nums.length; i++)
+            nums[i] = Integer.toString((i+1)*5);
+
+        np.setDisplayedValues(nums);
+        np.setWrapSelectorWheel(false);
+
+        if (isIncrease) {
+            np.setValue(18); // '+' 버튼을 눌렀을 때
+        } else {
+            np.setValue(1); // '-' 버튼을 눌렀을 때
+        }
+
+        btnSet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // 값을 설정하고 다이얼로그를 닫습니다.
+                // 예를 들어, 값을 EditText에 설정할 수 있습니다.
+                d.dismiss();
+            }
+        });
+
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                d.dismiss(); // 다이얼로그를 닫습니다.
+            }
+        });
+
+        d.show();
+    }
+*/
+
 }
