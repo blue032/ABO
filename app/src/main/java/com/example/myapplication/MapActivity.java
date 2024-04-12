@@ -108,39 +108,38 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 new LatLng(37.37591543320427, 126.63281734018747),
                 new LatLng(37.372401288059535, 126.6313160023207),
                 new LatLng(37.37340586676641, 126.62985469283342),
-                new LatLng(37.37439777449398, 126.63154896625312)
+                new LatLng(37.37439777449398, 126.63154896625312),
+                new LatLng(37.37452483159567, 126.6332926552895) // O.O카페 위치 추가
         );
 
         BitmapDescriptor icon = resizeMapIcons("location_green", 100, 100); // Adjust the size as needed
 
+
+        final String specialCafeTitle = "O.O 카페"; // 특별한 카페의 타이틀
+        final LatLng oOCafeLocation = new LatLng(37.37452483159567, 126.6332926552895);
+
         for (LatLng location : locations) {
-            gMap.addMarker(new MarkerOptions().position(location).icon(icon));
+            String title = location.equals(oOCafeLocation) ? specialCafeTitle : "카페";
+            gMap.addMarker(new MarkerOptions().position(location).icon(icon).title(title));
         }
-        LatLng cafeLocation = new LatLng(37.37452483159567, 126.6332926552895); //0.0카페 위치
-        cafeMarker = googleMap.addMarker(new MarkerOptions().position(cafeLocation).icon(icon)
-                .position(cafeLocation)
-                .title("O.O 카페") // 카페 이름
-                .icon(icon)
-                .snippet("대기번호: , 대기시간: "));
 
-        // 마커 클릭 이벤트 리스너 설정
         gMap.setOnMarkerClickListener(marker -> {
-            // 팝업창에 사용할 레이아웃 인플레이션
-            LayoutInflater inflater = getLayoutInflater();
-            View dialogLayout = inflater.inflate(R.layout.dialong_map_time, null);
-            EditText editWaitNumber = dialogLayout.findViewById(R.id.edit_time1);
-            EditText editWaitTime = dialogLayout.findViewById(R.id.edit_time2);
+            if (marker.getTitle().equals(specialCafeTitle)) {
+                // 팝업창에 사용할 레이아웃 인플레이션
+                LayoutInflater inflater = getLayoutInflater();
+                View dialogLayout = inflater.inflate(R.layout.dialong_map_time, null);
+                EditText editWaitNumber = dialogLayout.findViewById(R.id.edit_time1);
+                EditText editWaitTime = dialogLayout.findViewById(R.id.edit_time2);
 
-
-            // 팝업창 생성 및 표시
-            new AlertDialog.Builder(MapActivity.this)
-                    .setTitle(marker.getTitle()) // 팝업창 제목에 카페 이름 설정
-                    .setView(dialogLayout)
-                    .setPositiveButton("닫기", (dialog, which) -> dialog.dismiss()) // 닫기 버튼
-                    .show();
+                // 팝업창 생성 및 표시
+                new AlertDialog.Builder(MapActivity.this)
+                        .setTitle(marker.getTitle()) // 팝업창 제목에 카페 이름 설정
+                        .setView(dialogLayout)
+                        .setPositiveButton("닫기", (dialog, which) -> dialog.dismiss()) // 닫기 버튼
+                        .show();
+            }
             return true; // 이벤트가 처리되었음을 알림 (true 반환)
         });
-
         updateCongestionStatus();
     }
 
