@@ -64,7 +64,7 @@
 
     <!-- 버튼: 검색 -->
     <Button
-        android:id="@+id/buttonAdd"
+        android:id="@+id/buttonSearch"
         android:layout_width="0dp"
         android:layout_height="48dp"
         android:text="검색"
@@ -80,7 +80,7 @@
         android:layout_height="48dp"
         android:text="수정"
         app:layout_constraintTop_toBottomOf="@id/editTextQuantity"
-        app:layout_constraintStart_toEndOf="@id/buttonAdd"
+        app:layout_constraintStart_toEndOf="@id/buttonSearch"
         app:layout_constraintEnd_toStartOf="@id/buttonDelete"
         app:layout_constraintHorizontal_weight="1"/>
 
@@ -92,12 +92,12 @@
         android:text="삭제"
         app:layout_constraintTop_toBottomOf="@id/editTextQuantity"
         app:layout_constraintStart_toEndOf="@id/buttonEdit"
-        app:layout_constraintEnd_toStartOf="@id/buttonSearch"
+        app:layout_constraintEnd_toStartOf="@id/buttonAdd"
         app:layout_constraintHorizontal_weight="1"/>
 
     <!-- 버튼: 추가 -->
     <Button
-        android:id="@+id/buttonSearch"
+        android:id="@+id/buttonAdd"
         android:layout_width="0dp"
         android:layout_height="48dp"
         android:text="추가"
