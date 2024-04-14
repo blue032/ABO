@@ -37,7 +37,10 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Locale;
+import java.util.PriorityQueue;
 
 public class WaitingActivity extends AppCompatActivity {
 
@@ -55,6 +58,7 @@ public class WaitingActivity extends AppCompatActivity {
     // 멤버 변수로 ScrollView와 TextView의 높이를 저장할 수 있습니다.
     private ScrollView scrollViewNumbers;
     private int textViewHeight = 0;
+    private long maxWaitingTimeMillis = 0; //최대대기시간을 밀리초로 저장
 
 
     @SuppressLint("MissingInflatedId")
@@ -177,7 +181,7 @@ public class WaitingActivity extends AppCompatActivity {
 
     private void setupFirebaseListener() {
         database = FirebaseDatabase.getInstance();
-        String referencePath = "Orders/2024/3/" + Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+        String referencePath = "Order/2024/3/" + Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
         databaseReference = database.getReference(referencePath);
 
         valueEventListener = new ValueEventListener() {
@@ -191,6 +195,7 @@ public class WaitingActivity extends AppCompatActivity {
                         ordersList.add(order); // 업데이트된 주문 리스트에 추가
                     }
                 }
+                updateWaitingTimeUI(); //최대대기시간 업뎃
                 checkOrdersTime();
             }
 
@@ -212,6 +217,13 @@ public class WaitingActivity extends AppCompatActivity {
         };
         handler.post(runnable); //Runnable 실행
     }
+    private PriorityQueue<Orders> ordersQueue = new PriorityQueue<>(new Comparator<Orders>() {
+        @Override
+        public int compare(Orders o1, Orders o2) {
+            // 내림차순 정렬을 위한 비교
+            return Long.compare(o2.getTotalWaitTimeMillis(), o1.getTotalWaitTimeMillis());
+        }
+    });
 
     //현재시간에 해당하는 대기번호 확인 후 화면에 표시하는 로직
     private void checkOrdersTime() {
@@ -219,8 +231,8 @@ public class WaitingActivity extends AppCompatActivity {
         long nowMillis = now.getTimeInMillis();
 
         //영업시간 설정
-        Calendar startTime = Calendar.getInstance();
-        startTime.set(Calendar.HOUR_OF_DAY, 9);
+        /*Calendar startTime = Calendar.getInstance();
+        startTime.set(Calendar.HOUR_OF_DAY, 1);
         startTime.set(Calendar.MINUTE, 0);
         startTime.set(Calendar.SECOND, 0);
         long startTimeMillis = startTime.getTimeInMillis();
@@ -234,68 +246,96 @@ public class WaitingActivity extends AppCompatActivity {
         if (nowMillis < startTimeMillis || nowMillis > endTimeMillis){
             updateUIWithClosed();
             return;
-        }
+        }*/
         int currentCount = 0;
+        maxWaitingTimeMillis = 0; //최대대기시간을 재설정
 
         // 주문 목록을 반복하여 현재 대기 번호 수를 계산
-        for (Orders order : ordersList) {
-            Calendar orderCalendar = Calendar.getInstance();
-            Orders.Time orderTime = order.getTime();
-            orderCalendar.set(Calendar.HOUR_OF_DAY, orderTime.getHour());
-            orderCalendar.set(Calendar.MINUTE, orderTime.getMinute());
-            orderCalendar.set(Calendar.SECOND, orderTime.getSecond());
-            long orderTimeMillis = orderCalendar.getTimeInMillis();
+        for (Iterator<Orders> iterator = ordersList.iterator(); iterator.hasNext(); ) {
+            Orders order = iterator.next();
 
+            long orderTimeMillis = getOrderTimeMillis(order);
             // 메뉴 아이템의 총 대기 시간 계산
-            long totalWaitTimeMillis = order.getMenu().stream()
-                    .mapToLong(item -> item.getQuantity() * 2 * 60 * 1000)
-                    .sum();
-
+            long totalWaitTimeMillis = calculateTotalWaitTimeMillis(order);
             long orderEndTimeMillis = orderTimeMillis + totalWaitTimeMillis;
 
             // 주문이 현재 시간 이전에 들어왔다면
             if (orderTimeMillis <= nowMillis) {
-                // 주문 완료 시간이 현재 시간을 지나지 않았으면 대기번호 증가
                 if (orderEndTimeMillis > nowMillis) {
+                    order.setTotalWaitTimeMillis(totalWaitTimeMillis);
+                    ordersQueue.add(order);
                     currentCount++;
-                    // 예상 완료 시간을 포맷하여 표시
-                    updateEstimatedCompletionTime(orderEndTimeMillis);
-                } else {
-                    // 주문의 완료 시간이 현재 시간을 지났고 currentCount가 0보다 크면 대기번호 감소
+                    if (totalWaitTimeMillis > maxWaitingTimeMillis) {
+                        maxWaitingTimeMillis = totalWaitTimeMillis;
+                    }
+                }
+                else { // 주문 완료 시간이 현재 시간을 지났을 경우
+                    iterator.remove();
+                    ordersQueue.remove(order);
                     if (currentCount > 0) {
                         currentCount--;
                     }
                 }
             }
         }
+        if (!ordersQueue.isEmpty()) {
+            maxWaitingTimeMillis = ordersQueue.peek().getTotalWaitTimeMillis();
+        } else {
+            maxWaitingTimeMillis = 0;
+        }
         totalCount = currentCount; // 현재 계산된 대기 수를 totalCount에 반영
         updateUIWithCurrentCount(); // UI 업데이트
-
+        updateWaitingTimeUI();
+    }
+    private long getOrderTimeMillis(Orders order) {
+        Calendar orderCalendar = Calendar.getInstance();
+        Orders.Time orderTime = order.getTime();
+        orderCalendar.set(Calendar.HOUR_OF_DAY, orderTime.getHour());
+        orderCalendar.set(Calendar.MINUTE, orderTime.getMinute());
+        orderCalendar.set(Calendar.SECOND, orderTime.getSecond());
+        return orderCalendar.getTimeInMillis();
     }
 
-    private void updateUIWithClosed() {
+    private long calculateTotalWaitTimeMillis(Orders order) {
+        return order.getMenu().stream()
+                .mapToLong(item -> item.getQuantity() * 2 * 60 * 1000) // 각 메뉴 아이템의 대기 시간을 계산
+                .sum();
+    }
+
+
+    private void updateWaitingTimeUI() {
+        EditText waitingTimeEditText = findViewById(R.id.waitingTime);
+        int maxWaitingTimeMinutes = (int) (maxWaitingTimeMillis/60000); //밀리초를 분으로 바꾸기
+        int additionalMinutes = 0;
+
+        //대기번호에 따른 추가 시간 계산
+        if (totalCount > 6) {
+            additionalMinutes = 10;
+        } else if (totalCount > 2) {
+            additionalMinutes = 5;
+        }
+        int totalWaitingTime = maxWaitingTimeMinutes + additionalMinutes;
+        waitingTimeEditText.setText(String.valueOf(totalWaitingTime));
+    }
+
+    /*private void updateUIWithClosed() {
         String closeText = "영업종료";
         tv_waitingNumber.setText(closeText);
         textViewSuffix.setVisibility(View.GONE);
         saveTotalCount(0); // 영업 종료 시 혼잡도 상태를 녹색으로
-    }
+    }*/
 
     public void addOrder(Orders newOrder){
         // 새 주문을 주문 리스트에 추가
         ordersList.add(newOrder);
+        long newOrderWaitTime = calculateTotalWaitTimeMillis(newOrder);
+        newOrder.setTotalWaitTimeMillis(newOrderWaitTime);
+        ordersQueue.add(newOrder);
         // 대기번호 증가
         totalCount++;
         // UI 업데이트
         updateUIWithCurrentCount();
     }
-    private void updateEstimatedCompletionTime(long millis) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(millis);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
-        String formattedTime = dateFormat.format(calendar.getTime());
-
-    }
-
 
 
     private void updateUIWithCurrentCount() {
@@ -316,7 +356,14 @@ public class WaitingActivity extends AppCompatActivity {
         }
         SharedPreferences sharedPreferences = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString("CongestionStatus", "icon_green");
+        editor.putString("CongestionStatus", status);
+        editor.apply();
+    }
+    private void saveWaitingInfo(int waitingNumber, int maxWaitingTime) {
+        SharedPreferences prefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt("WaitingNumber", waitingNumber);
+        editor.putInt("MaxWaitingTime", maxWaitingTime);
         editor.apply();
     }
     @Override

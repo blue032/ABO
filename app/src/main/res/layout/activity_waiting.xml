@@ -118,7 +118,7 @@
             android:layout_width="169dp"
             android:layout_height="58dp"
             android:ems="10"
-            android:hint="최대대기시간"
+            android:hint="최대대기시간 (분)"
             android:inputType="numberDecimal"
             android:textSize="28dp"
             android:gravity="center"

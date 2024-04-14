@@ -10,11 +10,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -34,6 +36,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -53,14 +56,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         initGoogleMap(savedInstanceState);
 
         sharedPreferences = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
-
-        // 리스너 초기화
-        // 리스너 초기화 및 등록
         preferenceChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
             public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-                if ("CongestionStatus".equals(key)) {
-                    updateCongestionStatus(); // 값이 변경될 때마다 UI 업데이트
+                if ("WaitingNumber".equals(key) || "MaxWaitingTime".equals(key) || "CongestionStatus".equals(key)) {
+                    runOnUiThread(() -> updateUIWithNewData());
                 }
             }
         };
@@ -131,6 +131,14 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 EditText editWaitNumber = dialogLayout.findViewById(R.id.edit_time1);
                 EditText editWaitTime = dialogLayout.findViewById(R.id.edit_time2);
 
+                // SharedPreferences에서 데이터 읽어오기
+                SharedPreferences prefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
+                int waitingNumber = prefs.getInt("WaitingNumber", 0);  // 대기번호 가져오기
+                int maxWaitingTime = prefs.getInt("MaxWaitingTime", 0);  // 최대 대기시간 가져오기
+
+                editWaitNumber.setText(String.valueOf(waitingNumber));
+                editWaitTime.setText(String.valueOf(maxWaitingTime));
+
                 // 팝업창 생성 및 표시
                 new AlertDialog.Builder(MapActivity.this)
                         .setTitle(marker.getTitle()) // 팝업창 제목에 카페 이름 설정
@@ -140,7 +148,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
             return true; // 이벤트가 처리되었음을 알림 (true 반환)
         });
-        updateCongestionStatus();
+        updateUIWithNewData();
     }
 
     private BitmapDescriptor resizeMapIcons(String iconName, int width, int height){
@@ -200,40 +208,61 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         super.onResume();
         mapView.onResume();
         //혼잡도 정보 기반 아이콘 업뎃
-        updateCongestionStatus();
+        updateUIWithNewData();
     }
 
-    private void updateCongestionStatus() {
-        SharedPreferences sharedPreferences = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
-        String status = sharedPreferences.getString("CongestionStatus", "icon_green"); // 기본값: icon_green
-        String openStatus = sharedPreferences.getString("CafeOpenStatus", "open"); // 영업 상태 기본값: open
+    private void updateUIWithNewData() {
+        SharedPreferences prefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
+        String status = prefs.getString("CongestionStatus", "icon_green");
+        int waitingNumber = prefs.getInt("WaitingNumber", 0);
+        int maxWaitingTime = prefs.getInt("MaxWaitingTime", 0);
+
+        runOnUiThread(() -> {
+            try {
+                // 마커 업데이트
+                if (cafeMarker != null) {
+                    BitmapDescriptor iconDescriptor = getIconFromStatus(status);
+                    cafeMarker.setIcon(iconDescriptor);
+                }
+
+                // 관련 UI 컴포넌트 업데이트
+                ImageView imageView10 = findViewById(R.id.imageView10);
+                int drawableId = getResources().getIdentifier(status, "drawable", getPackageName());
+                imageView10.setImageResource(drawableId);
+            } catch (Exception e) {
+                Log.e("MapActivity", "Failed to update UI", e);
+            }
+        });
+    }
 
 
-        BitmapDescriptor iconDescriptor;
-        switch(status) {
-            case "icon_green":
-                iconDescriptor = resizeMapIcons("location_green", 100, 100);
+
+    private BitmapDescriptor getIconFromStatus(String status) {
+        // 아이콘의 리소스 ID를 얻어서 BitmapDescriptor를 생성합니다.
+        int resourceId;
+        switch (status) {
+            case "icon_red":
+                resourceId = R.drawable.icon_red;
                 break;
             case "icon_blue":
-                iconDescriptor = resizeMapIcons("location_blue", 100, 100);
-                break;
-            case "icon_red":
-                iconDescriptor = resizeMapIcons("location_red", 100, 100);
+                resourceId = R.drawable.icon_blue;
                 break;
             default:
-                iconDescriptor = BitmapDescriptorFactory.defaultMarker(); // 기본 마커 아이콘
+                resourceId = R.drawable.icon_green;
                 break;
         }
-
-        if (cafeMarker != null) {
-            cafeMarker.setIcon(iconDescriptor);
-        }
-
-        ImageView imageView10 = findViewById(R.id.imageView10);
-        int drawableId = getResources().getIdentifier(status, "drawable", getPackageName());
-        imageView10.setImageResource(drawableId);
+        return resizeMapIcons(resourceId, 100, 100);
     }
 
+    private BitmapDescriptor resizeMapIcons(int resourceId, int width, int height) {
+        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(), resourceId);
+        Bitmap resizedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(resizedBitmap);
+        Paint paint = new Paint();
+        paint.setFilterBitmap(true);
+        canvas.drawBitmap(imageBitmap, null, new android.graphics.Rect(0, 0, width, height), paint);
+        return BitmapDescriptorFactory.fromBitmap(resizedBitmap);
+    }
 
     @Override
     protected void onStart() {
@@ -255,12 +284,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     protected void onDestroy() {
-        mapView.onDestroy();
         super.onDestroy();
+        if (mapView != null) {
+            mapView.onDestroy();
+        }
         if (sharedPreferences != null) {
+            // 리스너 해제
             sharedPreferences.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener);
         }
     }
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);

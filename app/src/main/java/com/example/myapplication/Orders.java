@@ -3,6 +3,7 @@ package com.example.myapplication;
 import android.view.MenuItem;
 
 import java.util.List;
+import java.util.Objects;
 
 public class Orders {
     private int WaitNumber;
@@ -118,5 +119,16 @@ public class Orders {
     // totalWaitTimeMillis 필드에 대한 setter
     public void setTotalWaitTimeMillis(long totalWaitTimeMillis) {
         this.totalWaitTimeMillis = totalWaitTimeMillis;
+    }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Orders orders = (Orders) obj;
+        return WaitNumber == orders.WaitNumber;  // 주문을 식별할 유일한 필드를 사용
+    }
+    @Override
+    public int hashCode() {
+        return Objects.hash(WaitNumber);  // 식별자로 WaitNumber 사용
     }
 }

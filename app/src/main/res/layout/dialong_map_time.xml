@@ -22,14 +22,6 @@
             android:layout_gravity="center"
             android:paddingBottom="8dp"/>
 
-        <Button
-            android:id="@+id/button_cancel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="닫기"
-            android:layout_gravity="end"
-            android:paddingEnd="16dp"
-            android:onClick="cancelTimeChange"/>
     </FrameLayout>
 
     <LinearLayout
