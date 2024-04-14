@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- 날짜 입력 필드: 시작 날짜 -->
+    <EditText
+        android:id="@+id/editTextStartDate"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:hint="날짜 입력"
+        android:inputType="date"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/editTextEndDate"
+        app:layout_constraintHorizontal_weight="1"/>
+
+    <!-- 날짜 입력 필드: 끝 날짜 -->
+    <EditText
+        android:id="@+id/editTextEndDate"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:hint="날짜 입력"
+        android:inputType="date"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/editTextStartDate"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_weight="1"/>
+
+    <!-- 대기번호 입력 필드 -->
+    <EditText
+        android:id="@+id/editTextWaitingNumber"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:hint="대기번호 입력"
+        android:inputType="number"
+        app:layout_constraintTop_toBottomOf="@id/editTextEndDate"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- 메뉴 입력 필드 -->
+    <EditText
+        android:id="@+id/editTextMenu"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:hint="메뉴 입력"
+        app:layout_constraintTop_toBottomOf="@id/editTextWaitingNumber"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/editTextQuantity"
+        app:layout_constraintHorizontal_weight="2"/>
+
+    <!-- 수량 입력 필드 -->
+    <EditText
+        android:id="@+id/editTextQuantity"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:hint="수량입력"
+        android:inputType="number"
+        app:layout_constraintTop_toBottomOf="@id/editTextWaitingNumber"
+        app:layout_constraintStart_toEndOf="@id/editTextMenu"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_weight="1"/>
+
+    <!-- 버튼: 검색 -->
+    <Button
+        android:id="@+id/buttonAdd"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:text="검색"
+        app:layout_constraintTop_toBottomOf="@id/editTextMenu"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/buttonEdit"
+        app:layout_constraintHorizontal_weight="1"/>
+
+    <!-- 버튼: 수정 -->
+    <Button
+        android:id="@+id/buttonEdit"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:text="수정"
+        app:layout_constraintTop_toBottomOf="@id/editTextQuantity"
+        app:layout_constraintStart_toEndOf="@id/buttonAdd"
+        app:layout_constraintEnd_toStartOf="@id/buttonDelete"
+        app:layout_constraintHorizontal_weight="1"/>
+
+    <!-- 버튼: 삭제 -->
+    <Button
+        android:id="@+id/buttonDelete"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:text="삭제"
+        app:layout_constraintTop_toBottomOf="@id/editTextQuantity"
+        app:layout_constraintStart_toEndOf="@id/buttonEdit"
+        app:layout_constraintEnd_toStartOf="@id/buttonSearch"
+        app:layout_constraintHorizontal_weight="1"/>
+
+    <!-- 버튼: 추가 -->
+    <Button
+        android:id="@+id/buttonSearch"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:text="추가"
+        app:layout_constraintTop_toBottomOf="@id/editTextQuantity"
+        app:layout_constraintStart_toEndOf="@id/buttonDelete"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_weight="1"/>
+
+    <!-- 대형 텍스트 뷰 영역 -->
+    <TextView
+        android:id="@+id/textViewLargeArea"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#FFC0CB"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/buttonSearch" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

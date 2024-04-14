@@ -94,7 +94,29 @@ public class WaitingActivity extends AppCompatActivity {
         // ImageView 참조
         ImageView imageViewTimeChange = findViewById(R.id.imageViewCeoTimeChange);
         ImageView imageViewOrderChange = findViewById(R.id.imageViewCeoOrderChange);
+        if (imageViewTimeChange != null) {
+            imageViewTimeChange.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // 시간 변경 다이얼로그 표시
+                    showTimeChangeDialog();
+                }
+            });
+        } else {
+            Log.e("WaitingActivity", "imageViewTimeChange is null");
+        }
 
+        if (imageViewOrderChange != null) {
+            imageViewOrderChange.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // 주문 변경 로직 처리
+                    Log.d("WaitingActivity", "Order Change Clicked");
+                }
+            });
+        } else {
+            Log.e("WaitingActivity", "imageViewOrderChange is null");
+        }
         //사장님이 최대대기시간 변경할 수 있도록
         imageViewTimeChange.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,7 +134,7 @@ public class WaitingActivity extends AppCompatActivity {
             }
         });
         */
-/*
+    /*
         // '-' 버튼 클릭 리스너 설정
         findViewById(R.id.button_decrease).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -129,8 +151,8 @@ public class WaitingActivity extends AppCompatActivity {
             }
         });
 
- */
 
+*/
         // SharedPreferences에서 사장님 여부 확인
         SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
         boolean isCeo = prefs.getBoolean("IsCeo", false);
@@ -144,6 +166,14 @@ public class WaitingActivity extends AppCompatActivity {
             imageViewOrderChange.setVisibility(View.GONE);
         }
 
+        imageViewOrderChange.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Ceo_OrderChange 액티비티로 전환하기 위한 Intent 생성
+                Intent intent = new Intent(WaitingActivity.this, Ceo_OrderChange.class);
+                startActivity(intent); // 액티비티 시작
+            }
+        });
 
         // BottomNavigationView 설정
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
@@ -419,6 +449,6 @@ public class WaitingActivity extends AppCompatActivity {
 
         d.show();
     }
-*/
 
+*/
 }
