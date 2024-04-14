@@ -6,27 +6,25 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
-    <!-- 날짜 입력 필드: 시작 날짜 -->
-    <EditText
-        android:id="@+id/editTextStartDate"
+    <!-- 날짜 입력 버튼: 시작 날짜 -->
+    <Button
+        android:id="@+id/buttonStartDate"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        android:hint="날짜 입력"
-        android:inputType="date"
+        android:text="날짜 선택"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/editTextEndDate"
+        app:layout_constraintEnd_toStartOf="@id/buttonEndDate"
         app:layout_constraintHorizontal_weight="1"/>
 
-    <!-- 날짜 입력 필드: 끝 날짜 -->
-    <EditText
-        android:id="@+id/editTextEndDate"
+    <!-- 날짜 입력 버튼: 끝 날짜 -->
+    <Button
+        android:id="@+id/buttonEndDate"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        android:hint="날짜 입력"
-        android:inputType="date"
+        android:text="날짜 선택"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/editTextStartDate"
+        app:layout_constraintStart_toEndOf="@id/buttonStartDate"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_weight="1"/>
 
@@ -37,7 +35,7 @@
         android:layout_height="48dp"
         android:hint="대기번호 입력"
         android:inputType="number"
-        app:layout_constraintTop_toBottomOf="@id/editTextEndDate"
+        app:layout_constraintTop_toBottomOf="@id/buttonStartDate"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -57,7 +55,7 @@
         android:id="@+id/editTextQuantity"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        android:hint="수량입력"
+        android:hint="수량 입력"
         android:inputType="number"
         app:layout_constraintTop_toBottomOf="@id/editTextWaitingNumber"
         app:layout_constraintStart_toEndOf="@id/editTextMenu"
@@ -108,16 +106,26 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_weight="1"/>
 
-    <!-- 대형 텍스트 뷰 영역 -->
-    <TextView
-        android:id="@+id/textViewLargeArea"
+    <!-- 대형 텍스트 뷰 영역 (스크롤 기능 추가) -->
+    <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="#FFC0CB"
+        android:fillViewport="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/buttonSearch" />
+        app:layout_constraintTop_toBottomOf="@id/buttonSearch">
 
+        <TextView
+            android:id="@+id/textViewLargeArea"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#FFC0CB"
+            android:padding="8dp"
+            android:scrollbars="vertical"
+            android:textSize="16sp"
+            />
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
