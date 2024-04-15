@@ -32,7 +32,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
+//게시판 처음 들어가면 보이는 곳에 대한 작동 (게시판 첫 화면)
 public class CeoBoardActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private BoardPostAdapter adapter;

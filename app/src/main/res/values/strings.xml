@@ -4,5 +4,7 @@
     <string name="blue_icon_description">Blue icon indicating medium congestion</string>
     <string name="green_icon_description">Green icon indicating low congestion</string>
     <string name="upload_image_description">Upload image</string>
-
+    <string name="image_description">Describe the image</string>
+    <string name="title">Title goes here</string>
 </resources>
+

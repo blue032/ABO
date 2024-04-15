@@ -17,7 +17,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import android.widget.PopupMenu;
 import java.util.ArrayList;
-
+//글 등록 후, 글 세부 내용을 볼 수 있는 곳
 public class CeoDetailActivity extends AppCompatActivity {
 
     private DatabaseReference databaseReference;

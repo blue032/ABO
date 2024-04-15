@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // O.O카페 TextView가 클릭되었을 때 수행할 동작
-                Intent intent = new Intent(MainActivity.this, DetailpageActivity.class);
+                Intent intent = new Intent(MainActivity.this, CafeMenuActivity.class);
                 // 필요한 경우 intent에 추가 데이터를 넣습니다.
                 startActivity(intent);
             }

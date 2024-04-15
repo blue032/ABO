@@ -5,6 +5,7 @@ import java.util.Locale;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+//게시물을 관리하는 데 필요한 데이터 구조를 정의하는 클래스
 public class CeoBoardPost {
     private String title;
     private String content;

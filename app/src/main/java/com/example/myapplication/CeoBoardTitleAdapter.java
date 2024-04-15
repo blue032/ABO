@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-
+//게시글의 제목 목록을 표시와 스크롤을 가능하도록
 public class CeoBoardTitleAdapter extends RecyclerView.Adapter<CeoBoardTitleAdapter.TitleViewHolder> {
     private ArrayList<String> titles;
 

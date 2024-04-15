@@ -41,7 +41,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
-
+//글을 작성할 수 있는 곳
 public class CeoWriteBoardActivity extends AppCompatActivity {
 
     private EditText editTextTitle, editTextContent;

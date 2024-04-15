@@ -33,7 +33,7 @@
         android:id="@+id/editTextWaitingNumber"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        android:hint="대기번호 입력"
+        android:hint="주문번호 입력"
         android:inputType="number"
         app:layout_constraintTop_toBottomOf="@id/buttonStartDate"
         app:layout_constraintStart_toStartOf="parent"
