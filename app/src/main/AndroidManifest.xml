@@ -85,7 +85,7 @@
         <activity android:name=".MapActivity">
         </activity>
 
-        <activity android:name=".DetailpageActivity">
+        <activity android:name=".CafeMenuActivity">
         </activity>
 
         <activity android:name=".IdPwSelectionActivity">
@@ -138,6 +138,12 @@
         </activity>
 
         <activity android:name=".Ceo_OrderChange">
+        </activity>
+
+        <activity android:name="CafeMenu_WriteBoard">
+        </activity>
+
+        <activity android:name="CafeMenu_Detail">
         </activity>
 
         <meta-data
