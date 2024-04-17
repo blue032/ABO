@@ -154,7 +154,14 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyD_vN-SWRGT_iXf9PspbbjgLSkiG3DXvqo" />
 
-
     </application>
+
+    <supports-screens
+        android:smallScreens="true"
+        android:normalScreens="true"
+        android:largeScreens="true"
+        android:xlargeScreens="true"
+        android:resizeable="true"
+        android:anyDensity="true" />
 
 </manifest>
