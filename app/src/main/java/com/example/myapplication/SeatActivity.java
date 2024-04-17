@@ -6,6 +6,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import android.util.Log;
+import android.widget.ImageView;
+
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,11 +21,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class SeatActivity extends AppCompatActivity {
+    private DatabaseReference tableStatusRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_seat);
+
+        // Firebase 참조 초기화
+        tableStatusRef = FirebaseDatabase.getInstance().getReference("카페 테이블 상태");
+
+        // 실시간 데이터베이스 감시 시작
+        monitorTableStatus();
 
         // Intent에서 카페 이름 가져오기
         String cafeName = getIntent().getStringExtra("cafeName");
@@ -26,6 +41,7 @@ public class SeatActivity extends AppCompatActivity {
         EditText editTextCafeName = findViewById(R.id.editcafename);
         editTextCafeName.setText(cafeName);
         Button bluetoothButton = findViewById(R.id.button_bluetooth);
+
 
         // 버튼에 클릭 리스너를 설정합니다.
         bluetoothButton.setOnClickListener(new View.OnClickListener() {
@@ -69,6 +85,42 @@ public class SeatActivity extends AppCompatActivity {
         });
 
     }
+    private void monitorTableStatus() {
+        tableStatusRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    TableStatus status = snapshot.getValue(TableStatus.class);
+                    if (status != null) {
+                        updateTableUI(status.number, status.status);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.w("SeatActivity", "loadPost:onCancelled", databaseError.toException());
+            }
+        });
+    }
+
+    private void updateTableUI(int tableNumber, boolean isOccupied) {
+        int resId = getResources().getIdentifier("seat" + tableNumber, "id", getPackageName());
+        ImageView seatView = findViewById(resId);
+        if (seatView != null) {
+            seatView.setImageResource(isOccupied ? R.drawable.seat_occupied : R.drawable.seat_empty);
+        }
+    }
+
+    private static class TableStatus {
+        public int number;
+        public boolean status;
+
+        public TableStatus() {
+            // Default constructor required for calls to DataSnapshot.getValue(TableStatus.class)
+        }
+    }
 }
+
 
 
