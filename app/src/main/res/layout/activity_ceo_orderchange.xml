@@ -118,7 +118,7 @@
         app:layout_constraintTop_toBottomOf="@id/buttonSearch">
 
         <TextView
-            android:id="@+id/textViewLargeArea"
+            android:id="@+id/textViewOrderDetails"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#FFC0CB"

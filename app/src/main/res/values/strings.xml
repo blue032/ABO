@@ -6,5 +6,32 @@
     <string name="upload_image_description">Upload image</string>
     <string name="image_description">Describe the image</string>
     <string name="title">Title goes here</string>
+    <string-array name="in_or_takeout_options">
+        <item>In</item>
+        <item>TakeOut</item>
+    </string-array>
+
+    <string-array name="order_menu">
+        <item>ice americano</item>
+        <item>hot americano</item>
+        <item>ice cafe latte</item>
+        <item>hot cafe latte</item>
+        <item>cappuccino</item>
+        <item>ice vanilla latte</item>
+        <item>hot vanilla latte</item>
+        <item>caramel latte</item>
+        <item>einspanner</item>
+        <item>royal milktea</item>
+        <item>rooisbos</item>
+        <item>ice chamomile</item>
+        <item>hot chamomile</item>
+        <item>ice lemon ade</item>
+        <item>ice grapefruits ade</item>
+        <item>appogato</item>
+        <item>hot hibiscus tea</item>
+        <item>ice hibiscus tea</item>
+        <item>ice greentea latte</item>
+        <item>hot greentea latte</item>
+    </string-array>
 </resources>
 

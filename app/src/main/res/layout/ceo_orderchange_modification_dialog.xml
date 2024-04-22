@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@android:color/white"
+    android:gravity="center_horizontal">
+
+    <TextView
+        android:id="@+id/textViewOrderTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="주문 상세 정보"
+        android:textAlignment="center"
+        android:textSize="18sp"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/textViewLabelWaitNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="대기번호:"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/textViewWaitNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/textViewLabelTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="시간:"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/textViewTime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/textViewLabelMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="메뉴 목록:"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- 메뉴 선택 스피너 -->
+    <Spinner
+        android:id="@+id/spinnerMenu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"/>
+
+    <!-- 수량 입력 EditText -->
+    <EditText
+        android:id="@+id/editTextMenuQuantity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="수량"
+        android:inputType="number"
+        android:minHeight="48dp"
+        android:layout_marginTop="16dp"/>
+    <TextView
+        android:id="@+id/textViewLabelTotalPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="총 가격:"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/textViewTotalPrice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/textViewLabelInOrTakeout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="매장/포장:"
+        android:layout_marginBottom="8dp"/>
+
+    <Spinner
+        android:id="@+id/spinnerInOrTakeout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/in_or_takeout_options" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:weightSum="2">
+
+        <Button
+            android:id="@+id/buttonConfirm"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:text="수정"
+            android:layout_weight="1"
+            android:layout_marginEnd="4dp"/>
+
+        <Button
+            android:id="@+id/buttonCancel"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:text="취소"
+            android:layout_weight="1"
+            android:layout_marginStart="4dp"/>
+    </LinearLayout>
+</LinearLayout>

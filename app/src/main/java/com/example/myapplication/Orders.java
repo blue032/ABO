@@ -2,12 +2,18 @@ package com.example.myapplication;
 
 import android.view.MenuItem;
 
+import com.google.firebase.database.PropertyName;
+
 import java.util.List;
 import java.util.Objects;
 
 public class Orders {
     private int WaitNumber;
     private int day;
+
+    private String in_or_takeout; // 매장 내 주문인지 포장 주문인지
+    @PropertyName("price")
+    private int totalPrice; // 데이터베이스의 'price' 필드와 매핑
     private List<MenuItem> menu;
     private Time time; // Time 객체에 대한 참조
 
@@ -15,7 +21,7 @@ public class Orders {
 
     public static class MenuItem{
         private String name;
-        private int price;
+        private int price; //개별 메뉴의 가격
         private int quantity;
 
         public String getName() {
@@ -93,6 +99,24 @@ public class Orders {
 
     public void setDay(int day) {
         this.day = day;
+    }
+    // in_or_takeout의 게터 및 세터
+    public String getIn_or_takeout() {
+        return in_or_takeout;
+    }
+    public void setIn_or_takeout(String in_or_takeout) {
+        this.in_or_takeout = in_or_takeout;
+    }
+    // 게터 메서드
+    @PropertyName("price")
+    public int getTotalPrice() {
+        return totalPrice;
+    }
+
+    // 세터 메서드
+    @PropertyName("price")
+    public void setTotalPrice(int totalPrice) {
+        this.totalPrice = totalPrice;
     }
 
     public List<MenuItem> getMenu() {
