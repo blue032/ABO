@@ -18,71 +18,71 @@
 
     <TextView
         android:id="@+id/textViewLabelWaitNumber"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="대기번호:"
+        android:textAlignment="center"
         android:layout_marginBottom="8dp"/>
 
     <TextView
         android:id="@+id/textViewWaitNumber"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAlignment="center"
         android:layout_marginBottom="8dp"/>
 
     <TextView
         android:id="@+id/textViewLabelTime"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="시간:"
+        android:textAlignment="center"
         android:layout_marginBottom="8dp"/>
 
     <TextView
         android:id="@+id/textViewTime"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAlignment="center"
         android:layout_marginBottom="8dp"/>
 
     <TextView
         android:id="@+id/textViewLabelMenu"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="메뉴 목록:"
+        android:textAlignment="center"
         android:layout_marginBottom="8dp"/>
 
-    <!-- 메뉴 선택 스피너 -->
-    <Spinner
-        android:id="@+id/spinnerMenu"
+    <LinearLayout
+        android:id="@+id/spinnerContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:layout_marginTop="16dp"/>
 
-    <!-- 수량 입력 EditText -->
-    <EditText
-        android:id="@+id/editTextMenuQuantity"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="수량"
-        android:inputType="number"
-        android:minHeight="48dp"
-        android:layout_marginTop="16dp"/>
+
     <TextView
         android:id="@+id/textViewLabelTotalPrice"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="총 가격:"
+        android:textAlignment="center"
         android:layout_marginBottom="8dp"/>
 
     <TextView
         android:id="@+id/textViewTotalPrice"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textAlignment="center"
         android:layout_marginBottom="8dp"/>
 
     <TextView
         android:id="@+id/textViewLabelInOrTakeout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="매장/포장:"
+        android:textAlignment="center"
         android:layout_marginBottom="8dp"/>
 
     <Spinner
@@ -104,7 +104,8 @@
             android:layout_height="48dp"
             android:text="수정"
             android:layout_weight="1"
-            android:layout_marginEnd="4dp"/>
+            android:layout_marginEnd="4dp"
+            android:textColor="@android:color/background_light"/>
 
         <Button
             android:id="@+id/buttonCancel"
@@ -112,6 +113,8 @@
             android:layout_height="48dp"
             android:text="취소"
             android:layout_weight="1"
-            android:layout_marginStart="4dp"/>
+            android:layout_marginStart="4dp"
+            android:textColor="@android:color/background_light"/>
     </LinearLayout>
 </LinearLayout>
+
