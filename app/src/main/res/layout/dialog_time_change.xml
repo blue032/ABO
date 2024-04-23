@@ -1,71 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp"
     android:background="@android:color/white"
     android:gravity="center_horizontal">
 
-    <FrameLayout
+    <TextView
+        android:id="@+id/textView_title"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:text="시간 변경"
+        android:textAlignment="center"
+        android:textSize="18sp"
+        android:paddingBottom="8dp"/>
 
-        <TextView
-            android:id="@+id/textView_title"
-            android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <NumberPicker
+            android:id="@+id/numberPickerHour"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="수정 시간 입력"
-            android:layout_gravity="center"
-            android:paddingBottom="8dp"/>
+            android:layout_weight="1"/>
 
-        <Button
-            android:id="@+id/button_cancel"
-            android:layout_width="wrap_content"
+        <NumberPicker
+            android:id="@+id/numberPickerMinute"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="취소"
-            android:layout_gravity="end"
-            android:paddingEnd="16dp"
-            android:onClick="cancelTimeChange"/>
-    </FrameLayout>
+            android:layout_weight="1"/>
+
+        <NumberPicker
+            android:id="@+id/numberPickerSecond"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
-
+        android:orientation="horizontal">
         <Button
-            android:id="@+id/button_decrease"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="-"
-            android:onClick="decreaseTime"/>
-
-        <EditText
-            android:id="@+id/edit_time"
+            android:id="@+id/buttonSetTime"
             android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:gravity="center"
-            android:hint="Enter new time"
-            android:padding="40dp"/>
-
+            android:text="확인"
+            android:textSize="18sp"/>
         <Button
-            android:id="@+id/button_increase"
-            android:layout_width="wrap_content"
+            android:id="@+id/button_cancel"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="+"
-            android:onClick="increaseTime"/>
+            android:layout_weight="1"
+            android:text="취소"
+            android:textSize="18sp"/>
     </LinearLayout>
-
-    <Button
-        android:id="@+id/button_confirm"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="확인"
-        android:textAllCaps="false"
-        android:layout_marginTop="16dp"
-        android:onClick="confirmTimeChange"/>
 </LinearLayout>

@@ -15,6 +15,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -61,10 +62,10 @@ public class Ceo_OrderChange extends AppCompatActivity {
         order_menu = getResources().getStringArray(R.array.order_menu);
         // 시작 날짜 선택 버튼 초기화
         buttonStartDate = findViewById(R.id.buttonStartDate);
-        buttonEndDate = findViewById(R.id.buttonEndDate);
+       //buttonEndDate = findViewById(R.id.buttonEndDate);
         buttonEdit = findViewById(R.id.buttonEdit); //수정버튼
-        buttonAdd = findViewById(R.id.buttonAdd); //추가버튼
-        buttonDelete = findViewById(R.id.buttonDelete);
+        // buttonAdd = findViewById(R.id.buttonAdd); //추가버튼
+       //buttonDelete = findViewById(R.id.buttonDelete);
 
         editTextWaitingNumber = findViewById(R.id.editTextWaitingNumber); //대기번호 입력
         buttonSearch = findViewById(R.id.buttonSearch); //검색 버튼
@@ -81,12 +82,12 @@ public class Ceo_OrderChange extends AppCompatActivity {
             }
         });
 
-        buttonEndDate.setOnClickListener(new View.OnClickListener() {
+        /*buttonEndDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showDatePickerDialog(buttonEndDate);
             }
-        });
+        });*/
 
         buttonSearch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -162,31 +163,61 @@ public class Ceo_OrderChange extends AppCompatActivity {
         datePickerDialog.show(); // DatePickerDialog 표시
     }
 
-    //시간을 선택할 수 있도록 하는 코드
-    private void showTimePickerDialog(Button timeButton) {
-        // 현재 시간을 기준으로 TimePickerDialog 생성
-        Calendar cal = Calendar.getInstance();
-        int hour = cal.get(Calendar.HOUR_OF_DAY);
-        int minute = cal.get(Calendar.MINUTE);
-
-        // TimePickerDialog 스피너 스타일로 생성
-        TimePickerDialog timePickerDialog = new TimePickerDialog(
-                Ceo_OrderChange.this,
-                android.R.style.Theme_Holo_Light_Dialog_NoActionBar, // 스피너 스타일
-                new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        // 선택한 시간을 버튼 텍스트로 설정
-                        String selectedTime = String.format("%02d:%02d", hourOfDay, minute);
-                        timeButton.setText(selectedTime); // 'timeButton'은 시간을 보여주는 버튼의 변수 이름입니다
-                    }
-                }, hour, minute, false); // 'false'는 24시간 형식을 사용하지 않겠다는 의미입니다
-
-        // Dialog의 배경을 투명하게 하여 스피너만 보이게 합니다
-        timePickerDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-
-        timePickerDialog.show();
+    // 시간을 클릭할 때 호출될 메서드
+    public void onTimeTextViewClick(View view) {
+        // 'view'는 클릭된 TextView
+        showTimePickerDialog((TextView) view);
     }
+
+    // showTimePickerDialog 메서드 수정
+    private void showTimePickerDialog(final TextView timeTextView) {
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_time_change);
+        dialog.setTitle("Set Time");
+
+        final NumberPicker numberPickerHour = dialog.findViewById(R.id.numberPickerHour);
+        final NumberPicker numberPickerMinute = dialog.findViewById(R.id.numberPickerMinute);
+        final NumberPicker numberPickerSecond = dialog.findViewById(R.id.numberPickerSecond);
+
+        // 현재 시간으로 NumberPicker 초기화
+        Calendar cal = Calendar.getInstance();
+        numberPickerHour.setMaxValue(23);
+        numberPickerHour.setMinValue(0);
+        numberPickerHour.setValue(cal.get(Calendar.HOUR_OF_DAY));
+
+        numberPickerMinute.setMaxValue(59);
+        numberPickerMinute.setMinValue(0);
+        numberPickerMinute.setValue(cal.get(Calendar.MINUTE));
+
+        numberPickerSecond.setMaxValue(59);
+        numberPickerSecond.setMinValue(0);
+        numberPickerSecond.setValue(cal.get(Calendar.SECOND));
+
+        // "확인" 버튼 설정
+        Button buttonSet = dialog.findViewById(R.id.buttonSetTime);
+        buttonSet.setOnClickListener(v -> {
+            int hour = numberPickerHour.getValue();
+            int minute = numberPickerMinute.getValue();
+            int second = numberPickerSecond.getValue();
+
+            // TextView 업데이트
+            String formattedTime = String.format(Locale.getDefault(), "%02d:%02d:%02d", hour, minute, second);
+            timeTextView.setText(formattedTime);
+
+            // Orders 객체에 시간 업데이트
+            if (currentOrder != null) {
+                currentOrder.getTime().setHour(hour);
+                currentOrder.getTime().setMinute(minute);
+                currentOrder.getTime().setSecond(second);
+                updateOrderInDatabase(currentOrder, currentOrderId, currentFormattedDate); // 데이터베이스 업데이트
+            }
+
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
 
     // 주문을 검색하는 메소드
     private void searchOrder(String date, int waitNumber) {
@@ -256,6 +287,7 @@ public class Ceo_OrderChange extends AppCompatActivity {
         dialog.setContentView(R.layout.ceo_orderchange_modification_dialog);
         dialog.setTitle("Order Modification");
 
+
         LinearLayout spinnerContainer = dialog.findViewById(R.id.spinnerContainer);
         spinnerContainer.removeAllViews(); // 이전 뷰 제거
 
@@ -282,8 +314,14 @@ public class Ceo_OrderChange extends AppCompatActivity {
 
         TextView textViewWaitNumber = dialog.findViewById(R.id.textViewWaitNumber);
         textViewWaitNumber.setText(String.valueOf(currentOrder.getWaitNumber()));
+
+
+        // 시간 표시 업데이트
         TextView textViewTime = dialog.findViewById(R.id.textViewTime);
         textViewTime.setText(String.format(Locale.getDefault(), "%02d:%02d", currentOrder.getTime().getHour(), currentOrder.getTime().getMinute()));
+        // 시간 표시 TextView 클릭 리스너
+        textViewTime.setOnClickListener(v -> showTimePickerDialog((TextView) v));
+
         TextView textViewTotalPrice = dialog.findViewById(R.id.textViewTotalPrice);
         textViewTotalPrice.setText(String.format(Locale.getDefault(), "%,d", currentOrder.getTotalPrice()));
 
@@ -311,6 +349,7 @@ public class Ceo_OrderChange extends AppCompatActivity {
             currentOrder.setMenu(updatedItems);
             currentOrder.setTotalPrice(totalPrice); // 주문 객체의 총 가격 업데이트
 
+
             updateOrderInDatabase(currentOrder, currentOrderId, currentFormattedDate); // DB 업데이트 호출
             dialog.dismiss();
         });
@@ -331,6 +370,10 @@ public class Ceo_OrderChange extends AppCompatActivity {
         orderUpdates.put("price", updatedOrder.getTotalPrice());
         orderUpdates.put("menu", updatedOrder.getMenu());  // 이렇게 메뉴 리스트를 업데이트하는지 확인
 
+        // 시간 정보 업데이트
+        orderUpdates.put("time/hour", updatedOrder.getTime().getHour());
+        orderUpdates.put("time/minute", updatedOrder.getTime().getMinute());
+        orderUpdates.put("time/second", updatedOrder.getTime().getSecond());
         orderRef.updateChildren(orderUpdates).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {

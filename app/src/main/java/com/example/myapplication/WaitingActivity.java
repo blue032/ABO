@@ -406,48 +406,27 @@ public class WaitingActivity extends AppCompatActivity {
     }
 
     // 팝업 다이얼로그를 표시하는 메소드
+    // 팝업 다이얼로그를 표시하는 메소드
     private void showTimeChangeDialog() {
-        // 커스텀 레이아웃을 사용하여 다이얼로그 생성
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.dialog_time_change);
+        dialog.setContentView(R.layout.dialog_time_change); // 올바른 레이아웃 파일 이름을 확인하세요
 
-        // 다이얼로그 크기 설정
         Window window = dialog.getWindow();
         if (window != null) {
             window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         }
 
-        // EditText, Button 참조
-        EditText editTime = dialog.findViewById(R.id.edit_time);
-        Button buttonConfirm = dialog.findViewById(R.id.button_confirm);
-        Button buttonDecrease = dialog.findViewById(R.id.button_decrease);
-        Button buttonIncrease = dialog.findViewById(R.id.button_increase);
-        Button buttonCancel = dialog.findViewById(R.id.button_cancel); // 취소 버튼 참조
+        final EditText editTime = dialog.findViewById(R.id.buttonSetTime); // 올바른 ID를 확인하세요
+        Button buttonConfirm = dialog.findViewById(R.id.button_cancel); // 올바른 ID를 확인하세요
 
-        // 확인 버튼 리스너 설정
         buttonConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // 시간 변경 로직
-                // 예시: String newTime = editTime.getText().toString();
+                String newTime = editTime.getText().toString();
+                // 로직 구현...
                 dialog.dismiss();
-            }
-        });
-
-        // 증가, 감소 버튼 리스너 설정
-        buttonDecrease.setOnClickListener(v -> {
-            // 시간 감소 로직
-        });
-
-        buttonIncrease.setOnClickListener(v -> {
-            // 시간 증가 로직
-        });
-        // 취소 버튼 리스너 설정
-        buttonCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss(); // 다이얼로그 닫기
             }
         });
 

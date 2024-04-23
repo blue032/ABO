@@ -51,4 +51,5 @@ dependencies {
     implementation("io.github.ParkSangGwon:tedpermission-rx2:3.3.0")
     implementation("io.github.ParkSangGwon:tedpermission-rx3:3.3.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
+    implementation ("androidx.appcompat:appcompat:1.6.1")
 }

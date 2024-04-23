@@ -14,10 +14,9 @@
         android:text="날짜 선택"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/buttonEndDate"
-        app:layout_constraintHorizontal_weight="1"/>
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- 날짜 입력 버튼: 끝 날짜 -->
+    <!-- 날짜 입력 버튼: 끝 날짜
     <Button
         android:id="@+id/buttonEndDate"
         android:layout_width="0dp"
@@ -26,7 +25,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@id/buttonStartDate"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_weight="1"/>
+        app:layout_constraintHorizontal_weight="1"/> -->
 
     <!-- 대기번호 입력 필드 -->
     <EditText
@@ -38,7 +37,6 @@
         app:layout_constraintTop_toBottomOf="@id/buttonStartDate"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
-
     <!-- 메뉴 입력 필드 -->
     <!--
     <EditText
@@ -76,7 +74,8 @@
         app:layout_constraintTop_toBottomOf="@id/editTextWaitingNumber"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/buttonEdit"
-        app:layout_constraintHorizontal_weight="1"/>
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintHorizontal_bias="0.5"/>
 
     <!-- 버튼: 수정 -->
     <Button
@@ -86,10 +85,9 @@
         android:text="수정"
         app:layout_constraintTop_toBottomOf="@id/editTextWaitingNumber"
         app:layout_constraintStart_toEndOf="@id/buttonSearch"
-        app:layout_constraintEnd_toStartOf="@id/buttonDelete"
-        app:layout_constraintHorizontal_weight="1"/>
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- 버튼: 삭제 -->
+    <!-- 버튼: 삭제
     <Button
         android:id="@+id/buttonDelete"
         android:layout_width="0dp"
@@ -98,9 +96,9 @@
         app:layout_constraintTop_toBottomOf="@id/editTextWaitingNumber"
         app:layout_constraintStart_toEndOf="@id/buttonEdit"
         app:layout_constraintEnd_toStartOf="@id/buttonAdd"
-        app:layout_constraintHorizontal_weight="1"/>
+        app:layout_constraintHorizontal_weight="1"/> -->
 
-    <!-- 버튼: 추가 -->
+    <!-- 버튼: 추가
     <Button
         android:id="@+id/buttonAdd"
         android:layout_width="0dp"
@@ -109,7 +107,7 @@
         app:layout_constraintTop_toBottomOf="@id/editTextWaitingNumber"
         app:layout_constraintStart_toEndOf="@id/buttonDelete"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_weight="1"/>
+        app:layout_constraintHorizontal_weight="1"/> -->
 
     <!-- 대형 텍스트 뷰 영역 (스크롤 기능 추가) -->
     <ScrollView
