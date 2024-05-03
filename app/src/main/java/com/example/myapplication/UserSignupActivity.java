@@ -3,6 +3,7 @@ package com.example.myapplication;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.ContactsContract;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -30,6 +31,7 @@ public class UserSignupActivity extends AppCompatActivity {
         TextView backTextView = findViewById(R.id.back);
         EditText passwordEditText = findViewById(R.id.signPW);
         EditText confirmPasswordEditText = findViewById(R.id.signPW2);
+        EditText NicknameEditText = findViewById(R.id.signNickName);
         EditText nameEditText = findViewById(R.id.signName);
         EditText phoneEditText = findViewById(R.id.signPhone);
         EditText birthText = findViewById(R.id.signBirth);
@@ -66,6 +68,7 @@ public class UserSignupActivity extends AppCompatActivity {
 
             // 기타 필드 데이터
             String name = nameEditText.getText().toString();
+            String Nickname = NicknameEditText.getText().toString();
             String phone = phoneEditText.getText().toString();
             String signBirth = birthText.getText().toString();
             String signBirth2 = birth2Text.getText().toString();
@@ -87,7 +90,7 @@ public class UserSignupActivity extends AppCompatActivity {
                             // Authentication 등록 성공 시, Realtime Database에 사용자 정보 저장
                             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
                             String userId = databaseReference.push().getKey();
-                            User user = new User(name, phone, password, birth, email); // 수정된 생성자 호출
+                            User user = new User(name, Nickname, phone, password, birth, email); // 수정된 생성자 호출
                             databaseReference.child(userId).setValue(user)
                                     .addOnCompleteListener(taskDb -> {
                                         if (taskDb.isSuccessful()) {
@@ -112,10 +115,11 @@ public class UserSignupActivity extends AppCompatActivity {
 
     // User 클래스
     public static class User {
-        public String name, phone, password, birth, mail;
+        public String name, Nickname, phone, password, birth, mail;
 
-        public User(String name, String phone, String password, String birth, String mail) {
+        public User(String name, String Nickname, String phone, String password, String birth, String mail) {
             this.name = name;
+            this.Nickname = Nickname;
             this.phone = phone;
             this.password = password;
             this.birth = birth; // 하나의 문자열로 합친 생년월일
