@@ -4,14 +4,18 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -30,6 +34,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
@@ -45,25 +51,27 @@ public class Ceo_OrderChange extends AppCompatActivity {
     private String currentOrderId;
     private String currentFormattedDate;
     Button buttonStartDate, buttonEndDate, buttonEdit, buttonAdd, buttonDelete;
+    // 클래스 레벨에서 메뉴 이름과 가격 정의
+    private String[] order_menu;  // 메뉴 이름 배열
+    private final int[] menu_prices = {3000, 3000, 3500, 3500, 4000, 4000, 4000, 4500, 4500, 5000, 4500, 3500, 3500, 3500, 4000, 5000, 6000, 3500, 4500, 4500};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ceo_orderchange);
-
+        order_menu = getResources().getStringArray(R.array.order_menu);
         // 시작 날짜 선택 버튼 초기화
         buttonStartDate = findViewById(R.id.buttonStartDate);
-        buttonEndDate = findViewById(R.id.buttonEndDate);
+       //buttonEndDate = findViewById(R.id.buttonEndDate);
         buttonEdit = findViewById(R.id.buttonEdit); //수정버튼
-        buttonAdd = findViewById(R.id.buttonAdd); //추가버튼
-        buttonDelete = findViewById(R.id.buttonDelete);
+        // buttonAdd = findViewById(R.id.buttonAdd); //추가버튼
+       //buttonDelete = findViewById(R.id.buttonDelete);
 
         editTextWaitingNumber = findViewById(R.id.editTextWaitingNumber); //대기번호 입력
         buttonSearch = findViewById(R.id.buttonSearch); //검색 버튼
         mDatabase = FirebaseDatabase.getInstance().getReference();
         //대기번호 목록 띄우기
         textViewOrderDetails = findViewById(R.id.textViewOrderDetails);
-
 
 
         // 버튼 클릭 시 DatePickerDialog를 표시
@@ -74,12 +82,12 @@ public class Ceo_OrderChange extends AppCompatActivity {
             }
         });
 
-        buttonEndDate.setOnClickListener(new View.OnClickListener() {
+        /*buttonEndDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showDatePickerDialog(buttonEndDate);
             }
-        });
+        });*/
 
         buttonSearch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,15 +103,13 @@ public class Ceo_OrderChange extends AppCompatActivity {
             }
         });
 
-
-
         // 메뉴 아이템 선택을 가정한 예시 코드
         int selectedMenuItemIndex = 0; // 실제 앱에서는 사용자 입력을 통해 이 값을 설정합니다.
 
         buttonEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showEditDialog(selectedMenuItemIndex); // 사용자가 선택한 메뉴 아이템의 인덱스를 인자로 전달
+                showEditDialog();
             }
         });
 
@@ -157,32 +163,61 @@ public class Ceo_OrderChange extends AppCompatActivity {
         datePickerDialog.show(); // DatePickerDialog 표시
     }
 
-
-    //시간을 선택할 수 있도록 하는 코드
-    private void showTimePickerDialog(Button timeButton) {
-        // 현재 시간을 기준으로 TimePickerDialog 생성
-        Calendar cal = Calendar.getInstance();
-        int hour = cal.get(Calendar.HOUR_OF_DAY);
-        int minute = cal.get(Calendar.MINUTE);
-
-        // TimePickerDialog 스피너 스타일로 생성
-        TimePickerDialog timePickerDialog = new TimePickerDialog(
-                Ceo_OrderChange.this,
-                android.R.style.Theme_Holo_Light_Dialog_NoActionBar, // 스피너 스타일
-                new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        // 선택한 시간을 버튼 텍스트로 설정
-                        String selectedTime = String.format("%02d:%02d", hourOfDay, minute);
-                        timeButton.setText(selectedTime); // 'timeButton'은 시간을 보여주는 버튼의 변수 이름입니다
-                    }
-                }, hour, minute, false); // 'false'는 24시간 형식을 사용하지 않겠다는 의미입니다
-
-        // Dialog의 배경을 투명하게 하여 스피너만 보이게 합니다
-        timePickerDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-
-        timePickerDialog.show();
+    // 시간을 클릭할 때 호출될 메서드
+    public void onTimeTextViewClick(View view) {
+        // 'view'는 클릭된 TextView
+        showTimePickerDialog((TextView) view);
     }
+
+    // showTimePickerDialog 메서드 수정
+    private void showTimePickerDialog(final TextView timeTextView) {
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_time_change);
+        dialog.setTitle("Set Time");
+
+        final NumberPicker numberPickerHour = dialog.findViewById(R.id.numberPickerHour);
+        final NumberPicker numberPickerMinute = dialog.findViewById(R.id.numberPickerMinute);
+        final NumberPicker numberPickerSecond = dialog.findViewById(R.id.numberPickerSecond);
+
+        // 현재 시간으로 NumberPicker 초기화
+        Calendar cal = Calendar.getInstance();
+        numberPickerHour.setMaxValue(23);
+        numberPickerHour.setMinValue(0);
+        numberPickerHour.setValue(cal.get(Calendar.HOUR_OF_DAY));
+
+        numberPickerMinute.setMaxValue(59);
+        numberPickerMinute.setMinValue(0);
+        numberPickerMinute.setValue(cal.get(Calendar.MINUTE));
+
+        numberPickerSecond.setMaxValue(59);
+        numberPickerSecond.setMinValue(0);
+        numberPickerSecond.setValue(cal.get(Calendar.SECOND));
+
+        // "확인" 버튼 설정
+        Button buttonSet = dialog.findViewById(R.id.buttonSetTime);
+        buttonSet.setOnClickListener(v -> {
+            int hour = numberPickerHour.getValue();
+            int minute = numberPickerMinute.getValue();
+            int second = numberPickerSecond.getValue();
+
+            // TextView 업데이트
+            String formattedTime = String.format(Locale.getDefault(), "%02d:%02d:%02d", hour, minute, second);
+            timeTextView.setText(formattedTime);
+
+            // Orders 객체에 시간 업데이트
+            if (currentOrder != null) {
+                currentOrder.getTime().setHour(hour);
+                currentOrder.getTime().setMinute(minute);
+                currentOrder.getTime().setSecond(second);
+                updateOrderInDatabase(currentOrder, currentOrderId, currentFormattedDate); // 데이터베이스 업데이트
+            }
+
+            dialog.dismiss();
+        });
+
+        dialog.show();
+    }
+
 
     // 주문을 검색하는 메소드
     private void searchOrder(String date, int waitNumber) {
@@ -242,75 +277,88 @@ public class Ceo_OrderChange extends AppCompatActivity {
     }
 
     //수정버튼 팝업창
-    private void showEditDialog(int menuItemIndex) {
+    private void showEditDialog() {
         Log.d("Debug", "showEditDialog 시작");
         if (currentOrder == null) {
             Toast.makeText(this, "선택된 주문이 없습니다.", Toast.LENGTH_SHORT).show();
             return;
         }
-        try {
-            final Dialog dialog = new Dialog(this, R.style.CustomDialogTheme);
-            dialog.setContentView(R.layout.ceo_orderchange_modification_dialog);
-            dialog.setTitle("Order Modification");
+        final Dialog dialog = new Dialog(this, R.style.CustomDialogTheme);
+        dialog.setContentView(R.layout.ceo_orderchange_modification_dialog);
+        dialog.setTitle("Order Modification");
 
-            Spinner spinnerMenu = dialog.findViewById(R.id.spinnerMenu);
-            if (spinnerMenu == null) {
-                Log.e("Debug", "spinnerMenu is null");
-            }
-            EditText editTextQuantity = dialog.findViewById(R.id.editTextMenuQuantity);
-            Spinner spinnerInOrTakeout = dialog.findViewById(R.id.spinnerInOrTakeout);
 
-            ArrayAdapter<String> menuAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.order_menu));
-            menuAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            spinnerMenu.setAdapter(menuAdapter);
-            spinnerMenu.setSelection(menuItemIndex);
+        LinearLayout spinnerContainer = dialog.findViewById(R.id.spinnerContainer);
+        spinnerContainer.removeAllViews(); // 이전 뷰 제거
 
-            ArrayAdapter<CharSequence> inOrTakeoutAdapter = ArrayAdapter.createFromResource(this, R.array.in_or_takeout_options, android.R.layout.simple_spinner_item);
-            inOrTakeoutAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            spinnerInOrTakeout.setAdapter(inOrTakeoutAdapter);
-            if (!TextUtils.isEmpty(currentOrder.getIn_or_takeout())) {
-                int spinnerPosition = inOrTakeoutAdapter.getPosition(currentOrder.getIn_or_takeout());
-                spinnerInOrTakeout.setSelection(spinnerPosition);
-            }
+        for (Orders.MenuItem menuItem : currentOrder.getMenu()) {
+            Spinner spinner = new Spinner(this);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, getResources().getStringArray(R.array.order_menu));
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinner.setAdapter(adapter);
+            spinner.setSelection(adapter.getPosition(menuItem.getName()));
+            spinnerContainer.addView(spinner);
 
-            // 대기번호, 시간, 총 가격 텍스트 뷰
-            TextView textViewWaitNumber = dialog.findViewById(R.id.textViewWaitNumber);
-            TextView textViewTime = dialog.findViewById(R.id.textViewTime);
-            TextView textViewTotalPrice = dialog.findViewById(R.id.textViewTotalPrice);
-            editTextQuantity.setText(String.valueOf(currentOrder.getMenu().get(menuItemIndex).getQuantity()));
-
-            // 텍스트 뷰에 정보 설정
-            textViewWaitNumber.setText(String.valueOf(currentOrder.getWaitNumber()));
-            textViewTime.setText(String.format(Locale.getDefault(), "%02d:%02d", currentOrder.getTime().getHour(), currentOrder.getTime().getMinute()));
-            textViewTotalPrice.setText(String.format(Locale.getDefault(), "%,d", currentOrder.getTotalPrice()));
-
-            Button buttonConfirm = dialog.findViewById(R.id.buttonConfirm);
-            Button buttonCancel = dialog.findViewById(R.id.buttonCancel);
-
-            buttonConfirm.setOnClickListener(v -> {
-                String selectedMenu = spinnerMenu.getSelectedItem().toString();
-                int quantity = Integer.parseInt(editTextQuantity.getText().toString());
-                String selectedInOrTakeout = spinnerInOrTakeout.getSelectedItem().toString();
-
-                Orders.MenuItem newMenuItem = new Orders.MenuItem();
-                newMenuItem.setName(selectedMenu);
-                newMenuItem.setQuantity(quantity);
-                currentOrder.getMenu().set(menuItemIndex, newMenuItem);
-                currentOrder.setIn_or_takeout(selectedInOrTakeout);
-
-                updateOrderInDatabase(currentOrder, currentOrderId, currentFormattedDate);
-                dialog.dismiss();
-            });
-
-            buttonCancel.setOnClickListener(v -> dialog.dismiss());
-            dialog.show();
-        } catch (Exception e) {
-            Log.e("Debug", "Error in showEditDialog", e);
-            Toast.makeText(this, "An error occurred", Toast.LENGTH_SHORT).show();
+            EditText quantityText = new EditText(this);
+            quantityText.setInputType(InputType.TYPE_CLASS_NUMBER);
+            quantityText.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            quantityText.setText(String.valueOf(menuItem.getQuantity()));
+            spinnerContainer.addView(quantityText);
         }
+
+        Spinner spinnerInOrTakeout = dialog.findViewById(R.id.spinnerInOrTakeout);
+        ArrayAdapter<CharSequence> inOrTakeoutAdapter = ArrayAdapter.createFromResource(this, R.array.in_or_takeout_options, android.R.layout.simple_spinner_item);
+        inOrTakeoutAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerInOrTakeout.setAdapter(inOrTakeoutAdapter);
+        spinnerInOrTakeout.setSelection(inOrTakeoutAdapter.getPosition(currentOrder.getIn_or_takeout()));
+
+        TextView textViewWaitNumber = dialog.findViewById(R.id.textViewWaitNumber);
+        textViewWaitNumber.setText(String.valueOf(currentOrder.getWaitNumber()));
+
+
+        // 시간 표시 업데이트
+        TextView textViewTime = dialog.findViewById(R.id.textViewTime);
+        textViewTime.setText(String.format(Locale.getDefault(), "%02d:%02d", currentOrder.getTime().getHour(), currentOrder.getTime().getMinute()));
+        // 시간 표시 TextView 클릭 리스너
+        textViewTime.setOnClickListener(v -> showTimePickerDialog((TextView) v));
+
+        TextView textViewTotalPrice = dialog.findViewById(R.id.textViewTotalPrice);
+        textViewTotalPrice.setText(String.format(Locale.getDefault(), "%,d", currentOrder.getTotalPrice()));
+
+        Button buttonConfirm = dialog.findViewById(R.id.buttonConfirm);
+        buttonConfirm.setOnClickListener(v -> {
+            int totalPrice = 0;
+            ArrayList<Orders.MenuItem> updatedItems = new ArrayList<>();
+            for (int i = 0; i < spinnerContainer.getChildCount(); i += 2) {
+                Spinner menuSpinner = (Spinner) spinnerContainer.getChildAt(i);
+                EditText quantityEditText = (EditText) spinnerContainer.getChildAt(i + 1);
+
+                String selectedMenu = menuSpinner.getSelectedItem().toString();
+                int quantity = Integer.parseInt(quantityEditText.getText().toString());
+                int price = menu_prices[Arrays.asList(order_menu).indexOf(selectedMenu)]; // Arrays.asList를 사용하여 배열을 리스트로 변환하고 indexOf 사용
+                int itemTotalPrice = price * quantity; // 아이템의 총 가격 계산
+
+                Orders.MenuItem updatedItem = new Orders.MenuItem();
+                updatedItem.setName(selectedMenu);
+                updatedItem.setQuantity(quantity);
+                updatedItem.setPrice(itemTotalPrice); // 각 메뉴 아이템에 가격 설정
+                updatedItems.add(updatedItem);
+
+                totalPrice += itemTotalPrice; // 전체 주문의 총 가격 업데이트
+            }
+            currentOrder.setMenu(updatedItems);
+            currentOrder.setTotalPrice(totalPrice); // 주문 객체의 총 가격 업데이트
+
+
+            updateOrderInDatabase(currentOrder, currentOrderId, currentFormattedDate); // DB 업데이트 호출
+            dialog.dismiss();
+        });
+
+        Button buttonCancel = dialog.findViewById(R.id.buttonCancel);
+        buttonCancel.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
-
-
 
     // 주문 정보를 데이터베이스에 업데이트하는 메서드
     private void updateOrderInDatabase(Orders updatedOrder, String orderId, String formattedDate) {
@@ -319,12 +367,19 @@ public class Ceo_OrderChange extends AppCompatActivity {
                 .child(orderId); // 여기서 orderId는 수정할 주문의 고유 ID입니다.
 
         Map<String, Object> orderUpdates = new HashMap<>();
-        // ... 여기서 orderUpdates를 구성합니다.
+        orderUpdates.put("price", updatedOrder.getTotalPrice());
+        orderUpdates.put("menu", updatedOrder.getMenu());  // 이렇게 메뉴 리스트를 업데이트하는지 확인
 
+        // 시간 정보 업데이트
+        orderUpdates.put("time/hour", updatedOrder.getTime().getHour());
+        orderUpdates.put("time/minute", updatedOrder.getTime().getMinute());
+        orderUpdates.put("time/second", updatedOrder.getTime().getSecond());
         orderRef.updateChildren(orderUpdates).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 // 업데이트 성공시 사용자에게 알림
+                // 로그 추가: 업데이트 성공 로그
+                Log.i("UpdateDB", "Order updated successfully.");
                 Toast.makeText(Ceo_OrderChange.this, "Order updated successfully", Toast.LENGTH_SHORT).show();
                 // 업데이트된 주문 정보를 UI에 반영합니다.
                 updateTextViewWithOrderDetails(updatedOrder);

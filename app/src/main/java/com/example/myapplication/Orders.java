@@ -17,6 +17,7 @@ public class Orders {
     private List<MenuItem> menu;
     private Time time; // Time 객체에 대한 참조
 
+    private String id; // 주문 ID
     private long totalWaitTimeMillis; // 총 대기 시간을 밀리초로 저장하는 필드
 
     public static class MenuItem{
@@ -84,6 +85,12 @@ public class Orders {
     // Orders 클래스의 기본 생성자
     public Orders() { }
 
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
     // Orders 클래스의 getter와 setter 메서드들
     public int getWaitNumber() {
         return WaitNumber;

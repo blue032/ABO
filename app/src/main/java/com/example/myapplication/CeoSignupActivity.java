@@ -30,6 +30,7 @@ public class CeoSignupActivity extends AppCompatActivity {
         TextView backTextView = findViewById(R.id.back);
         EditText passwordEditText = findViewById(R.id.signPW);
         EditText confirmPasswordEditText = findViewById(R.id.signPW2);
+        EditText NicknameEditText = findViewById(R.id.signceoNickName);
         EditText nameEditText = findViewById(R.id.signName);
         EditText idEditText = findViewById(R.id.signID);
         EditText ceoNumberEditText = findViewById(R.id.signceo1);
@@ -61,6 +62,7 @@ public class CeoSignupActivity extends AppCompatActivity {
             String email = idEditText.getText().toString().trim();
             String password = passwordEditText.getText().toString().trim();
             String name = nameEditText.getText().toString();
+            String Nickname = NicknameEditText.getText().toString();
             String ceoNumber = ceoNumberEditText.getText().toString();
             String signBirth = birthText.getText().toString();
             String signBirth2 = birth2Text.getText().toString();
@@ -80,7 +82,7 @@ public class CeoSignupActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("CeoUsers");
                             String userId = databaseReference.push().getKey();
-                            CeoUser ceoUser = new CeoUser(name, email, birth, password, ceoNumber);
+                            CeoUser ceoUser = new CeoUser(name, Nickname, email, birth, password, ceoNumber);
                             databaseReference.child(userId).setValue(ceoUser)
                                     .addOnCompleteListener(taskDb -> {
                                         if (taskDb.isSuccessful()) {
@@ -102,10 +104,11 @@ public class CeoSignupActivity extends AppCompatActivity {
     }
 
     public static class CeoUser {
-        public String name, email, birth, password, ceoNumber;
+        public String name, Nickname, email, birth, password, ceoNumber;
 
-        public CeoUser(String name, String email, String birth, String password, String ceoNumber) {
+        public CeoUser(String name, String Nickname, String email, String birth, String password, String ceoNumber) {
             this.name = name;
+            this.Nickname = Nickname;
             this.email = email;
             this.birth = birth;
             this.password = password;
