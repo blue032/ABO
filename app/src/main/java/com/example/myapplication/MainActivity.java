@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -30,6 +31,7 @@ import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity {
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,24 +83,36 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
+        bottomNavigationView = findViewById(R.id.bottom_navigation_view);
+        bottomNavigationView.setItemIconTintList(null);
+        bottomNavigationView.setItemTextColor(getResources().getColorStateList(R.color.nav_item_color, null));
+        resetIcons(); // 초기 상태 설정
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            resetIcons(); // 모든 아이콘을 회색으로 설정
             int itemId = item.getItemId();
+
             if (itemId == R.id.action_home) {
+                item.setIcon(R.drawable.bottom_home_black); // 선택된 아이콘으로 변경
                 startActivity(new Intent(MainActivity.this, MainActivity.class));
                 return true;
+            } else if (itemId == R.id.action_notification) {
+                item.setIcon(R.drawable.bottom_notification_black);
+                startActivity(new Intent(MainActivity.this, CeoBoardActivity.class));
+                return true;
             } else if (itemId == R.id.action_board) {
+                item.setIcon(R.drawable.bottom_writeboard_black);
                 startActivity(new Intent(MainActivity.this, BoardActivity.class));
                 return true;
-            } else if (itemId == R.id.action_notification) {
-                startActivity(new Intent(MainActivity.this, NotificationActivity.class)); // 알림 항목 클릭 시 NotificationActivity로 이동
-                return true;
             } else if (itemId == R.id.action_mypage) {
+                item.setIcon(R.drawable.bottom_mypage_black);
                 startActivity(new Intent(MainActivity.this, MypageActivity.class));
                 return true;
             }
+
             return false;
         });
+
+
 
         LinearLayout ceoBoardPostContainer = findViewById(R.id.ceoBoardPostContainer);
         DatabaseReference ceoBoardRef = FirebaseDatabase.getInstance().getReference("ceoBoard");
@@ -191,5 +205,14 @@ public class MainActivity extends AppCompatActivity {
                         android.Manifest.permission.READ_CALENDAR,
                         android.Manifest.permission.CAMERA)
                 .check();
+    }
+
+    private void resetIcons() {
+        // 메뉴 아이템을 찾아 회색 아이콘으로 설정
+        Menu menu = bottomNavigationView.getMenu();
+        menu.findItem(R.id.action_home).setIcon(R.drawable.bottom_home_black);
+        menu.findItem(R.id.action_notification).setIcon(R.drawable.bottom_notification_gray);
+        menu.findItem(R.id.action_board).setIcon(R.drawable.bottom_writeboard_gray);
+        menu.findItem(R.id.action_mypage).setIcon(R.drawable.bottom_mypage_gray);
     }
 }
