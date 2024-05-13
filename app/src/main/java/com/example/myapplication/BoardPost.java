@@ -12,15 +12,16 @@ public class BoardPost {
     private long timestamp;
     private String userName;
     private String postId;
+    private String nickname;
     private List<String> photoUrls;
 
     // Constructor with title, content, and timestamp
-    public BoardPost(String title, String content, long timestamp, List<String> photoUrls, String userName) {
+    public BoardPost(String title, String content, long timestamp, List<String> photoUrls, String nickname, String userName) {
         this.title = title;
         this.content = content;
         this.timestamp = timestamp; // Set the timestamp
         this.photoUrls = photoUrls;
-        this.userName = userName;
+        this.userName = userName; //UID
 
     }
 
@@ -59,6 +60,7 @@ public class BoardPost {
     public void setUserName(String userName) {
         this.userName = userName;
     }
+
 
     public void setPostId(String postId){
         this.postId = postId;

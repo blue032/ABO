@@ -11,6 +11,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -87,24 +88,27 @@ public class UserSignupActivity extends AppCompatActivity {
             mAuth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, task -> {
                         if (task.isSuccessful()) {
-                            // Authentication 등록 성공 시, Realtime Database에 사용자 정보 저장
-                            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
-                            String userId = databaseReference.push().getKey();
-                            User user = new User(name, Nickname, phone, password, birth, email); // 수정된 생성자 호출
-                            databaseReference.child(userId).setValue(user)
-                                    .addOnCompleteListener(taskDb -> {
-                                        if (taskDb.isSuccessful()) {
-                                            Toast.makeText(UserSignupActivity.this, "회원가입이 되었습니다!", Toast.LENGTH_SHORT).show();
-                                            // 로그인 화면으로 이동
-                                            new Handler().postDelayed(() -> {
-                                                Intent intent = new Intent(UserSignupActivity.this, LoginActivity.class);
-                                                startActivity(intent);
-                                                finish();
-                                            }, 2500);
-                                        } else {
-                                            Toast.makeText(UserSignupActivity.this, "데이터베이스 오류: " + taskDb.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
+                            FirebaseUser firebaseUser = mAuth.getCurrentUser(); // 현재 인증된 사용자의 정보를 가져옵니다.
+                            if (firebaseUser != null) {
+                                String uid = firebaseUser.getUid(); // 사용자 UID를 가져옵니다.
+                                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users");
+
+                                User user = new User(name, Nickname, phone, password, birth, email);
+                                databaseReference.child(uid).setValue(user) // UID를 키로 사용하여 데이터베이스에 사용자 정보 저장
+                                        .addOnCompleteListener(taskDb -> {
+                                            if (taskDb.isSuccessful()) {
+                                                Toast.makeText(UserSignupActivity.this, "회원가입이 되었습니다!", Toast.LENGTH_SHORT).show();
+                                                // 로그인 화면으로 이동
+                                                new Handler().postDelayed(() -> {
+                                                    Intent intent = new Intent(UserSignupActivity.this, LoginActivity.class);
+                                                    startActivity(intent);
+                                                    finish();
+                                                }, 2500);
+                                            } else {
+                                                Toast.makeText(UserSignupActivity.this, "데이터베이스 오류: " + taskDb.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                            }
                         } else {
                             // Authentication 등록 실패 처리
                             Toast.makeText(UserSignupActivity.this, "Authentication 오류: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();

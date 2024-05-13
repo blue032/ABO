@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -59,27 +60,48 @@ public class DetailActivity extends AppCompatActivity {
 
         final TextView tvTitle = findViewById(R.id.tvTitle);
         final TextView tvContent = findViewById(R.id.tvContent);
+        final TextView tvNickname = findViewById(R.id.tvnickname);
+        final TextView tvTimestamp = findViewById(R.id.tvTimestamp);
 
         postReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     postOwnerId = snapshot.child("ownerId").getValue(String.class);
-                    postOwnerName = snapshot.child("ownerName").getValue(String.class);
                     postUserName = snapshot.child("userName").getValue(String.class);
+                    DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(postUserName);
+
+                    userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot userSnapshot) {
+                            if (userSnapshot.exists()) {
+                                String nickname = userSnapshot.child("Nickname").getValue(String.class);
+                                tvNickname.setText(nickname);
+                            } else {
+                                Toast.makeText(DetailActivity.this, "사용자 정보를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            Toast.makeText(DetailActivity.this, "사용자 정보 조회에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
                     String title = snapshot.child("title").getValue(String.class);
                     String content = snapshot.child("content").getValue(String.class);
+                    long timestamp = snapshot.child("timestamp").getValue(Long.class);
+
                     tvTitle.setText(title);
                     tvContent.setText(content);
+                    tvTimestamp.setText(DateFormat.format("yyyy-MM-dd hh:mm:ss", timestamp));
 
-                    // 사진 URL 리스트 불러오기
                     ArrayList<String> photoUrlsString = new ArrayList<>();
                     for (DataSnapshot photoSnapshot : snapshot.child("photoUrls").getChildren()) {
                         String photoUrl = photoSnapshot.getValue(String.class);
                         photoUrlsString.add(photoUrl);
                     }
 
-                    // Uri 리스트 업데이트 (이미 존재하는 코드를 사용)
                     ArrayList<Uri> photoUris = new ArrayList<>();
                     if (photoUrlsString != null) {
                         for (String photoUrl : photoUrlsString) {
@@ -87,17 +109,14 @@ public class DetailActivity extends AppCompatActivity {
                         }
                     }
 
-                    // RecyclerView 업데이트 (이미 존재하는 코드를 재사용)
                     imagesRecyclerView = findViewById(R.id.imagesRecyclerView);
                     imagesRecyclerView.setLayoutManager(new LinearLayoutManager(DetailActivity.this, LinearLayoutManager.HORIZONTAL, false));
                     ImageAdapter adapter = new ImageAdapter(DetailActivity.this, photoUris);
                     imagesRecyclerView.setAdapter(adapter);
-
                 } else {
                     Toast.makeText(DetailActivity.this, "게시글을 찾을 수 없습니다.", Toast.LENGTH_SHORT).show();
                 }
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(DetailActivity.this, "게시글 정보를 불러올 수 없습니다.", Toast.LENGTH_SHORT).show();
