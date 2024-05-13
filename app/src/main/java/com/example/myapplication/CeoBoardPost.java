@@ -12,7 +12,7 @@ public class CeoBoardPost {
     private long timestamp;
     private String postId;
     private List<String> photoUrls;
-    private String userName; // 사용자 이름을 저장할 새 필드
+    private String userName; // UID
 
     // Constructor with title, content, timestamp, photoUrl, and userName
     public CeoBoardPost(String title, String content, long timestamp, List<String> photoUrls, String userName) {

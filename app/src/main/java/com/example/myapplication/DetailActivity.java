@@ -11,6 +11,10 @@ import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +30,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class DetailActivity extends AppCompatActivity {
@@ -94,7 +99,7 @@ public class DetailActivity extends AppCompatActivity {
 
                     tvTitle.setText(title);
                     tvContent.setText(content);
-                    tvTimestamp.setText(DateFormat.format("yyyy-MM-dd hh:mm:ss", timestamp));
+                    tvTimestamp.setText(formatTimestampToKST(timestamp));
 
                     ArrayList<String> photoUrlsString = new ArrayList<>();
                     for (DataSnapshot photoSnapshot : snapshot.child("photoUrls").getChildren()) {
@@ -161,6 +166,8 @@ public class DetailActivity extends AppCompatActivity {
 
         loadComments();
 
+
+
         // 여기에 iconMore 초기화와 클릭 이벤트 리스너를 추가합니다.
         iconMore = findViewById(R.id.iconMore);
         iconMore.setOnClickListener(new View.OnClickListener() {
@@ -169,6 +176,13 @@ public class DetailActivity extends AppCompatActivity {
                 showPopupMenu(view);
             }
         });
+    }
+
+
+    private String formatTimestampToKST(long timestamp) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREA);
+        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul")); // 한국 시간대로 설정
+        return sdf.format(new Date(timestamp));
     }
 
     private void showPopupMenu(View view) {
