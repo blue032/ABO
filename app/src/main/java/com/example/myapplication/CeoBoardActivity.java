@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,6 +17,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -145,6 +151,12 @@ public class CeoBoardActivity extends AppCompatActivity {
         );
     }
 
+    private String formatTimestampToKST(long timestamp) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREA);
+        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
+        return sdf.format(new Date(timestamp));
+    }
+
     private void checkForEmptyList() {
         if (postList.isEmpty()) {
             tvEmptyView.setVisibility(View.VISIBLE);
@@ -221,44 +233,55 @@ public class CeoBoardActivity extends AppCompatActivity {
         }
     }
 
-    private class BoardPostAdapter extends RecyclerView.Adapter<CeoBoardActivity.BoardPostAdapter.BoardPostViewHolder> {
+    private class BoardPostAdapter extends RecyclerView.Adapter<BoardPostAdapter.BoardPostViewHolder> {
         private final ArrayList<CeoBoardPost> postList;
 
         public BoardPostAdapter(ArrayList<CeoBoardPost> postList) {
-            this.postList = postList;
+            this.postList = postList;  // 생성자에서 ArrayList를 받아 설정
         }
 
         @NonNull
         @Override
-        public CeoBoardActivity.BoardPostAdapter.BoardPostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        public BoardPostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_item_layout, parent, false);
-            return new CeoBoardActivity.BoardPostAdapter.BoardPostViewHolder(view);
+            return new BoardPostViewHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(@NonNull CeoBoardActivity.BoardPostAdapter.BoardPostViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull BoardPostViewHolder holder, int position) {
             CeoBoardPost post = postList.get(position);
             holder.textViewTitle.setText(post.getTitle());
-            holder.textViewDate.setText(post.getFormattedDate());
+            holder.textViewDate.setText(formatTimestampToKST(post.getTimestamp()));  // 포맷된 시간을 설정
 
-            //클릭 리스너 설정
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
+            // 닉네임을 데이터베이스에서 가져와 설정
+            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("CeoUsers").child(post.getUserName());
+            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
-                public void onClick(View v) {
-                    //수정하려는 게시글의 정보를 인텐트에 담음
-                    Intent intent = new Intent(CeoBoardActivity.this, CeoDetailActivity.class);
-                    intent.putExtra("postId", post.getPostId()); // 게시글 ID를 인텐트에 추가
-                    intent.putExtra("title", post.getTitle());
-                    intent.putExtra("content", post.getContent());
-                    intent.putExtra("timestamp", post.getTimestamp());
-
-                    if (post.getPhotoUrls() != null && !post.getPhotoUrls().isEmpty()) {
-                        // List<String>을 ArrayList<String>으로 변환
-                        ArrayList<String> photoUrls = new ArrayList<>(post.getPhotoUrls());
-                        intent.putStringArrayListExtra("photoUrls", photoUrls);
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists() && dataSnapshot.hasChild("Nickname")) {
+                        String nickname = dataSnapshot.child("Nickname").getValue(String.class);
+                        holder.textViewDate.setText(formatTimestampToKST(post.getTimestamp()) + " | " + nickname);
+                    } else {
+                        holder.textViewDate.setText(formatTimestampToKST(post.getTimestamp()) + " | Unknown");
                     }
-                    startActivity(intent);
                 }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.e("Firebase", "Error fetching nickname");
+                }
+            });
+
+            holder.itemView.setOnClickListener(v -> {
+                Intent intent = new Intent(CeoBoardActivity.this, CeoDetailActivity.class);
+                intent.putExtra("postId", post.getPostId());
+                intent.putExtra("title", post.getTitle());
+                intent.putExtra("content", post.getContent());
+                intent.putExtra("timestamp", post.getTimestamp());
+                if (post.getPhotoUrls() != null && !post.getPhotoUrls().isEmpty()) {
+                    intent.putStringArrayListExtra("photoUrls", new ArrayList<>(post.getPhotoUrls()));
+                }
+                startActivity(intent);
             });
         }
 

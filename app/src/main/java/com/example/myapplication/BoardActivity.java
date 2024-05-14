@@ -3,12 +3,18 @@ package com.example.myapplication;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -81,6 +87,7 @@ public class BoardActivity extends AppCompatActivity {
             }
         });
 
+
         // BottomNavigationView 설정
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
@@ -115,6 +122,12 @@ public class BoardActivity extends AppCompatActivity {
 
     }
 
+    private String formatTimestampToKST(long timestamp) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREA);
+        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul")); // 한국 시간대로 설정
+        return sdf.format(new Date(timestamp));
+    }
+
     private void checkForEmptyList() {
         if (postList.isEmpty()) {
             tvEmptyView.setVisibility(View.VISIBLE);
@@ -142,24 +155,37 @@ public class BoardActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull BoardPostViewHolder holder, int position) {
             BoardPost post = postList.get(position);
-            String formattedDateWithUserName = post.getUserName() + " | " + post.getFormattedDate();
-            holder.textViewDate.setText(formattedDateWithUserName);
+
+            // Firebase에서 닉네임을 가져와서 설정합니다.
+            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(post.getUserName());
+            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists() && dataSnapshot.hasChild("Nickname")) {
+                        String nickname = dataSnapshot.child("Nickname").getValue(String.class);
+                        holder.textViewDate.setText(formatTimestampToKST(post.getTimestamp()) + " | " + nickname);
+                    } else {
+                        holder.textViewDate.setText(formatTimestampToKST(post.getTimestamp()) + " | Unknown");
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.e("Firebase", "Error fetching nickname");
+                }
+            });
+
             holder.textViewTitle.setText(post.getTitle());
-            //클릭 리스너 설정
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //수정하려는 게시글의 정보를 인텐트에 담음
+                    // Intent to open DetailActivity with post details
                     Intent intent = new Intent(BoardActivity.this, DetailActivity.class);
-                    intent.putExtra("postId", post.getPostId()); // 게시글 ID를 인텐트에 추가
+                    intent.putExtra("postId", post.getPostId());
                     intent.putExtra("title", post.getTitle());
                     intent.putExtra("content", post.getContent());
-                    intent.putExtra("timestamp", post.getTimestamp());
-
                     if (post.getPhotoUrls() != null && !post.getPhotoUrls().isEmpty()) {
-                        // List<String>을 ArrayList<String>으로 변환
-                        ArrayList<String> photoUrls = new ArrayList<>(post.getPhotoUrls());
-                        intent.putStringArrayListExtra("photoUrls", photoUrls);
+                        intent.putStringArrayListExtra("photoUrls", new ArrayList<>(post.getPhotoUrls()));
                     }
                     startActivity(intent);
                 }
