@@ -1,8 +1,11 @@
 package com.example.myapplication;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -146,7 +149,38 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPermissionDenied(List<String> deniedPermissions) {
-                Toast.makeText(MainActivity.this, "권한거부\n" + deniedPermissions.toString(), Toast.LENGTH_SHORT).show();
+                // AlertDialog로 사용자에게 상세한 권한 거부 정보 제공
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("권한 거부됨");
+
+                // 거부된 권한 목록을 문자열로 변환
+                StringBuilder message = new StringBuilder("다음 권한이 거부되었습니다:\n");
+                for (String permission : deniedPermissions) {
+                    message.append("\n").append(permission);
+                }
+
+                // AlertDialog에 메시지 설정
+                builder.setMessage(message.toString());
+
+                // '설정' 버튼 추가
+                builder.setPositiveButton("설정", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // 사용자를 앱 설정 화면으로 이동시키기
+                        Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                Uri.parse("package:" + getPackageName()));
+                        intent.addCategory(Intent.CATEGORY_DEFAULT);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    }
+                });
+
+                // '취소' 버튼 추가
+                builder.setNegativeButton("취소", (dialog, which) -> dialog.dismiss());
+
+                // AlertDialog 표시
+                AlertDialog dialog = builder.create();
+                dialog.show();
             }
         };
 
@@ -155,8 +189,8 @@ public class MainActivity extends AppCompatActivity {
                 .setRationaleMessage("앱을 사용하기 위해서는 권한이 필요해요")
                 .setDeniedMessage("설정에서 권한을 다시 설정해주세요")
                 .setPermissions(
-                        android.Manifest.permission.BLUETOOTH,
-                        android.Manifest.permission.BLUETOOTH_ADMIN,
+                        //android.Manifest.permission.BLUETOOTH,
+                       // android.Manifest.permission.BLUETOOTH_ADMIN,
                         android.Manifest.permission.BLUETOOTH_SCAN,
                         android.Manifest.permission.BLUETOOTH_CONNECT,
                         android.Manifest.permission.BLUETOOTH_ADVERTISE,
@@ -176,4 +210,6 @@ public class MainActivity extends AppCompatActivity {
         menu.findItem(R.id.action_board).setIcon(R.drawable.bottom_writeboard_gray);
         menu.findItem(R.id.action_mypage).setIcon(R.drawable.bottom_mypage_gray);
     }
+    // 권한 거부 리스너 내부
+
 }
