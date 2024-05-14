@@ -68,6 +68,24 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        ImageView ooCafeImageView = findViewById(R.id.oocafe);
+        ooCafeImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, CafeDetailPageActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        TextView textViewOoCafe = findViewById(R.id.textViewoocafe);
+        textViewOoCafe.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, CafeDetailPageActivity.class);
+                startActivity(intent);
+            }
+        });
+
 
         // TextView에 SpannableString 적용
         TextView textView = findViewById(R.id.textViewCertainU);
