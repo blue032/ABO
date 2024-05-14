@@ -251,10 +251,15 @@ public class CeoBoardActivity extends AppCompatActivity {
         public void onBindViewHolder(@NonNull BoardPostViewHolder holder, int position) {
             CeoBoardPost post = postList.get(position);
             holder.textViewTitle.setText(post.getTitle());
-            holder.textViewDate.setText(formatTimestampToKST(post.getTimestamp()));  // 포맷된 시간을 설정
 
-            // 닉네임을 데이터베이스에서 가져와 설정
-            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("CeoUsers").child(post.getUserName());
+            String userName = post.getUserName();
+            if (userName == null || userName.isEmpty()) {
+                Log.e("CeoBoardActivity", "Invalid userName for post ID: " + post.getPostId());
+                holder.textViewDate.setText(formatTimestampToKST(post.getTimestamp()) + " | Unknown user");
+                return; // 중요: 여기서 함수를 끝내서 null userName으로 인한 오류를 방지합니다.
+            }
+
+            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("CeoUsers").child(userName);
             userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -268,9 +273,10 @@ public class CeoBoardActivity extends AppCompatActivity {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Log.e("Firebase", "Error fetching nickname");
+                    Log.e("Firebase", "Error fetching nickname: " + databaseError.getMessage());
                 }
             });
+
 
             holder.itemView.setOnClickListener(v -> {
                 Intent intent = new Intent(CeoBoardActivity.this, CeoDetailActivity.class);
