@@ -58,6 +58,7 @@ public class NotificationActivity extends AppCompatActivity {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Notification notification = snapshot.getValue(Notification.class);
                     if (notification != null && currentUserId.equals(notification.getPostUserName())) {
+                        notification.setNotificationId(snapshot.getKey()); // 알림 ID 설정
                         tempNotifications.add(notification);
                     }
                 }

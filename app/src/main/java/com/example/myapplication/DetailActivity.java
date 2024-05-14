@@ -291,7 +291,7 @@ public class DetailActivity extends AppCompatActivity {
 
     private void createNotification(String commentContent, String commenterId, long timestamp, String postId, String commentId, String postUserName) {
         String notificationId = notificationsReference.push().getKey();
-        Notification notification = new Notification(commentContent, postId, commentId, postOwnerId, commenterId, timestamp, false, postUserName);
+        Notification notification = new Notification(notificationId, commentContent, postId, commentId, postOwnerId, commenterId, timestamp, false, postUserName);
 
         if (notificationId != null) {
             notificationsReference.child(notificationId).setValue(notification);

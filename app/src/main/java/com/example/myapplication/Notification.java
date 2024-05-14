@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 public class Notification {
+    private String notificationId; // 알림 ID 추가
     private String commentContent;
     private String postId;
     private String commentId;
@@ -14,7 +15,8 @@ public class Notification {
     public Notification() {}
 
     // 모든 필드를 포함하는 생성자
-    public Notification(String commentContent, String postId, String commentId, String postOwnerId, String commenterId, long timestamp, boolean isRead, String postUserName) {
+    public Notification(String notificationId, String commentContent, String postId, String commentId, String postOwnerId, String commenterId, long timestamp, boolean isRead, String postUserName) {
+        this.notificationId = notificationId; // 알림 ID 초기화
         this.commentContent = commentContent;
         this.postId = postId;
         this.commentId = commentId;
@@ -26,6 +28,9 @@ public class Notification {
     }
 
     // Getter 및 Setter 메서드들
+    public String getNotificationId() { return notificationId; }
+    public void setNotificationId(String notificationId) { this.notificationId = notificationId; }
+
     public String getCommentContent() { return commentContent; }
     public void setCommentContent(String commentContent) { this.commentContent = commentContent; }
 
@@ -47,6 +52,6 @@ public class Notification {
     public boolean isRead() { return isRead; }
     public void setRead(boolean read) { isRead = read; }
 
-    public String getPostUserName() { return postUserName; } // 추가된 getter 메서드
-    public void setPostUserName(String postUserName) { this.postUserName = postUserName; } // 추가된 setter 메서드
+    public String getPostUserName() { return postUserName; }
+    public void setPostUserName(String postUserName) { this.postUserName = postUserName; }
 }
