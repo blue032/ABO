@@ -2,12 +2,17 @@ package com.example.myapplication;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import android.text.style.StyleSpan;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -38,50 +44,50 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button btnEmpty = findViewById(R.id.btn_empty);
-        Button btnWaiting = findViewById(R.id.btn_waiting);
-        Button btnMap = findViewById(R.id.mapcheckbutton);
-
-        TextView tvNotice = findViewById(R.id.notice);
-
-        TextView tvCafeOO = findViewById(R.id.abo2);
-        tvCafeOO.setOnClickListener(new View.OnClickListener() {
+        // buttonMap에 클릭 리스너 추가
+        Button buttonMap = findViewById(R.id.buttonMap);
+        buttonMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // O.O카페 TextView가 클릭되었을 때 수행할 동작
-                Intent intent = new Intent(MainActivity.this, CafeMenuActivity.class);
-                // 필요한 경우 intent에 추가 데이터를 넣습니다.
+                Intent intent = new Intent(MainActivity.this, MapActivity.class);
                 startActivity(intent);
             }
         });
 
-        tvNotice.setOnClickListener(new View.OnClickListener() {
+        // ImageView 찾기
+        ImageView alarmLogo = findViewById(R.id.alarm_logo);
+
+        // ImageView에 클릭 리스너 추가
+        alarmLogo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // CeoBoardActivity로 이동하는 인텐트 생성 및 시작
-                Intent intent = new Intent(MainActivity.this, CeoBoardActivity.class);
+                // NotificationActivity로 이동하는 Intent 생성
+                Intent intent = new Intent(MainActivity.this, NotificationActivity.class);
                 startActivity(intent);
             }
         });
 
-        btnEmpty.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, CafelistActivity.class);
-            intent.putExtra("viewType", "emptySeats");
-            startActivity(intent);
-        });
-
-        btnWaiting.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, CafelistActivity.class);
-            intent.putExtra("viewType", "waitingList");
-            startActivity(intent);
-        });
 
 
+        // TextView에 SpannableString 적용
+        TextView textView = findViewById(R.id.textViewCertainU);
+        String fullText = "CertaIN U";
+        SpannableString spannableString = new SpannableString(fullText);
 
-        btnMap.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, MapActivity.class);
-            startActivity(intent);
-        });
+        int start = fullText.indexOf("IN U");
+        int end = start + "IN U".length();
+
+        // 색상 변경
+        spannableString.setSpan(new ForegroundColorSpan(Color.WHITE), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        // 굵은 글씨
+        spannableString.setSpan(new StyleSpan(Typeface.BOLD), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        textView.setText(spannableString);
+
+
+
+
 
         bottomNavigationView = findViewById(R.id.bottom_navigation_view);
         bottomNavigationView.setItemIconTintList(null);
@@ -113,69 +119,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
-        LinearLayout ceoBoardPostContainer = findViewById(R.id.ceoBoardPostContainer);
-        DatabaseReference ceoBoardRef = FirebaseDatabase.getInstance().getReference("ceoBoard");
-
-        ceoBoardRef.orderByChild("timestamp").limitToLast(5).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                ArrayList<CeoBoardPost> tempList = new ArrayList<>();
-                ceoBoardPostContainer.removeAllViews();
-
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    CeoBoardPost post = postSnapshot.getValue(CeoBoardPost.class);
-                    if (post != null) {
-                        tempList.add(post);
-                    }
-                }
-
-                Collections.sort(tempList, Comparator.comparingLong(CeoBoardPost::getTimestamp).reversed());
-
-                for (CeoBoardPost post : tempList) {
-                    LinearLayout linearLayout = new LinearLayout(MainActivity.this);
-                    linearLayout.setLayoutParams(new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT));
-                    linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-
-                    TextView titleView = new TextView(MainActivity.this);
-                    titleView.setText(post.getTitle());
-                    titleView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-                    titleView.setTextColor(Color.BLACK);
-                    titleView.setLayoutParams(new LinearLayout.LayoutParams(
-                            0,
-                            LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
-
-                    TextView dateView = new TextView(MainActivity.this);
-                    dateView.setText(post.getFormattedDate());
-                    dateView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-                    dateView.setTextColor(Color.BLACK);
-                    dateView.setLayoutParams(new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.WRAP_CONTENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT));
-                    dateView.setGravity(Gravity.RIGHT);
-
-                    linearLayout.addView(titleView);
-                    linearLayout.addView(dateView);
-
-                    linearLayout.setOnClickListener(v -> {
-                        Intent intent = new Intent(MainActivity.this, CeoDetailActivity.class);
-                        intent.putExtra("postId", post.getPostId());
-                        intent.putExtra("title", post.getTitle());
-                        intent.putExtra("content", post.getContent());
-                        startActivity(intent);
-                    });
-
-                    ceoBoardPostContainer.addView(linearLayout);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                // 오류 처리 코드를 여기에 작성합니다.
-            }
-        });
 
         PermissionListener permissionListener = new PermissionListener() {
             @Override

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 그림자 효과 -->
+    <item android:right="4dp" android:bottom="4dp">
+        <shape>
+            <corners android:radius="3dp" />
+            <solid android:color="#00000000" />
+            <padding android:bottom="4dp" android:right="4dp" />
+            <gradient
+                android:startColor="#60000000"
+            android:endColor="#10000000"
+            android:angle="315" />
+        </shape>
+    </item>
+    <!-- 본래의 이미지/버튼 -->
+    <item android:drawable="@drawable/cafelogo_cafedream6">
+        <shape android:shape="rectangle">
+            <corners android:radius="3dp" />
+            <solid android:color="#FFFFFF" />
+        </shape>
+    </item>
+</layer-list>
+
+
