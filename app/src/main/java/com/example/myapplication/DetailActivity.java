@@ -83,7 +83,24 @@ public class DetailActivity extends AppCompatActivity {
                                 String nickname = userSnapshot.child("Nickname").getValue(String.class);
                                 tvNickname.setText(nickname);
                             } else {
-                                Toast.makeText(DetailActivity.this, "사용자 정보를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show();
+                                // Users에서 찾을 수 없다면 CeoUsers에서 찾기
+                                DatabaseReference ceoUserRef = FirebaseDatabase.getInstance().getReference("CeoUsers").child(postUserName);
+                                ceoUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot ceoUserSnapshot) {
+                                        if (ceoUserSnapshot.exists()) {
+                                            String nickname = ceoUserSnapshot.child("Nickname").getValue(String.class);
+                                            tvNickname.setText(nickname);
+                                        } else {
+                                            Toast.makeText(DetailActivity.this, "사용자 정보를 찾을 수 없습니다.", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                                        Toast.makeText(DetailActivity.this, "사용자 정보 조회에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                             }
                         }
 

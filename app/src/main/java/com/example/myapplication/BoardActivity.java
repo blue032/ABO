@@ -155,8 +155,9 @@ public class BoardActivity extends AppCompatActivity {
         @Override
         public void onBindViewHolder(@NonNull BoardPostViewHolder holder, int position) {
             BoardPost post = postList.get(position);
+            holder.textViewTitle.setText(post.getTitle());
 
-            // Firebase에서 닉네임을 가져와서 설정합니다.
+            // 닉네임을 가져오기 위해 Users 데이터베이스를 먼저 확인
             DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(post.getUserName());
             userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -165,13 +166,30 @@ public class BoardActivity extends AppCompatActivity {
                         String nickname = dataSnapshot.child("Nickname").getValue(String.class);
                         holder.textViewDate.setText(formatTimestampToKST(post.getTimestamp()) + " | " + nickname);
                     } else {
-                        holder.textViewDate.setText(formatTimestampToKST(post.getTimestamp()) + " | Unknown");
+                        // Users에서 찾지 못했다면, CeoUsers 데이터베이스를 확인
+                        DatabaseReference ceoUserRef = FirebaseDatabase.getInstance().getReference("CeoUsers").child(post.getUserName());
+                        ceoUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot ceoSnapshot) {
+                                if (ceoSnapshot.exists() && ceoSnapshot.hasChild("Nickname")) {
+                                    String ceoNickname = ceoSnapshot.child("Nickname").getValue(String.class);
+                                    holder.textViewDate.setText(formatTimestampToKST(post.getTimestamp()) + " | " + ceoNickname);
+                                } else {
+                                    holder.textViewDate.setText(formatTimestampToKST(post.getTimestamp()) + " | Unknown");
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                Log.e("Firebase", "Error fetching nickname from CeoUsers");
+                            }
+                        });
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Log.e("Firebase", "Error fetching nickname");
+                    Log.e("Firebase", "Error fetching nickname from Users");
                 }
             });
 
