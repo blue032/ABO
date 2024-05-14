@@ -5,7 +5,7 @@ public class Comment {
     private String userId; // 댓글 작성자의 사용자 ID
     private long timestamp; // 댓글이 작성된 시간
     private String postId; // 댓글이 달린 게시물의 ID
-    private String postUserName; // 게시물 작성자의 사용자 이름
+    private String postUserName; // 게시물 작성자의 UID
 
     // 기본 생성자
     public Comment() {
