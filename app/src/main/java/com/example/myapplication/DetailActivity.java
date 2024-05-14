@@ -12,6 +12,8 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -139,6 +141,7 @@ public class DetailActivity extends AppCompatActivity {
                     Toast.makeText(DetailActivity.this, "게시글을 찾을 수 없습니다.", Toast.LENGTH_SHORT).show();
                 }
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(DetailActivity.this, "게시글 정보를 불러올 수 없습니다.", Toast.LENGTH_SHORT).show();
@@ -182,7 +185,6 @@ public class DetailActivity extends AppCompatActivity {
         });
 
         loadComments();
-
 
 
         // 여기에 iconMore 초기화와 클릭 이벤트 리스너를 추가합니다.
@@ -234,7 +236,7 @@ public class DetailActivity extends AppCompatActivity {
         intentToEdit.putExtra("postId", postId); // 여기에 postId를 다시 추가
         // 이미지 URI를 String으로 변환하여 ArrayList에 추가
         // 변환된 String 리스트를 인텐트에 추가
-        if(photoUrlsString != null) {
+        if (photoUrlsString != null) {
             intentToEdit.putStringArrayListExtra("photoUrls", photoUrlsString);
         }
         startActivity(intentToEdit);
@@ -260,17 +262,31 @@ public class DetailActivity extends AppCompatActivity {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         long timestamp = System.currentTimeMillis();
 
-        Comment comment = new Comment(commentText, userId, timestamp, postId, postUserName);
-        String commentId = commentReference.push().getKey();
-        if (commentId != null) {
-            commentReference.child(commentId).setValue(comment)
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(DetailActivity.this, "댓글이 등록되었습니다.", Toast.LENGTH_SHORT).show();
-                        etComment.getText().clear();
-                        createNotification(commentText, userId, timestamp, postId, commentId, postUserName);
-                    })
-                    .addOnFailureListener(e -> Toast.makeText(DetailActivity.this, "댓글 등록에 실패했습니다.", Toast.LENGTH_SHORT).show());
-        }
+        DatabaseReference postRef = FirebaseDatabase.getInstance().getReference("Board").child(postId);
+        postRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String postUserName = snapshot.child("userName").getValue(String.class);
+                    Comment comment = new Comment(commentText, userId, timestamp, postId, postUserName);
+                    String commentId = commentReference.push().getKey();
+                    if (commentId != null) {
+                        commentReference.child(commentId).setValue(comment)
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(DetailActivity.this, "댓글이 등록되었습니다.", Toast.LENGTH_SHORT).show();
+                                    etComment.getText().clear();
+                                    createNotification(commentText, userId, timestamp, postId, commentId, postUserName);
+                                })
+                                .addOnFailureListener(e -> Toast.makeText(DetailActivity.this, "댓글 등록에 실패했습니다.", Toast.LENGTH_SHORT).show());
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(DetailActivity.this, "데이터베이스 오류가 발생했습니다: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void createNotification(String commentContent, String commenterId, long timestamp, String postId, String commentId, String postUserName) {

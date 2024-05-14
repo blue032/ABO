@@ -17,7 +17,7 @@ public class Comment {
         this.userId = userId;
         this.timestamp = timestamp;
         this.postId = postId;
-        this.postUserName = postUserName;
+        this.postUserName = postUserName; //게시글 작성자의 UID
     }
 
     // Getter 및 Setter 메서드

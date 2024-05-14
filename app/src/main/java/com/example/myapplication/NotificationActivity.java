@@ -20,6 +20,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class NotificationActivity extends AppCompatActivity {
@@ -51,13 +53,22 @@ public class NotificationActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 notificationList.clear();
-                String currentUserEmail = mAuth.getCurrentUser().getEmail(); // 현재 사용자의 이메일
+                ArrayList<Notification> tempNotifications = new ArrayList<>();
+                String currentUserId = mAuth.getCurrentUser().getUid(); // 현재 사용자의 UID 가져오기
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Notification notification = snapshot.getValue(Notification.class);
-                    if (notification != null && currentUserEmail.equals(notification.getPostUserName())) {
-                        notificationList.add(notification);
+                    if (notification != null && currentUserId.equals(notification.getPostUserName())) {
+                        tempNotifications.add(notification);
                     }
                 }
+                // 타임스탬프 내림차순으로 정렬
+                Collections.sort(tempNotifications, new Comparator<Notification>() {
+                    @Override
+                    public int compare(Notification n1, Notification n2) {
+                        return Long.compare(n2.getTimestamp(), n1.getTimestamp());
+                    }
+                });
+                notificationList.addAll(tempNotifications);
                 checkForEmptyList();
                 notificationAdapter.notifyDataSetChanged();
             }

@@ -8,7 +8,7 @@ public class Notification {
     private String commenterId;
     private long timestamp;
     private boolean isRead;
-    private String postUserName; // 게시물 작성자의 사용자 이름
+    private String postUserName; // 게시물 작성자의 UID
 
     // 기본 생성자
     public Notification() {}
