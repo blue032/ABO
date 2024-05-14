@@ -12,14 +12,20 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -31,12 +37,14 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     private ArrayList<String> keyList;
     private Context context;
     private DatabaseReference databaseReference;
+    private Map<String, String> userNicknames; // UID와 닉네임을 매핑하기 위한 맵
 
     public CommentAdapter(DatabaseReference databaseReference, List<Comment> commentList, ArrayList<String> keyList, Context context) {
         this.databaseReference = databaseReference;
         this.commentList = commentList;
         this.keyList = keyList;
         this.context = context;
+        this.userNicknames = new HashMap<>();
     }
 
     @NonNull
@@ -51,14 +59,60 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         Comment comment = commentList.get(position);
         holder.tvComment.setText(comment.getContent());
         holder.tvCommentTimestamp.setText(getReadableTimestamp(comment.getTimestamp()));
-        holder.tvCommentAuthor.setText(comment.getUserId());
+        String userId = comment.getUserId();
+
+        if (userNicknames.containsKey(userId)) {
+            holder.tvCommentAuthor.setText(userNicknames.get(userId));
+        } else {
+            loadUserNickname(userId, holder.tvCommentAuthor);
+        }
 
         holder.iconMore.setOnClickListener(view -> showPopupMenu(view, position, comment.getContent()));
     }
 
+    private void loadUserNickname(String userId, TextView textView) {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(userId);
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String nickname = snapshot.child("Nickname").getValue(String.class);
+                    userNicknames.put(userId, nickname);
+                    textView.setText(nickname);
+                } else {
+                    // Users에서 닉네임을 찾을 수 없는 경우 CeoUsers에서 확인
+                    DatabaseReference ceoUserRef = FirebaseDatabase.getInstance().getReference("CeoUsers").child(userId);
+                    ceoUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot ceoSnapshot) {
+                            if (ceoSnapshot.exists()) {
+                                String nickname = ceoSnapshot.child("Nickname").getValue(String.class);
+                                userNicknames.put(userId, nickname);
+                                textView.setText(nickname);
+                            } else {
+                                textView.setText("Unknown");
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            textView.setText("Unknown");
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                textView.setText("Unknown");
+            }
+        });
+    }
+
     private String getReadableTimestamp(long timestamp) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
-        return formatter.format(new Date(timestamp));
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREA);
+        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul")); // 한국 시간대로 설정
+        return sdf.format(new Date(timestamp));
     }
 
     private void showPopupMenu(View view, final int position, String content) {
@@ -82,14 +136,12 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
             String commentKey = keyList.get(position);
             databaseReference.child(commentKey).removeValue().addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
-                    // Firebase에서만 삭제하고 RecyclerView에서는 제거하지 않음
                     Toast.makeText(context, "댓글이 삭제되었습니다.", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(context, "다시 시도해주세요.", Toast.LENGTH_SHORT).show();
                 }
             });
         } else {
-            // Invalid position
             Toast.makeText(context, "Invalid position.", Toast.LENGTH_SHORT).show();
         }
     }
@@ -122,14 +174,13 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
                 if (task.isSuccessful()) {
                     commentList.get(position).setContent(newContent);
                     notifyItemChanged(position);
-                    Toast.makeText(context, "댓글이 수정되었습니다..", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "댓글이 수정되었습니다.", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(context, "다시 시도해주세요.", Toast.LENGTH_SHORT).show();
                 }
             });
         }
     }
-
 
     @Override
     public int getItemCount() {
