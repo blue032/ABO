@@ -44,10 +44,10 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
                 android:layout_marginLeft="30dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginRight="30dp"
-                android:orientation="vertical" >
+                android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/signNametext"
@@ -57,8 +57,7 @@
                     android:text="이름"
                     android:textColor="#3F51B5"
                     android:textSize="20dp"
-                    android:textStyle="bold"
-                    />
+                    android:textStyle="bold" />
 
                 <EditText
                     android:id="@+id/signName"
@@ -133,24 +132,26 @@
                         android:id="@+id/signBirth"
                         android:layout_width="100dp"
                         android:layout_height="48dp"
-                        android:layout_marginBottom="20dp"
                         android:layout_marginRight="10dp"
+                        android:layout_marginBottom="20dp"
 
                         android:ems="10"
                         android:hint=" 년(4자)"
                         android:inputType="textPersonName"
                         android:text="" />
+
                     <EditText
                         android:id="@+id/signBirth2"
                         android:layout_width="100dp"
                         android:layout_height="48dp"
-                        android:layout_marginBottom="20dp"
                         android:layout_marginRight="10dp"
+                        android:layout_marginBottom="20dp"
 
                         android:ems="10"
                         android:hint=" 월"
                         android:inputType="textPersonName"
                         android:text="" />
+
                     <EditText
                         android:id="@+id/signBirth3"
                         android:layout_width="100dp"
