@@ -123,7 +123,7 @@ public class BoardActivity extends AppCompatActivity {
     }
 
     private String formatTimestampToKST(long timestamp) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREA);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.KOREA);
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul")); // 한국 시간대로 설정
         return sdf.format(new Date(timestamp));
     }
@@ -164,7 +164,8 @@ public class BoardActivity extends AppCompatActivity {
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists() && dataSnapshot.hasChild("Nickname")) {
                         String nickname = dataSnapshot.child("Nickname").getValue(String.class);
-                        holder.textViewDate.setText(formatTimestampToKST(post.getTimestamp()) + " | " + nickname);
+                        holder.textViewNickname.setText(nickname);
+                        holder.textViewDate.setText(" |  " + formatTimestampToKST(post.getTimestamp()));
                     } else {
                         // Users에서 찾지 못했다면, CeoUsers 데이터베이스를 확인
                         DatabaseReference ceoUserRef = FirebaseDatabase.getInstance().getReference("CeoUsers").child(post.getUserName());
@@ -173,9 +174,11 @@ public class BoardActivity extends AppCompatActivity {
                             public void onDataChange(@NonNull DataSnapshot ceoSnapshot) {
                                 if (ceoSnapshot.exists() && ceoSnapshot.hasChild("Nickname")) {
                                     String ceoNickname = ceoSnapshot.child("Nickname").getValue(String.class);
-                                    holder.textViewDate.setText(formatTimestampToKST(post.getTimestamp()) + " | " + ceoNickname);
+                                    holder.textViewNickname.setText(ceoNickname);
+                                    holder.textViewDate.setText(" |  " + formatTimestampToKST(post.getTimestamp()));
                                 } else {
-                                    holder.textViewDate.setText(formatTimestampToKST(post.getTimestamp()) + " | Unknown");
+                                    holder.textViewNickname.setText("Unknown");
+                                    holder.textViewDate.setText(" |  " + formatTimestampToKST(post.getTimestamp()));
                                 }
                             }
 
@@ -193,7 +196,6 @@ public class BoardActivity extends AppCompatActivity {
                 }
             });
 
-            holder.textViewTitle.setText(post.getTitle());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -210,18 +212,21 @@ public class BoardActivity extends AppCompatActivity {
             });
         }
 
+
+
         @Override
         public int getItemCount() {
             return postList.size();
         }
 
         class BoardPostViewHolder extends RecyclerView.ViewHolder {
-            TextView textViewTitle, textViewDate;
+            TextView textViewTitle, textViewDate, textViewNickname;
 
             public BoardPostViewHolder(@NonNull View itemView) {
                 super(itemView);
                 textViewTitle = itemView.findViewById(R.id.textViewTitle);
                 textViewDate = itemView.findViewById(R.id.textViewDate);
+                textViewNickname = itemView.findViewById(R.id.textViewNickname);
             }
         }
     }

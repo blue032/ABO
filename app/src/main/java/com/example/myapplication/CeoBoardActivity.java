@@ -152,7 +152,7 @@ public class CeoBoardActivity extends AppCompatActivity {
     }
 
     private String formatTimestampToKST(long timestamp) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREA);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.KOREA);
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
         return sdf.format(new Date(timestamp));
     }
@@ -251,24 +251,31 @@ public class CeoBoardActivity extends AppCompatActivity {
         public void onBindViewHolder(@NonNull BoardPostViewHolder holder, int position) {
             CeoBoardPost post = postList.get(position);
             holder.textViewTitle.setText(post.getTitle());
-            holder.textViewDate.setText(formatTimestampToKST(post.getTimestamp()));  // 포맷된 시간을 설정
 
-            // 닉네임을 데이터베이스에서 가져와 설정
-            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("CeoUsers").child(post.getUserName());
+            String userName = post.getUserName();
+            if (userName == null || userName.isEmpty()) {
+                Log.e("CeoBoardActivity", "Invalid userName for post ID: " + post.getPostId());
+                holder.textViewDate.setText(formatTimestampToKST(post.getTimestamp()) + " | Unknown user");
+                return; // 중요: 여기서 함수를 끝내서 null userName으로 인한 오류를 방지합니다.
+            }
+
+            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("CeoUsers").child(userName);
             userRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists() && dataSnapshot.hasChild("Nickname")) {
                         String nickname = dataSnapshot.child("Nickname").getValue(String.class);
-                        holder.textViewDate.setText(formatTimestampToKST(post.getTimestamp()) + " | " + nickname);
+                        holder.textViewNickname.setText(nickname);
+                        holder.textViewDate.setText(" | " + formatTimestampToKST(post.getTimestamp()));
                     } else {
-                        holder.textViewDate.setText(formatTimestampToKST(post.getTimestamp()) + " | Unknown");
+                        holder.textViewNickname.setText("Unknown");
+                        holder.textViewDate.setText(" |  " + formatTimestampToKST(post.getTimestamp()));
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Log.e("Firebase", "Error fetching nickname");
+                    Log.e("Firebase", "Error fetching nickname: " + databaseError.getMessage());
                 }
             });
 
@@ -291,12 +298,13 @@ public class CeoBoardActivity extends AppCompatActivity {
         }
 
         class BoardPostViewHolder extends RecyclerView.ViewHolder {
-            TextView textViewTitle, textViewDate;
+            TextView textViewTitle, textViewDate, textViewNickname;
 
             public BoardPostViewHolder(@NonNull View itemView) {
                 super(itemView);
                 textViewTitle = itemView.findViewById(R.id.textViewTitle);
                 textViewDate = itemView.findViewById(R.id.textViewDate);
+                textViewNickname = itemView.findViewById(R.id.textViewNickname);
             }
         }
     }

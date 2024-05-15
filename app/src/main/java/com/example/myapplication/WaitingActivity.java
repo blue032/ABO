@@ -34,13 +34,28 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 import java.util.PriorityQueue;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class WaitingActivity extends AppCompatActivity {
 
@@ -66,6 +81,9 @@ public class WaitingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waiting);
+
+        // 현재 날짜의 요일을 Firebase에 추가
+        updateDailyStatsInFirebase();
 
         SwipeRefreshLayout refreshLayout = findViewById(R.id.refresh_layout);
 
@@ -255,6 +273,103 @@ public class WaitingActivity extends AppCompatActivity {
         }
     });
 
+    public void updateDailyStatsInFirebase() {
+        // 현재 날짜와 시간 구하기
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        String todayDate = dateFormat.format(new Date());
+        String currentTime = timeFormat.format(new Date());
+
+        // 요일 계산하기
+        Calendar calendar = Calendar.getInstance();
+        String[] days = new String[]{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+        String todayDay = days[calendar.get(Calendar.DAY_OF_WEEK) - 1]; // Calendar.DAY_OF_WEEK는 1부터 시작(Sunday = 1)
+
+        // Firebase 경로 설정
+        DatabaseReference dailyStatsRef = FirebaseDatabase.getInstance().getReference("dailyStats/" + todayDate);
+
+        // 요일과 시간 데이터 추가
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("currentDay", todayDay);
+        updates.put("lastUpdatedTime", currentTime);
+
+        dailyStatsRef.updateChildren(updates).addOnSuccessListener(aVoid -> {
+            Log.d("Firebase", "Daily stats updated successfully with day: " + todayDay + " and time: " + currentTime);
+            // 서버로 데이터 전송하는 기능 호출
+            //sendDataToServer(todayDate, currentTime, todayDay);
+        }).addOnFailureListener(e -> {
+            Log.e("Firebase", "Failed to update daily stats", e);
+        });
+    }
+
+   /* private void sendDataToServer(String date, String currentTime, String currentDay) {
+        DatabaseReference dailyStatsRef = FirebaseDatabase.getInstance().getReference("dailyStats/" + date);
+        dailyStatsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Integer currentWaitCount = snapshot.child("currentWaitCount").getValue(Integer.class);
+                if (currentWaitCount != null) {
+                    OkHttpClient client = new OkHttpClient();
+                    MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
+                    JSONObject postData = new JSONObject();
+                    try {
+                        postData.put("date", date);
+                        postData.put("time", currentTime);
+                        postData.put("dayOfWeek", currentDay);
+                        postData.put("waitingNumber", currentWaitCount);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    RequestBody body = RequestBody.create(MEDIA_TYPE_JSON, postData.toString());
+                    Request request = new Request.Builder()
+                            .url("http://yourserver.com/data")
+                            .post(body)
+                            .build();
+
+                    client.newCall(request).enqueue(new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            Log.e("HttpError", "Failed to send data to server.", e);
+                        }
+
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            if (!response.isSuccessful()) {
+                                Log.e("HttpError", "Server response was not successful.");
+                            } else {
+                                Log.i("HttpSuccess", "Data sent successfully");
+                            }
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("Firebase", "Failed to read value.", error.toException());
+            }
+        });
+    }*/
+
+
+    private void updateTotalCountInFirebase(int newCount) {
+        // 변경될 totalCount 값과 함께 업데이트할 경로를 설정합니다.
+        // "dailyStats/[today's date]/totalWaitCount" 에 저장하고자 할 때
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        String todayDate = dateFormat.format(new Date());
+        DatabaseReference countRef = database.getReference("dailyStats/" + todayDate + "/totalWaitCount");
+
+        // setValue 메소드를 사용하여 데이터베이스에 새 대기번호를 저장합니다.
+        countRef.setValue(newCount).addOnSuccessListener(aVoid -> {
+            // 데이터베이스 업데이트에 성공했을 때 할 작업 (예: Toast 메시지 표시)
+            Log.d("WaitingActivity", "Total count updated successfully for " + todayDate + ": " + newCount);
+        }).addOnFailureListener(e -> {
+            // 데이터베이스 업데이트에 실패했을 때 할 작업
+            Log.e("WaitingActivity", "Failed to update total count for " + todayDate, e);
+        });
+    }
+
     //현재시간에 해당하는 대기번호 확인 후 화면에 표시하는 로직
     private void checkOrdersTime() {
         Calendar now = Calendar.getInstance();
@@ -372,6 +487,8 @@ public class WaitingActivity extends AppCompatActivity {
         tv_waitingNumber.setText(Integer.toString(totalCount));
         textViewSuffix.setVisibility(View.VISIBLE);
         saveTotalCount(totalCount); // 혼잡도 상태 저장
+        // Firebase에 totalCount 업데이트 추가
+        updateTotalCountInFirebase(totalCount);
 
     }
 
