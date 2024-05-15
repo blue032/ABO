@@ -152,7 +152,7 @@ public class CeoBoardActivity extends AppCompatActivity {
     }
 
     private String formatTimestampToKST(long timestamp) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.KOREA);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.KOREA);
         sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
         return sdf.format(new Date(timestamp));
     }
@@ -265,9 +265,11 @@ public class CeoBoardActivity extends AppCompatActivity {
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists() && dataSnapshot.hasChild("Nickname")) {
                         String nickname = dataSnapshot.child("Nickname").getValue(String.class);
-                        holder.textViewDate.setText(formatTimestampToKST(post.getTimestamp()) + " | " + nickname);
+                        holder.textViewNickname.setText(nickname);
+                        holder.textViewDate.setText(" | " + formatTimestampToKST(post.getTimestamp()));
                     } else {
-                        holder.textViewDate.setText(formatTimestampToKST(post.getTimestamp()) + " | Unknown");
+                        holder.textViewNickname.setText("Unknown");
+                        holder.textViewDate.setText(" |  " + formatTimestampToKST(post.getTimestamp()));
                     }
                 }
 
@@ -276,7 +278,6 @@ public class CeoBoardActivity extends AppCompatActivity {
                     Log.e("Firebase", "Error fetching nickname: " + databaseError.getMessage());
                 }
             });
-
 
             holder.itemView.setOnClickListener(v -> {
                 Intent intent = new Intent(CeoBoardActivity.this, CeoDetailActivity.class);
@@ -297,12 +298,13 @@ public class CeoBoardActivity extends AppCompatActivity {
         }
 
         class BoardPostViewHolder extends RecyclerView.ViewHolder {
-            TextView textViewTitle, textViewDate;
+            TextView textViewTitle, textViewDate, textViewNickname;
 
             public BoardPostViewHolder(@NonNull View itemView) {
                 super(itemView);
                 textViewTitle = itemView.findViewById(R.id.textViewTitle);
                 textViewDate = itemView.findViewById(R.id.textViewDate);
+                textViewNickname = itemView.findViewById(R.id.textViewNickname);
             }
         }
     }

@@ -16,4 +16,5 @@
     <color name="light_gray">#D3D3D3</color> <!-- 밝은 회색 -->
     <color name="dark_gray">#A9A9A9</color> <!-- 어두운 회색 -->
     <color name="lightBlue">#8BA4FE</color>
+    <color name="main">#558CE0</color>
 </resources>

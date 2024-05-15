@@ -34,23 +34,31 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.Random;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class WaitingActivity extends AppCompatActivity {
-    private long lastOrderProcessTimeMillis = 0;  // 마지막 주문의 처리 시간(밀리초 단위)
 
-    private long lastOrderCompletionTime = 0;  // 마지막 주문 처리 완료 시간
     private FirebaseDatabase database;
     private DatabaseReference databaseReference;
     private ValueEventListener valueEventListener; //데이터 변경있을 때
@@ -73,7 +81,9 @@ public class WaitingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waiting);
-        lastOrderCompletionTime = System.currentTimeMillis();  // 초기화
+
+        // 현재 날짜의 요일을 Firebase에 추가
+        updateDailyStatsInFirebase();
 
         SwipeRefreshLayout refreshLayout = findViewById(R.id.refresh_layout);
 
@@ -162,8 +172,9 @@ public class WaitingActivity extends AppCompatActivity {
                 showNumberPickerDialog(true);
             }
         });
-*/
 
+
+*/
         // SharedPreferences에서 사장님 여부 확인
         SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
         boolean isCeo = prefs.getBoolean("IsCeo", false);
@@ -215,6 +226,7 @@ public class WaitingActivity extends AppCompatActivity {
         });
     }
 
+
     private void setupFirebaseListener() {
         database = FirebaseDatabase.getInstance();
         String referencePath = "Order/2024/3/" + Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
@@ -226,25 +238,18 @@ public class WaitingActivity extends AppCompatActivity {
                 ordersList.clear(); // 리스트 초기화
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Orders order = snapshot.getValue(Orders.class);
-                    // 메뉴 리스트 null 검사
+
                     if (order != null) {
-                        if (order.getMenu() == null) {
-                            Log.e("WaitingActivity", "Menu list is null for order: " + order.getId());
-                        } else {
-                            ordersList.add(order); // 업데이트된 주문 리스트에 추가
-                        }
-                    } else {
-                        Log.e("WaitingActivity", "Order is null");
+                        ordersList.add(order); // 업데이트된 주문 리스트에 추가
                     }
                 }
                 updateWaitingTimeUI(); //최대대기시간 업뎃
                 checkOrdersTime();
-                Log.d("WaitingActivity", "Orders list updated with " + ordersList.size() + " items");
-                }
+            }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e("WaitingActivity", "Firebase ValueEventListener cancelled", databaseError.toException());
+                Log.e("UpdateWaitNumber", "Database error", databaseError.toException());
             }
         };
         databaseReference.addValueEventListener(valueEventListener);
@@ -268,47 +273,102 @@ public class WaitingActivity extends AppCompatActivity {
         }
     });
 
+    public void updateDailyStatsInFirebase() {
+        // 현재 날짜와 시간 구하기
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
+        String todayDate = dateFormat.format(new Date());
+        String currentTime = timeFormat.format(new Date());
+
+        // 요일 계산하기
+        Calendar calendar = Calendar.getInstance();
+        String[] days = new String[]{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+        String todayDay = days[calendar.get(Calendar.DAY_OF_WEEK) - 1]; // Calendar.DAY_OF_WEEK는 1부터 시작(Sunday = 1)
+
+        // Firebase 경로 설정
+        DatabaseReference dailyStatsRef = FirebaseDatabase.getInstance().getReference("dailyStats/" + todayDate);
+
+        // 요일과 시간 데이터 추가
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("currentDay", todayDay);
+        updates.put("lastUpdatedTime", currentTime);
+
+        dailyStatsRef.updateChildren(updates).addOnSuccessListener(aVoid -> {
+            Log.d("Firebase", "Daily stats updated successfully with day: " + todayDay + " and time: " + currentTime);
+            // 서버로 데이터 전송하는 기능 호출
+            //sendDataToServer(todayDate, currentTime, todayDay);
+        }).addOnFailureListener(e -> {
+            Log.e("Firebase", "Failed to update daily stats", e);
+        });
+    }
+
+   /* private void sendDataToServer(String date, String currentTime, String currentDay) {
+        DatabaseReference dailyStatsRef = FirebaseDatabase.getInstance().getReference("dailyStats/" + date);
+        dailyStatsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Integer currentWaitCount = snapshot.child("currentWaitCount").getValue(Integer.class);
+                if (currentWaitCount != null) {
+                    OkHttpClient client = new OkHttpClient();
+                    MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
+                    JSONObject postData = new JSONObject();
+                    try {
+                        postData.put("date", date);
+                        postData.put("time", currentTime);
+                        postData.put("dayOfWeek", currentDay);
+                        postData.put("waitingNumber", currentWaitCount);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    RequestBody body = RequestBody.create(MEDIA_TYPE_JSON, postData.toString());
+                    Request request = new Request.Builder()
+                            .url("http://yourserver.com/data")
+                            .post(body)
+                            .build();
+
+                    client.newCall(request).enqueue(new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            Log.e("HttpError", "Failed to send data to server.", e);
+                        }
+
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            if (!response.isSuccessful()) {
+                                Log.e("HttpError", "Server response was not successful.");
+                            } else {
+                                Log.i("HttpSuccess", "Data sent successfully");
+                            }
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("Firebase", "Failed to read value.", error.toException());
+            }
+        });
+    }*/
+
+
     private void updateTotalCountInFirebase(int newCount) {
         // 변경될 totalCount 값과 함께 업데이트할 경로를 설정합니다.
-        // 예를 들어, "waitingCount" 라는 새로운 노드에 저장하고자 할 때
-        DatabaseReference countRef = database.getReference("waitingCount");
+        // "dailyStats/[today's date]/totalWaitCount" 에 저장하고자 할 때
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        String todayDate = dateFormat.format(new Date());
+        DatabaseReference countRef = database.getReference("dailyStats/" + todayDate + "/totalWaitCount");
 
         // setValue 메소드를 사용하여 데이터베이스에 새 대기번호를 저장합니다.
         countRef.setValue(newCount).addOnSuccessListener(aVoid -> {
             // 데이터베이스 업데이트에 성공했을 때 할 작업 (예: Toast 메시지 표시)
-            Log.d("WaitingActivity", "Total count updated successfully: " + newCount);
+            Log.d("WaitingActivity", "Total count updated successfully for " + todayDate + ": " + newCount);
         }).addOnFailureListener(e -> {
             // 데이터베이스 업데이트에 실패했을 때 할 작업
-            Log.e("WaitingActivity", "Failed to update total count", e);
+            Log.e("WaitingActivity", "Failed to update total count for " + todayDate, e);
         });
     }
-
-    private long calculateTotalWaitTimeMillis(Orders order) {
-        Random random = new Random();
-        long orderProcessingTime = order.getMenu().stream()
-                .mapToLong(item -> {
-                    int baseTime;
-                    if (isCoffeeRelated(item.getName())) {
-                        // 커피 관련 메뉴는 2분에서 분 사이
-                        baseTime = 120000 + random.nextInt(60000); // 2분 + 0-1분
-                    } else {
-                        // 논커피 메뉴는 3분에서 5분 사이
-                        baseTime = 180000 + random.nextInt(120000); // 3분 + 0-2분
-                    }
-                    long timeForItem = item.getQuantity() * baseTime;
-                    Log.d("WaitingActivity", "Item: " + item.getName() + ", Quantity: " + item.getQuantity() + ", Time: " + timeForItem + "ms");
-                    return timeForItem;
-                })
-                .sum();
-
-        // 주문 시작 시간을 주문 등록 시간으로 설정
-        long orderStartTime = getOrderTimeMillis(order);
-        long orderEndTime = orderStartTime + orderProcessingTime;
-
-        // 현재 시간과 비교하여 대기 시간 계산
-        return orderEndTime - System.currentTimeMillis();
-    }
-
 
     //현재시간에 해당하는 대기번호 확인 후 화면에 표시하는 로직
     private void checkOrdersTime() {
@@ -332,7 +392,6 @@ public class WaitingActivity extends AppCompatActivity {
             updateUIWithClosed();
             return;
         }*/
-
         int currentCount = 0;
         maxWaitingTimeMillis = 0; //최대대기시간을 재설정
 
@@ -354,8 +413,6 @@ public class WaitingActivity extends AppCompatActivity {
                     if (totalWaitTimeMillis > maxWaitingTimeMillis) {
                         maxWaitingTimeMillis = totalWaitTimeMillis;
                     }
-                    // 현재 대기 중인 주문의 totalWaitTimeMillis를 Firebase에 업데이트
-                    updateTotalWaitTimeInFirebase(order.getId(), totalWaitTimeMillis);
                 }
                 else { // 주문 완료 시간이 현재 시간을 지났을 경우
                     iterator.remove();
@@ -366,24 +423,16 @@ public class WaitingActivity extends AppCompatActivity {
                 }
             }
         }
-
         if (!ordersQueue.isEmpty()) {
             maxWaitingTimeMillis = ordersQueue.peek().getTotalWaitTimeMillis();
         } else {
             maxWaitingTimeMillis = 0;
         }
         totalCount = currentCount; // 현재 계산된 대기 수를 totalCount에 반영
-        // 대기번호 변경이 감지되면 Firebase에 업데이트
-        updateTotalCountInFirebase(totalCount);
         updateUIWithCurrentCount(); // UI 업데이트
         updateWaitingTimeUI();
     }
-
     private long getOrderTimeMillis(Orders order) {
-        if (order == null || order.getTime() == null) {
-            Log.e("WaitingActivity", "Order or Order Time is null");
-            return -1;  // 오류 상황을 나타내는 값으로 -1을 반환하거나 다른 적절한 처리를 할 수 있습니다.
-        }
         Calendar orderCalendar = Calendar.getInstance();
         Orders.Time orderTime = order.getTime();
         orderCalendar.set(Calendar.HOUR_OF_DAY, orderTime.getHour());
@@ -392,52 +441,26 @@ public class WaitingActivity extends AppCompatActivity {
         return orderCalendar.getTimeInMillis();
     }
 
-    private Map<String, Integer> convertMillisToTime(long millis) {
-        int hours = (int) (millis / (1000 * 60 * 60));
-        int minutes = (int) (millis / (1000 * 60)) % 60;
-        int seconds = (int) (millis / 1000) % 60;
-
-        Map<String, Integer> timeMap = new HashMap<>();
-        timeMap.put("hours", hours);
-        timeMap.put("minutes", minutes);
-        timeMap.put("seconds", seconds);
-
-        return timeMap;
+    private long calculateTotalWaitTimeMillis(Orders order) {
+        return order.getMenu().stream()
+                .mapToLong(item -> item.getQuantity() * 2 * 60 * 1000) // 각 메뉴 아이템의 대기 시간을 계산
+                .sum();
     }
 
-    private void updateTotalWaitTimeInFirebase(String orderId, long totalWaitTimeMillis) {
-        if (orderId == null || orderId.isEmpty()) {
-            Log.e("WaitingActivity", "Invalid order ID. Cannot update total wait time.");
-            return;
-        }
-
-        String day = String.valueOf(Calendar.getInstance().get(Calendar.DAY_OF_MONTH));
-        DatabaseReference orderRef = database.getReference("Order/2024/3/" + day + "/" + orderId);
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("totalWaitTimeMillis", totalWaitTimeMillis);
-
-        orderRef.updateChildren(updates)
-                .addOnSuccessListener(aVoid -> Log.d("Firebase", "Total wait time updated successfully for order: " + orderId))
-                .addOnFailureListener(e -> Log.e("Firebase", "Failed to update total wait time for order: " + orderId, e));
-
-    }
-
-    private boolean isCoffeeRelated(String menuItemName) {
-        List<String> coffeeMenu = Arrays.asList(
-                "ice americano", "hot americano", "ice cafe latte", "hot cafe latte",
-                "cappuccino", "ice vanilla latte", "hot vanilla latte", "caramel latte", "einspanner"
-        );
-        return coffeeMenu.contains(menuItemName.toLowerCase());
-    }
 
     private void updateWaitingTimeUI() {
-        if (totalCount == 0) {
-            lastOrderProcessTimeMillis = 0;  // 대기번호가 0인 경우, 처리 시간도 0으로 리셋
-        }
-        int lastOrderProcessTimeMinutes = (int) (lastOrderProcessTimeMillis / 60000);  // 밀리초를 분으로 변환
-
         EditText waitingTimeEditText = findViewById(R.id.waitingTime);
-        waitingTimeEditText.setText(lastOrderProcessTimeMinutes + " 분");  // 마지막 주문 처리 시간을 분 단위로 표시
+        int maxWaitingTimeMinutes = (int) (maxWaitingTimeMillis/60000); //밀리초를 분으로 바꾸기
+        int additionalMinutes = 0;
+
+        //대기번호에 따른 추가 시간 계산
+        if (totalCount > 6) {
+            additionalMinutes = 10;
+        } else if (totalCount > 2) {
+            additionalMinutes = 5;
+        }
+        int totalWaitingTime = maxWaitingTimeMinutes + additionalMinutes;
+        waitingTimeEditText.setText(String.valueOf(totalWaitingTime));
     }
 
     /*private void updateUIWithClosed() {
@@ -450,30 +473,13 @@ public class WaitingActivity extends AppCompatActivity {
     public void addOrder(Orders newOrder){
         // 새 주문을 주문 리스트에 추가
         ordersList.add(newOrder);
-
-        // 새 주문의 처리 시간을 계산
-        long newOrderWaitTimeMillis = calculateTotalWaitTimeMillis(newOrder);
-
-        // 새 주문 객체에 처리 시간을 설정
-        newOrder.setTotalWaitTimeMillis(newOrderWaitTimeMillis);
-
-        // 마지막 주문 처리 시간 업데이트
-        lastOrderCompletionTime = System.currentTimeMillis() + newOrderWaitTimeMillis;
-
-        // 주문 처리 시간이 최대 처리 시간보다 크면 업데이트
-        if (newOrderWaitTimeMillis > lastOrderProcessTimeMillis) {
-            lastOrderProcessTimeMillis = newOrderWaitTimeMillis;
-        }
-
-        // 주문 큐에 새 주문 추가
+        long newOrderWaitTime = calculateTotalWaitTimeMillis(newOrder);
+        newOrder.setTotalWaitTimeMillis(newOrderWaitTime);
         ordersQueue.add(newOrder);
-
         // 대기번호 증가
         totalCount++;
-
         // UI 업데이트
         updateUIWithCurrentCount();
-        updateWaitingTimeUI();  // 주문 추가 시 대기 시간 UI 업데이트
     }
 
 
@@ -481,6 +487,9 @@ public class WaitingActivity extends AppCompatActivity {
         tv_waitingNumber.setText(Integer.toString(totalCount));
         textViewSuffix.setVisibility(View.VISIBLE);
         saveTotalCount(totalCount); // 혼잡도 상태 저장
+        // Firebase에 totalCount 업데이트 추가
+        updateTotalCountInFirebase(totalCount);
+
     }
 
     private void saveTotalCount(int totalCount){
