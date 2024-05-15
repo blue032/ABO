@@ -12,7 +12,6 @@
         android:id="@+id/layout_toolbar"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:fontFamily="@font/inter"
         tools:ignore="MissingConstraints">
 
         <ImageView

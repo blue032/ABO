@@ -35,8 +35,9 @@ public class LoginActivity extends AppCompatActivity {
         emailEditText = findViewById(R.id.editID);
         passwordEditText = findViewById(R.id.editPassword);
         Button loginButton = findViewById(R.id.loginbutton);
-        Button signInButton = findViewById(R.id.signin);
-        TextView idpwTextView = findViewById(R.id.idpw);
+        TextView signInButton = findViewById(R.id.signin);
+        TextView idTextView = findViewById(R.id.id);
+        TextView pwTextView = findViewById(R.id.pw);
 
         // 로그인 버튼 클릭 리스너 설정
         loginButton.setOnClickListener(v -> loginUser());
@@ -48,9 +49,15 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        idpwTextView.setOnClickListener(v -> {
+        idTextView.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, SelectionActivity.class);
-            intent.putExtra("actionType", "findIdPw");
+            intent.putExtra("actionType", "findId");
+            startActivity(intent);
+        });
+
+        pwTextView.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, SelectionActivity.class);
+            intent.putExtra("actionType", "findPw");
             startActivity(intent);
         });
     }

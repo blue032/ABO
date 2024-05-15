@@ -27,8 +27,9 @@ public class SelectionActivity extends AppCompatActivity {
             if ("signup".equals(actionType)) {
                 // 회원가입 - 사장님 전용
                 intent = new Intent(SelectionActivity.this, CeoSignupActivity.class);
-            } else if ("findIdPw".equals(actionType)) {
+            } else if ("findId".equals(actionType)) {
                 // ID/PW 찾기 - 사장님 전용
+                intent = new Intent(SelectionActivity.this, CeoIdSearchActivity.class);
                 intent.putExtra("userType", "ceo");
             }
             startActivity(intent);
