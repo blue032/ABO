@@ -16,83 +16,127 @@
         android:textSize="18sp"
         android:layout_marginBottom="16dp"/>
 
-    <TextView
-        android:id="@+id/textViewLabelWaitNumber"
+
+    <!-- Line as a View -->
+    <View
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="대기번호:"
-        android:textAlignment="center"
+        android:layout_height="2dp"
+        android:background="@color/lightBlue"
+        android:layout_marginTop="4dp"
         android:layout_marginBottom="8dp"/>
 
-    <TextView
-        android:id="@+id/textViewWaitNumber"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:layout_marginBottom="8dp"/>
-
-    <TextView
-        android:id="@+id/textViewLabelTime"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="시간:"
-        android:textAlignment="center"
-        android:layout_marginBottom="8dp"/>
-
-    <TextView
-        android:id="@+id/textViewTime"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:layout_marginBottom="8dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:onClick="onTimeTextViewClick" />
-
-    <TextView
-        android:id="@+id/textViewLabelMenu"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="메뉴 목록:"
-        android:textAlignment="center"
-        android:layout_marginBottom="8dp"/>
 
     <LinearLayout
-        android:id="@+id/spinnerContainer"
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="16dp"/>
+        android:gravity="start"
+        android:padding="16dp">
 
+        <TextView
+            android:id="@+id/textViewLabelWaitNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="대기번호:"
+            android:textAlignment="viewStart"
+            android:layout_marginBottom="8dp"/>
 
-    <TextView
-        android:id="@+id/textViewLabelTotalPrice"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="총 가격:"
-        android:textAlignment="center"
-        android:layout_marginBottom="8dp"/>
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@drawable/line2" />
 
-    <TextView
-        android:id="@+id/textViewTotalPrice"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAlignment="center"
-        android:layout_marginBottom="8dp"/>
+        <TextView
+            android:id="@+id/textViewWaitNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="viewStart"
+            android:layout_marginBottom="8dp"/>
 
-    <TextView
-        android:id="@+id/textViewLabelInOrTakeout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="매장/포장:"
-        android:textAlignment="center"
-        android:layout_marginBottom="8dp"/>
+        <TextView
+            android:id="@+id/textViewLabelTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="시간:"
+            android:textAlignment="viewStart"
+            android:layout_marginBottom="8dp"/>
 
-    <Spinner
-        android:id="@+id/spinnerInOrTakeout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:entries="@array/in_or_takeout_options" />
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@drawable/line2" />
+
+        <TextView
+            android:id="@+id/textViewTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="viewStart"
+            android:layout_marginBottom="8dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="onTimeTextViewClick" />
+
+        <TextView
+            android:id="@+id/textViewLabelMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="메뉴 목록:"
+            android:textAlignment="viewStart"
+            android:layout_marginBottom="8dp"/>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@drawable/line2" />
+
+        <LinearLayout
+            android:id="@+id/spinnerContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="16dp"/>
+
+        <TextView
+            android:id="@+id/textViewLabelTotalPrice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="총 가격:"
+            android:textAlignment="viewStart"
+            android:layout_marginBottom="8dp"/>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@drawable/line2" />
+
+        <TextView
+            android:id="@+id/textViewTotalPrice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="viewStart"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/textViewLabelInOrTakeout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="매장/포장:"
+            android:textAlignment="viewStart"
+            android:layout_marginBottom="8dp"/>
+
+        <Spinner
+            android:id="@+id/spinnerInOrTakeout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/in_or_takeout_options" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@drawable/line2" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -101,23 +145,32 @@
         android:gravity="center"
         android:weightSum="2">
 
-        <Button
-            android:id="@+id/buttonConfirm"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
+        <TextView
+            android:id="@+id/buttonSetTime"
+            android:layout_width="16dp"
+            android:layout_height="39dp"
+            android:layout_gravity="center"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:background="@drawable/button"
+            android:gravity="center"
             android:text="수정"
-            android:layout_weight="1"
-            android:layout_marginEnd="4dp"
-            android:textColor="#673AB7"/>
+            android:textColor="#ffffff"
+            android:textSize="18sp" />  <!-- 오른쪽 마진 추가 -->
 
-        <Button
-            android:id="@+id/buttonCancel"
+        <TextView
+            android:id="@+id/button_cancel"
             android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:text="취소"
+            android:layout_height="39dp"
+            android:layout_gravity="center"
             android:layout_weight="1"
-            android:layout_marginStart="4dp"
-            android:textColor="@color/purple_500"/>
+            android:background="@drawable/emptybox"
+            android:text="취소"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:gravity="center"
+            android:layout_marginStart="8dp" />  <!-- 왼쪽 마진 추가 -->
+
     </LinearLayout>
 </LinearLayout>
 
