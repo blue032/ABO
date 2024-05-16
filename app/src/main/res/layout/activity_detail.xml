@@ -106,7 +106,8 @@
         app:layout_constraintBottom_toTopOf="@id/recyclerViewComments"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="200dp"
-        app:layout_constraintEnd_toStartOf="@id/tvcommentet" />
+        app:layout_constraintEnd_toStartOf="@id/tvcommentet"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/tvcommentet"
@@ -117,7 +118,8 @@
         app:layout_constraintTop_toTopOf="@id/imageView3"
         app:layout_constraintBottom_toBottomOf="@id/imageView3"
         app:layout_constraintStart_toEndOf="@id/imageView3"
-        android:layout_marginStart="6dp" />
+        android:layout_marginStart="6dp"
+        android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewComments"

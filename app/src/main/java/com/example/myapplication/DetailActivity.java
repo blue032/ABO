@@ -310,6 +310,15 @@ public class DetailActivity extends AppCompatActivity {
                     keyList.add(snapshot.getKey());
                 }
                 commentAdapter.notifyDataSetChanged();
+
+                // Check if there are comments and set visibility accordingly
+                if (commentList.isEmpty()) {
+                    findViewById(R.id.imageView3).setVisibility(View.GONE);
+                    findViewById(R.id.tvcommentet).setVisibility(View.GONE);
+                } else {
+                    findViewById(R.id.imageView3).setVisibility(View.VISIBLE);
+                    findViewById(R.id.tvcommentet).setVisibility(View.VISIBLE);
+                }
             }
 
             @Override
