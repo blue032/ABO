@@ -101,7 +101,7 @@
         android:id="@+id/imageView3"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        app:srcCompat="@drawable/bottom_notification_black"
+        app:srcCompat="@drawable/bottom_notification_gray"
         app:layout_constraintTop_toBottomOf="@id/imagesRecyclerView"
         app:layout_constraintBottom_toTopOf="@id/recyclerViewComments"
         app:layout_constraintStart_toStartOf="parent"

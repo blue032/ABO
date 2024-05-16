@@ -4,8 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.TextView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -14,14 +13,17 @@ import com.google.firebase.database.ValueEventListener;
 import android.util.Log;
 import android.widget.ImageView;
 
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.util.Calendar;
+import java.util.TimeZone;
+
 public class SeatActivity extends AppCompatActivity {
     private DatabaseReference tableStatusRef;
+    private TextView statusTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,26 +36,12 @@ public class SeatActivity extends AppCompatActivity {
         // 실시간 데이터베이스 감시 시작
         monitorTableStatus();
 
-        // Intent에서 카페 이름 가져오기
-        String cafeName = getIntent().getStringExtra("cafeName");
+        // TextView 초기화
+        statusTextView = findViewById(R.id.statusTextView);
 
-        // EditText에 카페 이름 설정
-        EditText editTextCafeName = findViewById(R.id.editcafename);
-        editTextCafeName.setText(cafeName);
-        Button bluetoothButton = findViewById(R.id.button_bluetooth);
+        // 현재 시간 확인하여 영업 종료 텍스트 설정
+        checkAndSetClosingStatus();
 
-
-        // 버튼에 클릭 리스너를 설정합니다.
-        bluetoothButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // BluetoothDeviceActivity로 전환하는 인텐트를 생성합니다.
-                Intent intent = new Intent(SeatActivity.this, BluetoothDeviceActivity.class);
-
-                // 인텐트를 시작합니다.
-                startActivity(intent);
-            }
-        });
         // BottomNavigationView 설정
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -83,8 +71,8 @@ public class SeatActivity extends AppCompatActivity {
                 return false; // 아무 항목도 선택되지 않았을 경우
             }
         });
-
     }
+
     private void monitorTableStatus() {
         tableStatusRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -92,7 +80,12 @@ public class SeatActivity extends AppCompatActivity {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     TableStatus status = snapshot.getValue(TableStatus.class);
                     if (status != null) {
-                        updateTableUI(status.number, status.status);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                updateTableUI(status.number, status.status);
+                            }
+                        });
                     }
                 }
             }
@@ -105,11 +98,33 @@ public class SeatActivity extends AppCompatActivity {
     }
 
     private void updateTableUI(int tableNumber, boolean isOccupied) {
-        int resId = getResources().getIdentifier("seat" + tableNumber, "id", getPackageName());
-        ImageView seatView = findViewById(resId);
-        if (seatView != null) {
-            seatView.setImageResource(isOccupied ? R.drawable.seat_occupied : R.drawable.seat_empty);
+        // 현재 시간 확인하여 영업 종료 텍스트 설정
+        checkAndSetClosingStatus();
+
+        // 영업 종료 시간이 아닐 때만 테이블 상태를 업데이트
+        if (!isClosingTime()) {
+            int resId = getResources().getIdentifier("seat" + tableNumber, "id", getPackageName());
+            ImageView seatView = findViewById(resId);
+            if (seatView != null) {
+                seatView.setImageResource(isOccupied ? R.drawable.seat_occupied : R.drawable.seat_empty);
+            }
         }
+    }
+
+    private void checkAndSetClosingStatus() {
+        if (isClosingTime()) {
+            statusTextView.setText("영업 종료");
+            statusTextView.setVisibility(View.VISIBLE);
+        } else {
+            statusTextView.setText("");
+            statusTextView.setVisibility(View.GONE);
+        }
+    }
+
+    private boolean isClosingTime() {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"));
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        return hour < 9 || hour >= 20; // 오전 9시 이전 또는 오후 8시 이후
     }
 
     private static class TableStatus {
@@ -121,6 +136,3 @@ public class SeatActivity extends AppCompatActivity {
         }
     }
 }
-
-
-
