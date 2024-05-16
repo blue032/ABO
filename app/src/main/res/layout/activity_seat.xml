@@ -114,12 +114,4 @@
 
     </com.google.android.material.bottomnavigation.BottomNavigationView>
 
-    <Button
-        android:id="@+id/button_bluetooth"
-        android:layout_width="5dp"
-        android:layout_height="5dp"
-        android:background="@android:drawable/btn_default"
-        android:text="블루투스 기기"
-         />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
