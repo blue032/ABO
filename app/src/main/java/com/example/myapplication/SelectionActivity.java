@@ -19,7 +19,7 @@ public class SelectionActivity extends AppCompatActivity {
 
         Button ceoButton = findViewById(R.id.btn_ceo);
         Button userButton = findViewById(R.id.btn_user);
-        ImageView backButton = findViewById(R.id.back_arrow); // back_arrow 버튼 참조 추가
+        ImageView backButton = findViewById(R.id.backlogo); // back_arrow 버튼 참조 추가
 
 
         ceoButton.setOnClickListener(v -> {
