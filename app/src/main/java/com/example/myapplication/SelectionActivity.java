@@ -32,22 +32,33 @@ public class SelectionActivity extends AppCompatActivity {
                 intent = new Intent(SelectionActivity.this, CeoIdSearchActivity.class);
                 intent.putExtra("userType", "ceo");
             }
+            else if ("findPw".equals(actionType)) {
+                // ID/PW 찾기 - 사장님 전용
+                intent = new Intent(SelectionActivity.this, CeoPwSearchActivity.class);
+                intent.putExtra("userType", "ceo");
+            }
             startActivity(intent);
         });
 
-        userButton.setOnClickListener(v -> {
-            if ("signup".equals(actionType)) {
-                // 회원가입 - 사용자 전용
-                startActivity(new Intent(SelectionActivity.this, UserSignupActivity.class));
-            } else if ("findIdPw".equals(actionType)) {
-                // ID/PW 찾기
-                startActivity(new Intent(SelectionActivity.this, IdPwSelectionActivity.class));
-                Intent intent = new Intent();
-                intent.putExtra("userType", "user"); // 사용자 전용
-                startActivity(intent);
 
+        userButton.setOnClickListener(v -> {
+            Intent intent = new Intent(SelectionActivity.this, IdPwSelectionActivity.class);
+            if ("signup".equals(actionType)) {
+                // 회원가입 - 사장님 전용
+                intent = new Intent(SelectionActivity.this, UserSignupActivity.class);
+            } else if ("findId".equals(actionType)) {
+                // ID/PW 찾기 - 사장님 전용
+                intent = new Intent(SelectionActivity.this, IdSearchActivity.class);
+                intent.putExtra("userType", "ceo");
             }
+            else if ("findPw".equals(actionType)) {
+                // ID/PW 찾기 - 사장님 전용
+                intent = new Intent(SelectionActivity.this, PwSearchActivity.class);
+                intent.putExtra("userType", "ceo");
+            }
+            startActivity(intent);
         });
+
 
         // 뒤로가기(백) 버튼 클릭 시 LoginActivity로 이동
         backButton.setOnClickListener(new View.OnClickListener() {
