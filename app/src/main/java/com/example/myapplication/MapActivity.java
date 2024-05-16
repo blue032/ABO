@@ -1,6 +1,9 @@
 package com.example.myapplication;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -9,14 +12,16 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -32,9 +37,19 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Comparator;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -47,6 +62,23 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
     private Button refreshButton;
 
+    private FirebaseDatabase database;
+    private DatabaseReference databaseReference;
+    private ValueEventListener valueEventListener;
+    private Handler handler = new Handler();
+    private Runnable runnable;
+    private ArrayList<Orders> ordersList = new ArrayList<>();
+    private long maxWaitingTimeMillis = 0;
+    private int totalCount = 0;
+    private BottomSheetDialog bottomSheetDialog;
+
+    private PriorityQueue<Orders> ordersQueue = new PriorityQueue<>(new Comparator<Orders>() {
+        @Override
+        public int compare(Orders o1, Orders o2) {
+            return Long.compare(o2.getTotalWaitTimeMillis(), o1.getTotalWaitTimeMillis());
+        }
+    });
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +88,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         sharedPreferences = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
 
-        // 리스너 초기화 및 등록
         preferenceChangeListener = (sharedPreferences, key) -> {
             if ("CongestionStatus".equals(key)) {
                 runOnUiThread(() -> {
@@ -67,10 +98,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         };
         sharedPreferences.registerOnSharedPreferenceChangeListener(preferenceChangeListener);
 
-        // 새로고침 버튼 설정
         refreshButton = findViewById(R.id.button_refresh);
         refreshButton.setOnClickListener(v -> {
-            // We need to retrieve the status again here
             String status = sharedPreferences.getString("CongestionStatus", "default_status");
             updateCongestionStatus(status);
         });
@@ -92,6 +121,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
             return false;
         });
+
+        setupFirebaseListener();
+        setupRunnable();
     }
 
     private void initGoogleMap(Bundle savedInstanceState) {
@@ -108,7 +140,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         gMap = googleMap;
         LatLng incheonUniversity = new LatLng(37.37502537368127, 126.63272006791813);
         gMap.addMarker(new MarkerOptions().position(incheonUniversity).title("Incheon University"));
-        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(incheonUniversity, 15));
+        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(incheonUniversity, 16));
         checkLocationPermission();
 
         List<LatLng> locations = Arrays.asList(
@@ -127,19 +159,35 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         LatLng cafeLocation = new LatLng(37.37452483159567, 126.6332926552895); // O.O 카페 위치
         cafeMarker = googleMap.addMarker(new MarkerOptions().position(cafeLocation).title("O.O 카페").icon(icon));
 
-        // SharedPreferences에서 혼잡 상태를 가져와 UI를 업데이트
         SharedPreferences prefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
         String currentStatus = prefs.getString("CongestionStatus", "icon_green");
         updateCongestionStatus(currentStatus);
 
-        // 마커 클릭 이벤트 설정
         googleMap.setOnMarkerClickListener(marker -> {
             if ("O.O 카페".equals(marker.getTitle())) {
                 LayoutInflater inflater = getLayoutInflater();
                 View dialogLayout = inflater.inflate(R.layout.bottom_sheet_layout, null);
 
-                // 팝업창 생성 및 표시
-                BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(MapActivity.this);
+                SharedPreferences cafePrefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
+                int waitingNumber = cafePrefs.getInt("WaitingNumber", 0);
+                int maxWaitingTime = cafePrefs.getInt("MaxWaitingTime", 0);
+
+                TextView tvOrderCount = dialogLayout.findViewById(R.id.tv_order_count);
+                TextView tvWaitTime = dialogLayout.findViewById(R.id.tv_wait_time);
+
+                tvOrderCount.setText(String.format("%d건", waitingNumber));
+                tvWaitTime.setText(String.format("%d분 예상", maxWaitingTime));
+
+                ImageView reloadIcon = dialogLayout.findViewById(R.id.reload_icon);
+                reloadIcon.setOnClickListener(v -> {
+                    ObjectAnimator rotateAnimator = ObjectAnimator.ofFloat(reloadIcon, "rotation", 0f, 360f);
+                    rotateAnimator.setDuration(1000);
+                    rotateAnimator.start();
+
+                    refreshCafeData(tvOrderCount, tvWaitTime);
+                });
+
+                bottomSheetDialog = new BottomSheetDialog(MapActivity.this);
                 bottomSheetDialog.setContentView(dialogLayout);
                 bottomSheetDialog.show();
                 return true;
@@ -204,9 +252,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     protected void onResume() {
         super.onResume();
         mapView.onResume();
-        // SharedPreferences에서 혼잡 상태를 가져와서 UI 업데이트
         SharedPreferences prefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
-        String status = prefs.getString("CongestionStatus", "icon_green"); // 기본값: icon_green
+        String status = prefs.getString("CongestionStatus", "icon_green");
         updateCongestionStatus(status);
     }
 
@@ -223,7 +270,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 iconDescriptor = resizeMapIcons("location_red", 100, 100);
                 break;
             default:
-                iconDescriptor = BitmapDescriptorFactory.defaultMarker(); // 기본 마커 아이콘
+                iconDescriptor = BitmapDescriptorFactory.defaultMarker();
                 break;
         }
 
@@ -261,6 +308,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if (sharedPreferences != null) {
             sharedPreferences.unregisterOnSharedPreferenceChangeListener(preferenceChangeListener);
         }
+        if (databaseReference != null && valueEventListener != null) {
+            databaseReference.removeEventListener(valueEventListener);
+        }
+        handler.removeCallbacks(runnable);
     }
 
     @Override
@@ -278,5 +329,153 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public void onLowMemory() {
         super.onLowMemory();
         mapView.onLowMemory();
+    }
+
+    private void setupFirebaseListener() {
+        database = FirebaseDatabase.getInstance();
+        String referencePath = "Orders/2024/3/" + Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+        databaseReference = database.getReference(referencePath);
+
+        valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                ordersList.clear();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Orders order = snapshot.getValue(Orders.class);
+
+                    if (order != null) {
+                        ordersList.add(order);
+                    }
+                }
+                checkOrdersTime();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.e("UpdateWaitNumber", "Database error", databaseError.toException());
+            }
+        };
+        databaseReference.addValueEventListener(valueEventListener);
+    }
+
+    private void setupRunnable(){
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                checkOrdersTime();
+                handler.postDelayed(this, 1000);
+            }
+        };
+        handler.post(runnable);
+    }
+
+    private void checkOrdersTime() {
+        Calendar now = Calendar.getInstance();
+        long nowMillis = now.getTimeInMillis();
+
+        Calendar startTime = Calendar.getInstance();
+        startTime.set(Calendar.HOUR_OF_DAY, 9);
+        startTime.set(Calendar.MINUTE, 0);
+        startTime.set(Calendar.SECOND, 0);
+        long startTimeMillis = startTime.getTimeInMillis();
+
+        Calendar endTime = Calendar.getInstance();
+        endTime.set(Calendar.HOUR_OF_DAY, 20);
+        endTime.set(Calendar.MINUTE, 0);
+        endTime.set(Calendar.SECOND, 0);
+        long endTimeMillis = endTime.getTimeInMillis();
+
+        if (nowMillis < startTimeMillis || nowMillis > endTimeMillis){
+            saveWaitingInfo(0, 0);
+            updateBottomSheetData(0, 0); // Bottom sheet 업데이트
+            return;
+        }
+
+        int currentCount = 0;
+        maxWaitingTimeMillis = 0;
+
+        for (Iterator<Orders> iterator = ordersList.iterator(); iterator.hasNext(); ) {
+            Orders order = iterator.next();
+
+            long orderTimeMillis = getOrderTimeMillis(order);
+            long totalWaitTimeMillis = calculateTotalWaitTimeMillis(order);
+            long orderEndTimeMillis = orderTimeMillis + totalWaitTimeMillis;
+
+            if (orderTimeMillis <= nowMillis) {
+                if (orderEndTimeMillis > nowMillis) {
+                    currentCount++;
+                    if (totalWaitTimeMillis > maxWaitingTimeMillis) {
+                        maxWaitingTimeMillis = totalWaitTimeMillis;
+                    }
+                } else {
+                    iterator.remove();
+                }
+            }
+        }
+
+        totalCount = currentCount;
+        int maxWaitingTimeMinutes = (int) (maxWaitingTimeMillis / 60000);
+
+        int additionalMinutes = 0;
+        if (totalCount > 6) {
+            additionalMinutes = 10;
+        } else if (totalCount > 2) {
+            additionalMinutes = 5;
+        }
+        int totalWaitingTime = maxWaitingTimeMinutes + additionalMinutes;
+
+        saveWaitingInfo(totalCount, totalWaitingTime);
+        updateBottomSheetData(totalCount, totalWaitingTime);
+    }
+
+    private long getOrderTimeMillis(Orders order) {
+        Calendar orderCalendar = Calendar.getInstance();
+        Orders.Time orderTime = order.getTime();
+        orderCalendar.set(Calendar.HOUR_OF_DAY, orderTime.getHour());
+        orderCalendar.set(Calendar.MINUTE, orderTime.getMinute());
+        orderCalendar.set(Calendar.SECOND, orderTime.getSecond());
+        return orderCalendar.getTimeInMillis();
+    }
+
+    private long calculateTotalWaitTimeMillis(Orders order) {
+        return order.getMenu().stream()
+                .mapToLong(item -> item.getQuantity() * 2 * 60 * 1000)
+                .sum();
+    }
+
+    private void updateBottomSheetData(int waitingNumber, int maxWaitingTime) {
+        if (bottomSheetDialog != null && bottomSheetDialog.isShowing()) {
+            TextView tvOrderCount = bottomSheetDialog.findViewById(R.id.tv_order_count);
+            TextView tvWaitTime = bottomSheetDialog.findViewById(R.id.tv_wait_time);
+
+            if (tvOrderCount != null) {
+                tvOrderCount.setText(String.format("%d건", waitingNumber));
+            }
+            if (tvWaitTime != null) {
+                tvWaitTime.setText(String.format("%d분 예상", maxWaitingTime));
+            }
+        }
+    }
+
+    private void saveWaitingInfo(int waitingNumber, int maxWaitingTime) {
+        SharedPreferences prefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putInt("WaitingNumber", waitingNumber);
+        editor.putInt("MaxWaitingTime", maxWaitingTime);
+        editor.apply();
+    }
+
+    private void refreshCafeData(TextView tvOrderCount, TextView tvWaitTime) {
+        checkOrdersTime();
+
+        SharedPreferences prefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
+        String status = prefs.getString("CongestionStatus", "icon_green");
+        updateCongestionStatus(status);
+
+        int waitingNumber = prefs.getInt("WaitingNumber", 0);
+        int maxWaitingTime = prefs.getInt("MaxWaitingTime", 0);
+
+        tvOrderCount.setText(String.format("%d건", waitingNumber));
+        tvWaitTime.setText(String.format("%d분 예상", maxWaitingTime));
     }
 }

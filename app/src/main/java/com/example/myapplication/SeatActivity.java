@@ -106,7 +106,7 @@ public class SeatActivity extends AppCompatActivity {
             int resId = getResources().getIdentifier("seat" + tableNumber, "id", getPackageName());
             ImageView seatView = findViewById(resId);
             if (seatView != null) {
-                seatView.setImageResource(isOccupied ? R.drawable.seat_occupied : R.drawable.seat_empty);
+                seatView.setImageResource(isOccupied ? R.drawable.fullseat : R.drawable.emptyseat);
             }
         }
     }

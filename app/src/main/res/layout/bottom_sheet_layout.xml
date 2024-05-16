@@ -15,17 +15,36 @@
         android:layout_gravity="center_horizontal"
         android:src="@drawable/minus" />
 
-    <!-- O.O 카페 텍스트를 추가 -->
-    <TextView
-        android:id="@+id/tv_cafe_name"
-        android:layout_width="wrap_content"
+    <!-- O.O 카페 텍스트와 reload 아이콘을 추가 -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="O.O 카페"
-        android:textSize="16sp"
-        android:textColor="@android:color/black"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:id="@+id/tv_cafe_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="O.O 카페"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            app:layout_constraintEnd_toStartOf="@+id/reload_icon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0.55" />
+
+        <ImageView
+            android:id="@+id/reload_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="end"
+            android:src="@drawable/reload"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- 네모 박스들 -->
     <LinearLayout
