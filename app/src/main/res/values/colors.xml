@@ -17,4 +17,6 @@
     <color name="dark_gray">#A9A9A9</color> <!-- 어두운 회색 -->
     <color name="lightBlue">#8BA4FE</color>
     <color name="main">#558CE0</color>
+    <color name="custom_blue">#558CE0</color>
+    <color name="light_white">#FFFEFE</color>
 </resources>
