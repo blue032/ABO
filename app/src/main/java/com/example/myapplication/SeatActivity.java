@@ -20,7 +20,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public class SeatActivity extends AppCompatActivity {
@@ -115,15 +117,18 @@ public class SeatActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    TableStatus status = snapshot.getValue(TableStatus.class);
-                    if (status != null) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                updateTableUI(status.number, status.status);
-                            }
-                        });
-                    }
+                    // 데이터를 가져온 후 timestamp 필드를 무시하고 TableStatus 객체를 생성합니다.
+                    int tableNumber = snapshot.child("number").getValue(Integer.class);
+                    boolean status = snapshot.child("status").getValue(Boolean.class);
+                    // timestamp는 가져오지 않음
+
+                    TableStatus tableStatus = new TableStatus(tableNumber, status);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateTableUI(tableStatus.number, tableStatus.status);
+                        }
+                    });
                 }
             }
 
@@ -176,12 +181,20 @@ public class SeatActivity extends AppCompatActivity {
     }
 
     private void resetAllTables() {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"));
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        String timestampString = sdf.format(calendar.getTime()); // timestamp를 문자열로 변환
+
         for (int i = 1; i <= 10; i++) { // Assuming there are 10 tables
             int resId = getResources().getIdentifier("seat" + i, "id", getPackageName());
             ImageView seatView = findViewById(resId);
             if (seatView != null) {
                 seatView.setImageResource(R.drawable.emptyseat);
             }
+
+            // Update the database
+            TableStatus tableStatus = new TableStatus(i, false);
+            tableStatusRef.child("table" + i).setValue(tableStatus);
         }
     }
 
@@ -191,6 +204,11 @@ public class SeatActivity extends AppCompatActivity {
 
         public TableStatus() {
             // Default constructor required for calls to DataSnapshot.getValue(TableStatus.class)
+        }
+
+        public TableStatus(int number, boolean status) {
+            this.number = number;
+            this.status = status;
         }
     }
 }

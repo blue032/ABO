@@ -64,6 +64,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+
         <!-- 영업 종료 상태를 표시하는 TextView -->
         <TextView
             android:id="@+id/statusTextView"
