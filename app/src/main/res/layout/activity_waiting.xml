@@ -39,20 +39,18 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
 
-                    <EditText
+                    <TextView
                         android:id="@+id/editcafename"
                         android:layout_width="wrap_content"
                         android:layout_height="48dp"
                         android:layout_marginStart="100dp"
                         android:gravity="center"
-                        android:hint="카페 이름 입력"
                         android:inputType="text"
-                        android:text=""
+                        android:text="O.O 카페"
                         android:textAlignment="center"
                         android:textColor="#000000"
                         android:textSize="16dp"
                         app:layout_constraintBottom_toBottomOf="parent"
-
                         app:layout_constraintStart_toEndOf="@id/back_arrow"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.545" />
@@ -311,20 +309,45 @@
                     android:layout_marginTop="25dp"
                     android:src="@drawable/orderchange"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.332"
+                    app:layout_constraintHorizontal_bias="0.12"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/frameLayout3" />
+
+                <TextView
+                    android:id="@+id/orderchage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="23dp"
+                    android:layout_marginStart="5dp"
+                    android:text="주문 내역 변경"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    app:layout_constraintTop_toBottomOf="@id/frameLayout3"
+                    app:layout_constraintStart_toEndOf="@id/imageViewCeoOrderChange"/>
 
                 <ImageView
                     android:id="@+id/imageViewCeoTimeChange"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:layout_marginTop="28dp"
+                    android:layout_marginTop="24dp"
                     android:src="@drawable/clock"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.508"
+                    app:layout_constraintHorizontal_bias="0.43"
                     app:layout_constraintStart_toEndOf="@id/imageViewCeoOrderChange"
                     app:layout_constraintTop_toBottomOf="@+id/frameLayout3" />
+
+                <TextView
+                    android:id="@+id/timechage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="23dp"
+                    android:layout_marginStart="5dp"
+                    android:text="대기 시간 변경"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    app:layout_constraintTop_toBottomOf="@id/frameLayout3"
+                    app:layout_constraintStart_toEndOf="@id/imageViewCeoTimeChange"/>
+
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>
