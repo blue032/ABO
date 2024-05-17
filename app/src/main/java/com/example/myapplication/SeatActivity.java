@@ -1,5 +1,7 @@
 package com.example.myapplication;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -24,6 +26,7 @@ import java.util.TimeZone;
 public class SeatActivity extends AppCompatActivity {
     private DatabaseReference tableStatusRef;
     private TextView statusTextView;
+    private ImageView reloadIcon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +41,7 @@ public class SeatActivity extends AppCompatActivity {
 
         // TextView 초기화
         statusTextView = findViewById(R.id.statusTextView);
+        reloadIcon = findViewById(R.id.reload_icon);
 
         // 현재 시간 확인하여 영업 종료 텍스트 설정
         checkAndSetClosingStatus();
@@ -70,6 +74,39 @@ public class SeatActivity extends AppCompatActivity {
 
                 return false; // 아무 항목도 선택되지 않았을 경우
             }
+        });
+
+        // Reload 버튼 클릭 이벤트 설정
+        reloadIcon.setOnClickListener(v -> {
+            // 애니메이션 시작
+            ObjectAnimator rotateAnimator = ObjectAnimator.ofFloat(reloadIcon, "rotation", 0f, 360f);
+            rotateAnimator.setDuration(1000); // 1초 동안 애니메이션 실행
+
+            // 애니메이션 리스너 설정
+            rotateAnimator.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    // 애니메이션 시작 시 동작
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    // 애니메이션 종료 시 동작
+                    monitorTableStatus();
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+                    // 애니메이션 취소 시 동작
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+                    // 애니메이션 반복 시 동작
+                }
+            });
+
+            rotateAnimator.start();
         });
     }
 
@@ -119,12 +156,33 @@ public class SeatActivity extends AppCompatActivity {
             statusTextView.setText("");
             statusTextView.setVisibility(View.GONE);
         }
+
+        if (isOpeningTime()) {
+            resetAllTables();
+        }
     }
 
     private boolean isClosingTime() {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"));
         int hour = calendar.get(Calendar.HOUR_OF_DAY);
         return hour < 9 || hour >= 20; // 오전 9시 이전 또는 오후 8시 이후
+    }
+
+    private boolean isOpeningTime() {
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"));
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+        return hour == 9 && minute == 0; // 오전 9시 정각
+    }
+
+    private void resetAllTables() {
+        for (int i = 1; i <= 10; i++) { // Assuming there are 10 tables
+            int resId = getResources().getIdentifier("seat" + i, "id", getPackageName());
+            ImageView seatView = findViewById(resId);
+            if (seatView != null) {
+                seatView.setImageResource(R.drawable.emptyseat);
+            }
+        }
     }
 
     private static class TableStatus {

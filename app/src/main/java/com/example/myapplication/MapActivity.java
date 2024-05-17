@@ -1,7 +1,7 @@
 package com.example.myapplication;
 
-import android.Manifest;
 import android.animation.ObjectAnimator;
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -94,10 +94,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         sharedPreferences = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
 
         preferenceChangeListener = (sharedPreferences, key) -> {
-            if ("CongestionStatus".equals(key)) {
+            if ("CongestionStatus".equals(key) || "MaxWaitingTime".equals(key)) {
                 runOnUiThread(() -> {
-                    String status = sharedPreferences.getString(key, "default_status");
-                    updateCongestionStatus(status);
+                    updateCongestionStatus();
                 });
             }
         };
@@ -105,8 +104,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         refreshButton = findViewById(R.id.button_refresh);
         refreshButton.setOnClickListener(v -> {
-            String status = sharedPreferences.getString("CongestionStatus", "default_status");
-            updateCongestionStatus(status);
+            updateCongestionStatus();
         });
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
@@ -156,7 +154,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 new LatLng(37.37439777449398, 126.63154896625312)
         );
 
-        BitmapDescriptor icon = resizeMapIcons("location_green", 100, 100); // Adjust the size as needed
+        BitmapDescriptor icon = resizeMapIcons(R.drawable.location_green, 130, 130); // Adjust the size as needed
 
         for (LatLng location : locations) {
             gMap.addMarker(new MarkerOptions().position(location).icon(icon));
@@ -164,9 +162,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         LatLng cafeLocation = new LatLng(37.37452483159567, 126.6332926552895); // O.O 카페 위치
         cafeMarker = googleMap.addMarker(new MarkerOptions().position(cafeLocation).title("O.O 카페").icon(icon));
 
-        SharedPreferences prefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
-        String currentStatus = prefs.getString("CongestionStatus", "icon_green");
-        updateCongestionStatus(currentStatus);
+        updateCongestionStatus();
 
         googleMap.setOnMarkerClickListener(marker -> {
             if ("O.O 카페".equals(marker.getTitle())) {
@@ -201,8 +197,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         });
     }
 
-    private BitmapDescriptor resizeMapIcons(String iconName, int width, int height){
-        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(), getResources().getIdentifier(iconName, "drawable", getPackageName()));
+    private BitmapDescriptor resizeMapIcons(int resId, int width, int height){
+        Bitmap imageBitmap = BitmapFactory.decodeResource(getResources(), resId);
         Bitmap resizedBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(resizedBitmap);
         Paint paint = new Paint();
@@ -252,40 +248,29 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         }
     }
-
     @Override
     protected void onResume() {
         super.onResume();
         mapView.onResume();
-        SharedPreferences prefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
-        String status = prefs.getString("CongestionStatus", "icon_green");
-        updateCongestionStatus(status);
+        updateCongestionStatus();
     }
 
-    private void updateCongestionStatus(String status) {
+    private void updateCongestionStatus() {
+        SharedPreferences prefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
+        int maxWaitingTime = prefs.getInt("MaxWaitingTime", 0);
+
         BitmapDescriptor iconDescriptor;
-        switch(status) {
-            case "icon_green":
-                iconDescriptor = resizeMapIcons("location_green", 100, 100);
-                break;
-            case "icon_blue":
-                iconDescriptor = resizeMapIcons("location_blue", 100, 100);
-                break;
-            case "icon_red":
-                iconDescriptor = resizeMapIcons("location_red", 100, 100);
-                break;
-            default:
-                iconDescriptor = BitmapDescriptorFactory.defaultMarker();
-                break;
+        if (maxWaitingTime <= 4) {
+            iconDescriptor = resizeMapIcons(R.drawable.location_green, 130, 130);
+        } else if (maxWaitingTime >= 10) {
+            iconDescriptor = resizeMapIcons(R.drawable.location_red, 130, 130);
+        } else {
+            iconDescriptor = resizeMapIcons(R.drawable.location_blue, 130, 130);
         }
 
         if (cafeMarker != null) {
             cafeMarker.setIcon(iconDescriptor);
         }
-
-        ImageView imageView10 = findViewById(R.id.iv_map_top);
-        int drawableId = getResources().getIdentifier(status, "drawable", getPackageName());
-        imageView10.setImageResource(drawableId);
     }
 
     @Override
@@ -521,7 +506,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         SharedPreferences prefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
         String status = prefs.getString("CongestionStatus", "icon_green");
-        updateCongestionStatus(status);
+        updateCongestionStatus();
 
         int waitingNumber = prefs.getInt("WaitingNumber", 0);
         int maxWaitingTime = prefs.getInt("MaxWaitingTime", 0);
