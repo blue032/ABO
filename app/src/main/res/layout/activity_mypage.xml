@@ -6,27 +6,60 @@
     android:layout_height="match_parent"
     android:background="@color/white">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/layout_toolbar"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toTopOf="parent">
+        tools:ignore="MissingConstraints">
+
+        <ImageView
+            android:id="@+id/back_arrow"
+            android:layout_width="46dp"
+            android:layout_height="45dp"
+            android:layout_marginStart="16dp"
+            android:src="@drawable/back"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/tv_top"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:text="CertaIN U"
+            android:id="@+id/mypagetext"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:gravity="center"
+            android:text="마이페이지"
             android:textAlignment="center"
-            android:textColor="@color/black"
-            android:textSize="30sp"
-            android:textStyle="bold"
-            android:layout_gravity="center"
-            app:layout_constraintTop_toTopOf="parent"/>
+            android:textColor="#000000"
+            android:textSize="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/bell"
+            app:layout_constraintStart_toEndOf="@id/back_arrow"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    </LinearLayout>
+        <ImageView
+            android:id="@+id/bell"
+            android:layout_width="37dp"
+            android:layout_height="33dp"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/bell"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:layout_width="360dp"
+            android:layout_height="2dp"
+            android:background="@color/lightBlue"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
 
     <LinearLayout
         android:id="@+id/layout_account"
@@ -34,66 +67,80 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:padding="24dp"
-        android:background="@drawable/box_10r_1s"
+
         android:orientation="vertical"
         app:layout_constraintTop_toBottomOf="@id/layout_toolbar">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="계정"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="#000"/>
+
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="12dp">
+            android:layout_height="70dp"
+            android:layout_marginTop="0dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:text="아이디"
-                android:textStyle="bold"
-                android:textSize="14sp"
-                android:textColor="#555"
-                android:gravity="center"
+            <ImageView
+                android:id="@+id/profile_image"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/profile"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
 
             <TextView
-                android:id="@+id/name"
+                android:id="@+id/username"
+                android:layout_width="79dp"
+                android:layout_height="29dp"
+                android:layout_marginStart="12dp"
+                android:gravity="center_vertical"
+                android:text="사용자 이름"
+                android:textColor="#555"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toTopOf="@id/email"
+                app:layout_constraintStart_toEndOf="@id/profile_image"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="1.0" />
+
+            <TextView
+                android:id="@+id/email"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
-                android:layout_marginEnd="12dp"
-                tools:text="***님"
-                android:textStyle="bold"
-                android:textSize="14sp"
-                android:textColor="#aaa"
-                android:gravity="center"
-                app:layout_constraintEnd_toStartOf="@id/btn_logout"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                android:layout_marginStart="12dp"
+                android:layout_marginBottom="12dp"
+                android:gravity="center_vertical"
+                android:text="이메일 주소"
+                android:textColor="@color/gray"
+                android:textSize="10sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/profile_image"
+                app:layout_constraintTop_toBottomOf="@id/username" />
 
             <TextView
                 android:id="@+id/btn_logout"
-                android:layout_width="wrap_content"
-                android:layout_height="30dp"
+                android:layout_width="89dp"
+                android:layout_height="27dp"
+                android:background="@drawable/button1"
+                android:gravity="center"
                 android:paddingHorizontal="16dp"
                 android:text="로그아웃"
-                android:background="@drawable/box_5r"
-                android:backgroundTint="@color/light_blue_900"
-                android:textStyle="bold"
-                android:textSize="14sp"
                 android:textColor="#fff"
-                android:gravity="center"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent" />
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/line2"
+                app:layout_constraintBottom_toBottomOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -101,61 +148,11 @@
             android:layout_height="56dp"
             android:layout_marginTop="12dp">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
-                android:text="비밀번호 재설정"
-                android:textStyle="bold"
-                android:textSize="14sp"
-                android:textColor="#555"
-                android:gravity="center"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
-
-            <TextView
-                android:id="@+id/btn_reset_password"
-                android:layout_width="wrap_content"
-                android:layout_height="30dp"
-                android:paddingHorizontal="16dp"
-                android:text="재설정"
-                android:background="@drawable/box_5r"
-                android:backgroundTint="@color/light_blue_900"
-                android:textStyle="bold"
-                android:textSize="14sp"
-                android:textColor="#fff"
-                android:gravity="center"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layout_university"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:padding="24dp"
-        android:background="@drawable/box_10r_1s"
-        android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@id/layout_account">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="학교"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="#000"/>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="12dp">
-
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/line2"
+                app:layout_constraintBottom_toBottomOf="parent" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
@@ -168,23 +165,74 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
 
-            <TextView
+            <ImageView
                 android:id="@+id/btn_university"
+                android:layout_width="32dp"
+                android:layout_height="25dp"
+                android:gravity="center"
+                android:src="@drawable/enter"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:layout_marginTop="12dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@drawable/line2"
+                app:layout_constraintBottom_toBottomOf="parent" />
+            <TextView
                 android:layout_width="wrap_content"
-                android:layout_height="30dp"
-                android:paddingHorizontal="16dp"
-                android:text="이동"
-                android:background="@drawable/box_5r"
-                android:backgroundTint="@color/light_blue_900"
+                android:layout_height="0dp"
+                android:text="비밀번호 재설정"
                 android:textStyle="bold"
                 android:textSize="14sp"
-                android:textColor="#fff"
+                android:textColor="#555"
                 android:gravity="center"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"/>
 
+            <ImageView
+                android:id="@+id/btn_reset_password"
+                android:layout_width="35dp"
+                android:layout_height="32dp"
+                android:gravity="center"
+                android:src="@drawable/enter"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
         </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_university"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:padding="24dp"
+
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/layout_account">
+
+
+
+
 
     </LinearLayout>
 

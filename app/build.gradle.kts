@@ -54,4 +54,7 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
     implementation ("com.google.code.gson:gson:2.8.6")
+    implementation("com.squareup.okhttp3:okhttp:3.4.2")
+    implementation("com.squareup.okhttp3:okhttp-urlconnection:3.4.2")
+    implementation("com.squareup.okhttp3:logging-interceptor:3.4.2")
 }

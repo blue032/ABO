@@ -22,264 +22,120 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
+    <!-- 첫 번째 ImageView 및 TextView -->
+    <ImageView
+        android:id="@+id/iv_map_top"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="45dp"
+        android:src="@drawable/circle_red"
+        app:layout_constraintTop_toBottomOf="@id/tv_top"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <TextView
+        android:id="@+id/tv_map_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="8dp"
+        android:text="혼잡"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@id/tv_top"
+        app:layout_constraintStart_toEndOf="@id/iv_map_top"/>
+
+    <!-- 두 번째 ImageView 및 TextView -->
+    <ImageView
+        android:id="@+id/iv_map_top_right1"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="16dp"
+        android:src="@drawable/circle_blue"
+        app:layout_constraintTop_toBottomOf="@id/tv_top"
+        app:layout_constraintStart_toEndOf="@id/tv_map_top"/>
+
+    <TextView
+        android:id="@+id/tv_map_top_right1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="8dp"
+        android:text="보통"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@id/tv_top"
+        app:layout_constraintStart_toEndOf="@id/iv_map_top_right1"/>
+
+    <!-- 세 번째 ImageView 및 TextView -->
+    <ImageView
+        android:id="@+id/iv_map_top_right2"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="16dp"
+        android:src="@drawable/circle_green"
+        app:layout_constraintTop_toBottomOf="@id/tv_top"
+        app:layout_constraintStart_toEndOf="@id/tv_map_top_right1"/>
+
+    <TextView
+        android:id="@+id/tv_map_top_right2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="8dp"
+        android:text="여유"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@id/tv_top"
+        app:layout_constraintStart_toEndOf="@id/iv_map_top_right2"/>
+
+    <!-- 네 번째 ImageView 및 TextView -->
+    <ImageView
+        android:id="@+id/iv_map_top_right3"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="16dp"
+        android:src="@drawable/circle_gray"
+        app:layout_constraintTop_toBottomOf="@id/tv_top"
+    app:layout_constraintStart_toEndOf="@id/tv_map_top_right2"/>
+
+    <TextView
+        android:id="@+id/tv_map_top_right3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="8dp"
+        android:text="영업종료"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@id/tv_top"
+        app:layout_constraintStart_toEndOf="@id/iv_map_top_right3"/>
+
     <!-- MapView 위치 및 크기 조정 -->
     <com.google.android.gms.maps.MapView
         android:id="@+id/map"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_top"
-        app:layout_constraintBottom_toTopOf="@id/frameLayout"
-        app:layout_constraintHeight_default="percent"
-        app:layout_constraintHeight_percent="0.4"
-        android:contentDescription="지도 보기, 현재 위치 표시" />
+        android:layout_marginTop="15dp"
+        app:layout_constraintTop_toBottomOf="@id/tv_map_top"
+    app:layout_constraintBottom_toTopOf="@id/bottom_navigation_view"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    android:contentDescription="지도 보기, 현재 위치 표시" />
 
-    <!-- FrameLayout 위치 및 크기 조정 -->
-    <FrameLayout
-        android:id="@+id/frameLayout"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+    <!-- 새로고침 버튼 추가 -->
+    <Button
+        android:id="@+id/button_refresh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Refresh"
         app:layout_constraintTop_toBottomOf="@id/map"
-        app:layout_constraintBottom_toTopOf="@id/bottom_navigation_view"
-        android:background="@drawable/frame_layout">
-
-        <Button
-            android:id="@+id/button_refresh"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="새로고침"
-            android:layout_marginStart="8dp"
-            app:layout_constraintTop_toTopOf="@id/maptextView1"
-            app:layout_constraintStart_toEndOf="@id/maptextView1"
-            app:layout_constraintBottom_toBottomOf="@id/maptextView1"/>
-
-        <ImageView
-            android:id="@+id/imageView2"
-            android:layout_width="53dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="120dp"
-            android:layout_marginTop="27dp"
-            app:srcCompat="@drawable/icon_board" />
-
-        <TextView
-            android:id="@+id/maptextView1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="180dp"
-            android:layout_marginTop="30dp"
-            android:text="교내 카페 혼잡도"
-            android:textColor="@color/light_blue_900"
-            android:textSize="27dp"
-            android:textStyle="bold" />
-
-        <ImageView
-            android:id="@+id/imageView5"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="290dp"
-            android:layout_marginTop="100dp"
-            app:srcCompat="@drawable/icon_red"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/imageView6"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="290dp"
-            android:layout_marginTop="180dp"
-            app:srcCompat="@drawable/icon_blue"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/imageView7"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="290dp"
-            android:layout_marginTop="260dp"
-            app:srcCompat="@drawable/icon_green"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/textView4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="혼잡"
-            android:textStyle="bold"
-            android:textSize="20dp"
-            android:layout_marginStart="340dp"
-            android:layout_marginTop="100dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/textView5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="보통"
-            android:textStyle="bold"
-            android:textSize="20dp"
-            android:layout_marginStart="340dp"
-            android:layout_marginTop="180dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/textView6"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="여유"
-            android:textStyle="bold"
-            android:textSize="20dp"
-            android:layout_marginStart="340dp"
-            android:layout_marginTop="260dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-
-        <ImageView
-            android:id="@+id/imageView13"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="120dp"
-            android:layout_marginTop="335dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/icon_green" />
-
-        <ImageView
-            android:id="@+id/imageView12"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="148dp"
-            android:layout_marginTop="95dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/icon_green" />
-
-        <TextView
-            android:id="@+id/textView8"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="150dp"
-            android:text="스낵바(13호관)"
-            android:textColor="@color/light_blue_900"
-            android:textSize="17dp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/imageView11"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="145dp"
-            android:layout_marginTop="145dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/icon_green" />
-
-        <TextView
-            android:id="@+id/textView9"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="195dp"
-            android:text="O.O 카페(7호관)"
-            android:textColor="@color/light_blue_900"
-            android:textSize="17dp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/imageView10"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="150dp"
-            android:layout_marginTop="190dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/icon_green" />
-
-        <TextView
-            android:id="@+id/textView10"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="240dp"
-            android:text="미유(29호관)"
-            android:textColor="@color/light_blue_900"
-            android:textSize="17dp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/imageView9"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="130dp"
-            android:layout_marginTop="235dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/icon_green" />
-
-        <TextView
-            android:id="@+id/textView12"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="290dp"
-            android:text="카페드림(11호관)"
-            android:textColor="@color/light_blue_900"
-            android:textSize="17dp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ImageView
-            android:id="@+id/imageView8"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="160dp"
-            android:layout_marginTop="285dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/icon_green" />
-
-        <TextView
-            android:id="@+id/textView11"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="340dp"
-            android:text="혜윰(기숙사)"
-            android:textColor="@color/light_blue_900"
-            android:textSize="17dp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/textView7"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="100dp"
-            android:text="카페드림(6호관)"
-            android:textColor="@color/light_blue_900"
-            android:textSize="17dp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </FrameLayout>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
 
     <!-- BottomNavigationView -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -289,8 +145,6 @@
         app:menu="@menu/bottom_nav_menu"
         app:itemBackground="@android:color/white"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent">
-    </com.google.android.material.bottomnavigation.BottomNavigationView>
-
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintBottom_toBottomOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

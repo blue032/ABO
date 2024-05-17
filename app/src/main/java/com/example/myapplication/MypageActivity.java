@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -45,7 +46,7 @@ public class MypageActivity extends AppCompatActivity {
                         for (DataSnapshot userSnapshot: dataSnapshot.getChildren()) {
                             // 이메일 주소가 일치하는 사용자의 이름을 가져옵니다.
                             String name = userSnapshot.child("name").getValue(String.class);
-                            TextView nameTextView = findViewById(R.id.name);
+                            TextView nameTextView = findViewById(R.id.username);
                             nameTextView.setText(name);
                             break; // 첫 번째 일치하는 사용자의 이름을 찾았으므로 루프를 종료합니다.
                         }
@@ -66,7 +67,7 @@ public class MypageActivity extends AppCompatActivity {
                         for (DataSnapshot ceoUserSnapshot : dataSnapshot.getChildren()) {
                             // 이메일 주소가 일치하는 사장님의 이름을 가져옵니다.
                             String ceoName = ceoUserSnapshot.child("name").getValue(String.class);
-                            TextView ceoNameTextView = findViewById(R.id.name);
+                            TextView ceoNameTextView = findViewById(R.id.username);
                             ceoNameTextView.setText(ceoName);
                             break; // 첫 번째 일치하는 사장님의 이름을 찾았으므로 루프를 종료합니다.
                         }
@@ -81,7 +82,8 @@ public class MypageActivity extends AppCompatActivity {
         }
 
         // 학교 홈페이지로 이동하는 버튼
-        TextView btnSchoolPage = findViewById(R.id.btn_university);
+        // 대학교 페이지로 이동하는 이미지뷰 버튼
+        ImageView btnSchoolPage = findViewById(R.id.btn_university);
         btnSchoolPage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -89,6 +91,7 @@ public class MypageActivity extends AppCompatActivity {
                 startActivity(browserIntent);
             }
         });
+
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -134,7 +137,8 @@ public class MypageActivity extends AppCompatActivity {
         });
 
         // 비밀번호 재설정 페이지로 이동하는 버튼
-        TextView btnResetPassword = findViewById(R.id.btn_reset_password);
+        // 비밀번호 재설정 페이지로 이동하는 이미지뷰 버튼
+        ImageView btnResetPassword = findViewById(R.id.btn_reset_password);
         btnResetPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -142,6 +146,7 @@ public class MypageActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
     }
 }
 

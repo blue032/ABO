@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 배경 원 (진행되지 않은 부분) -->
+    <item>
+        <shape android:shape="ring"
+            android:innerRadiusRatio="2.5"
+            android:thicknessRatio="16"
+            android:useLevel="false"> <!-- always show full 360 degrees -->
+            <solid android:color="@color/light_gray" />
+        </shape>
+    </item>
+
+    <!-- 진행된 부분 -->
+    <item>
+        <rotate
+            android:fromDegrees="270"
+            android:toDegrees="270">
+            <shape android:shape="ring"
+                android:innerRadiusRatio="2.5"
+                android:thicknessRatio="16"
+                android:useLevel="true"> <!-- use level to show progress -->
+                <solid android:color="@color/lightBlue" />
+            </shape>
+        </rotate>
+    </item>
+</layer-list>
