@@ -34,28 +34,14 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
-import java.util.Map;
 import java.util.PriorityQueue;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 
 public class WaitingActivity extends AppCompatActivity {
 
@@ -63,7 +49,7 @@ public class WaitingActivity extends AppCompatActivity {
     private DatabaseReference databaseReference;
     private ValueEventListener valueEventListener; //데이터 변경있을 때
     private Handler handler = new Handler();
-    private Runnable runnable;
+    //private Runnable runnable;
     private ArrayList<Orders> ordersList = new ArrayList<>();
     private TextView tv_waitingNumber;
     private TextView textViewSuffix; //~번입니다
@@ -74,6 +60,10 @@ public class WaitingActivity extends AppCompatActivity {
     private ScrollView scrollViewNumbers;
     private int textViewHeight = 0;
     private long maxWaitingTimeMillis = 0; //최대대기시간을 밀리초로 저장
+    private Runnable countRunnable;
+    private Runnable dataRunnable;
+
+    private TextView resultTextView;
 
 
     @SuppressLint("MissingInflatedId")
@@ -82,8 +72,10 @@ public class WaitingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waiting);
 
+        resultTextView = findViewById(R.id.resultTextView); // resultView 초기화
+
         // 현재 날짜의 요일을 Firebase에 추가
-        updateDailyStatsInFirebase();
+        addCurrentDayToFirebase();
 
         SwipeRefreshLayout refreshLayout = findViewById(R.id.refresh_layout);
 
@@ -110,8 +102,8 @@ public class WaitingActivity extends AppCompatActivity {
         //파이어베이스 초기화
         setupFirebaseListener();
 
-        //Runnable 초기화 및 시작
-        setupRunnable();
+        // Runnable 초기화 및 시작
+        setupRunnables();
 
         // ImageView 참조
         ImageView imageViewTimeChange = findViewById(R.id.imageViewCeoTimeChange);
@@ -254,17 +246,80 @@ public class WaitingActivity extends AppCompatActivity {
         };
         databaseReference.addValueEventListener(valueEventListener);
     }
-
-    private void setupRunnable(){
-        runnable = new Runnable() {
+    private void setupRunnables() {
+        // 1초마다 실행하여 totalCount 업데이트
+        countRunnable = new Runnable() {
             @Override
             public void run() {
-                checkOrdersTime(); //현재시간에 해당하는 대기번호 확인
-                handler.postDelayed(this, 1000); //1초마다 실행
+                checkOrdersTime(); // 현재 시간에 해당하는 대기 번호 확인
+                handler.postDelayed(this, 1000); // 1초마다 실행
             }
         };
-        handler.post(runnable); //Runnable 실행
+        handler.post(countRunnable); // Runnable 실행
+
+        // 1분마다 실행하여 Firebase 데이터 가져와서 resultTextView 업데이트
+        dataRunnable = new Runnable() {
+            @Override
+            public void run() {
+                updateData(); // 현재 시간에 해당하는 데이터 확인 및 업데이트
+                handler.postDelayed(this, 60000); // 1분마다 실행
+            }
+        };
+        handler.post(dataRunnable); // Runnable 실행
     }
+
+    private void updateData() {
+        // 현재 날짜와 시간을 가져와 요일과 시간을 추출합니다.
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.KOREAN);
+        String dayOfWeek = dayFormat.format(calendar.getTime());  // 요일 추출 (예: 월요일)
+
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);  // 시간 추출
+        int minute = calendar.get(Calendar.MINUTE);  // 분 추출
+
+        // 분 단위를 5분 단위로 반올림합니다.
+        minute = ((minute + 2) / 5) * 5;
+        if (minute == 60) {
+            minute = 0;
+            hour += 1;
+        }
+
+        // 시간대 문자열 생성 (예: 09:00:00)
+        String timeOfDay = String.format(Locale.getDefault(), "%02d:%02d:00", hour, minute);
+
+        // Firebase 경로 설정 (예: "ai/월요일/09:00:00")
+        String prompt = dayOfWeek + "/" + timeOfDay;
+        Log.d("updateData", "Firebase 경로: ai/" + prompt);
+
+        // Firebase에서 데이터 가져오기
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("ai/" + prompt);
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String status = snapshot.child("status").getValue(String.class);
+                    Object timeObj = snapshot.child("time").getValue();
+                    String time = timeObj != null ? timeObj.toString() : "알 수 없음";
+
+                    // 결과를 resultTextView에 표시
+                    String resultText = "Status: " + status + ", Time: " + time;
+                    resultTextView.setText(resultText);
+                    Log.d("updateData", "데이터 가져옴: " + resultText);
+                } else {
+                    resultTextView.setText("데이터를 찾을 수 없습니다.");
+                    Log.d("updateData", "데이터를 찾을 수 없습니다.");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                resultTextView.setText("데이터를 가져오는 데 실패했습니다.");
+                Log.e("updateData", "데이터를 가져오는 데 실패했습니다.", error.toException());
+            }
+        });
+    }
+
+
     private PriorityQueue<Orders> ordersQueue = new PriorityQueue<>(new Comparator<Orders>() {
         @Override
         public int compare(Orders o1, Orders o2) {
@@ -273,12 +328,10 @@ public class WaitingActivity extends AppCompatActivity {
         }
     });
 
-    public void updateDailyStatsInFirebase() {
-        // 현재 날짜와 시간 구하기
+    public void addCurrentDayToFirebase() {
+        // 현재 날짜 구하기
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
         String todayDate = dateFormat.format(new Date());
-        String currentTime = timeFormat.format(new Date());
 
         // 요일 계산하기
         Calendar calendar = Calendar.getInstance();
@@ -288,70 +341,13 @@ public class WaitingActivity extends AppCompatActivity {
         // Firebase 경로 설정
         DatabaseReference dailyStatsRef = FirebaseDatabase.getInstance().getReference("dailyStats/" + todayDate);
 
-        // 요일과 시간 데이터 추가
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("currentDay", todayDay);
-        updates.put("lastUpdatedTime", currentTime);
-
-        dailyStatsRef.updateChildren(updates).addOnSuccessListener(aVoid -> {
-            Log.d("Firebase", "Daily stats updated successfully with day: " + todayDay + " and time: " + currentTime);
-            // 서버로 데이터 전송하는 기능 호출
-            //sendDataToServer(todayDate, currentTime, todayDay);
+        // 요일 데이터 추가
+        dailyStatsRef.child("currentDay").setValue(todayDay).addOnSuccessListener(aVoid -> {
+            Log.d("Firebase", "Day of the week updated successfully: " + todayDay);
         }).addOnFailureListener(e -> {
-            Log.e("Firebase", "Failed to update daily stats", e);
+            Log.e("Firebase", "Failed to update day of the week", e);
         });
     }
-
-   /* private void sendDataToServer(String date, String currentTime, String currentDay) {
-        DatabaseReference dailyStatsRef = FirebaseDatabase.getInstance().getReference("dailyStats/" + date);
-        dailyStatsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Integer currentWaitCount = snapshot.child("currentWaitCount").getValue(Integer.class);
-                if (currentWaitCount != null) {
-                    OkHttpClient client = new OkHttpClient();
-                    MediaType MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8");
-                    JSONObject postData = new JSONObject();
-                    try {
-                        postData.put("date", date);
-                        postData.put("time", currentTime);
-                        postData.put("dayOfWeek", currentDay);
-                        postData.put("waitingNumber", currentWaitCount);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                    RequestBody body = RequestBody.create(MEDIA_TYPE_JSON, postData.toString());
-                    Request request = new Request.Builder()
-                            .url("http://yourserver.com/data")
-                            .post(body)
-                            .build();
-
-                    client.newCall(request).enqueue(new Callback() {
-                        @Override
-                        public void onFailure(Call call, IOException e) {
-                            Log.e("HttpError", "Failed to send data to server.", e);
-                        }
-
-                        @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            if (!response.isSuccessful()) {
-                                Log.e("HttpError", "Server response was not successful.");
-                            } else {
-                                Log.i("HttpSuccess", "Data sent successfully");
-                            }
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("Firebase", "Failed to read value.", error.toException());
-            }
-        });
-    }*/
-
 
     private void updateTotalCountInFirebase(int newCount) {
         // 변경될 totalCount 값과 함께 업데이트할 경로를 설정합니다.
@@ -519,8 +515,10 @@ public class WaitingActivity extends AppCompatActivity {
         if (databaseReference != null && valueEventListener != null) {
             databaseReference.removeEventListener(valueEventListener);
         }
-        handler.removeCallbacks(runnable);
+        handler.removeCallbacks(countRunnable);
+        handler.removeCallbacks(dataRunnable);
     }
+
 
     // 팝업 다이얼로그를 표시하는 메소드
     // 팝업 다이얼로그를 표시하는 메소드
