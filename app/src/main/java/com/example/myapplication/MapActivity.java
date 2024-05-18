@@ -260,9 +260,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         int maxWaitingTime = prefs.getInt("MaxWaitingTime", 0);
 
         BitmapDescriptor iconDescriptor;
-        if (maxWaitingTime <= 4) {
+        if (maxWaitingTime <= 8) {
             iconDescriptor = resizeMapIcons(R.drawable.location_green, 130, 130);
-        } else if (maxWaitingTime >= 10) {
+        } else if (maxWaitingTime >= 20) {
             iconDescriptor = resizeMapIcons(R.drawable.location_red, 130, 130);
         } else {
             iconDescriptor = resizeMapIcons(R.drawable.location_blue, 130, 130);
