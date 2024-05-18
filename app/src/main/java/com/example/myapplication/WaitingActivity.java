@@ -65,7 +65,6 @@ public class WaitingActivity extends AppCompatActivity {
 
     private TextView resultTextView;
 
-
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
