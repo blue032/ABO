@@ -50,6 +50,7 @@
 
         <!-- SplashActivity 추가 -->
         <activity android:name=".SplashActivity"
+            android:theme="@style/Theme.SplashScreen"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

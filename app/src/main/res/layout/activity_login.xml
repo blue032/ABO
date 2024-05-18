@@ -7,16 +7,18 @@
     tools:context=".LoginActivity">
 
     <TextView
-        android:layout_width="match_parent"
+        android:id="@+id/textViewCertainU"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
         android:text="CertaIN U"
-        android:textAlignment="center"
-        android:textColor="@color/black"
-        android:textSize="50sp"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="137dp" />
+        android:textColor="@android:color/black"
+        android:textSize="70dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.165" />
 
     <EditText
         android:id="@+id/editID"
@@ -51,8 +53,8 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/loginbutton"
         style="@style/ButtonWithBorder"
-        android:layout_width="327dp"
-        android:layout_height="71dp"
+        android:layout_width="354dp"
+        android:layout_height="70dp"
         android:backgroundTint="@color/lightBlue"
         android:contentDescription="로그인"
         android:text="로그인"
@@ -64,18 +66,18 @@
         app:layout_constraintHorizontal_bias="0.464"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.585" />
+        app:layout_constraintVertical_bias="0.576" />
 
     <TextView
         android:id="@+id/id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="584dp"
+        android:layout_marginTop="628dp"
         android:text="ID찾기"
         android:textColor="@color/black"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.161"
+        app:layout_constraintHorizontal_bias="0.185"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -83,7 +85,7 @@
         android:id="@+id/pw"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="584dp"
+        android:layout_marginTop="628dp"
         android:text="PW찾기"
         android:textColor="@color/black"
         android:textSize="18sp"
@@ -96,19 +98,19 @@
         android:id="@+id/signin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="584dp"
+        android:layout_marginTop="628dp"
         android:text="회원가입"
         android:textColor="@color/black"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.834"
+        app:layout_constraintHorizontal_bias="0.826"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <View
         android:layout_width="1.2dp"
         android:layout_height="43dp"
-        android:layout_marginStart="144dp"
+        android:layout_marginStart="148dp"
         android:background="#D3D3D3"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -118,7 +120,7 @@
     <View
         android:layout_width="1.2dp"
         android:layout_height="43dp"
-        android:layout_marginStart="268dp"
+        android:layout_marginStart="260dp"
         android:background="#D3D3D3"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"

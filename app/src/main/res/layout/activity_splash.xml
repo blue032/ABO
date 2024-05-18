@@ -4,17 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
     android:fitsSystemWindows="true"
     android:gravity="center"
-    tools:context=".MainActivity">
+    tools:context=".SplashActivity">
 
     <TextView
         android:id="@+id/textViewSplash"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="CertaIN U"
-        android:textSize="40sp"
-        android:textColor="@android:color/white"
+        android:textSize="70dp"
+        android:textColor="@android:color/black"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -3,6 +3,11 @@ package com.example.myapplication;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -22,6 +27,7 @@ public class LoginActivity extends AppCompatActivity {
     private FirebaseAuth mAuth; // Firebase Authentication
     private EditText emailEditText;
     private EditText passwordEditText;
+    private String actualPassword = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +44,44 @@ public class LoginActivity extends AppCompatActivity {
         TextView signInButton = findViewById(R.id.signin);
         TextView idTextView = findViewById(R.id.id);
         TextView pwTextView = findViewById(R.id.pw);
+
+        // 텍스트뷰에서 특정 텍스트 색상 변경
+        TextView textViewCertainU = findViewById(R.id.textViewCertainU);
+        String text = "CertaIN U";
+        SpannableString spannableString = new SpannableString(text);
+        int start = text.indexOf("IN U");
+        int end = start + "IN U".length();
+        int customBlueColor = getResources().getColor(R.color.custom_blue);
+        spannableString.setSpan(new ForegroundColorSpan(customBlueColor), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        textViewCertainU.setText(spannableString);
+
+        // 커스텀 마스킹 처리
+        passwordEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                // 입력 전 처리할 로직
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // 텍스트가 변경될 때마다 호출되는 로직
+                if (count > 0) {
+                    char lastChar = s.charAt(start + count - 1);
+                    actualPassword += lastChar;
+                    passwordEditText.removeTextChangedListener(this);
+                    passwordEditText.setText(passwordMask(actualPassword));
+                    passwordEditText.setSelection(actualPassword.length());
+                    passwordEditText.addTextChangedListener(this);
+                } else if (before > 0 && count == 0) {
+                    actualPassword = actualPassword.substring(0, start);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                // 입력 후 처리할 로직
+            }
+        });
 
         // 로그인 버튼 클릭 리스너 설정
         loginButton.setOnClickListener(v -> loginUser());
@@ -115,5 +159,12 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(LoginActivity.this, "데이터베이스 에러: " + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+    private String passwordMask(String password) {
+        StringBuilder maskedPassword = new StringBuilder();
+        for (int i = 0; i < password.length(); i++) {
+            maskedPassword.append('*'); // 각 문자를 별표로 대체
+        }
+        return maskedPassword.toString();
     }
 }
