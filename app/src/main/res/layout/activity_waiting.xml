@@ -8,171 +8,357 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!-- ScrollView를 추가합니다 -->
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/tv_top"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text="CertaIN U"
-                android:textAlignment="center"
-                android:textColor="@color/black"
-                android:textSize="30sp"
-                android:textStyle="bold"
-                android:layout_marginTop="10dp"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-            <EditText
-                android:id="@+id/editcafename"
-                android:layout_width="140dp"
-                android:layout_height="58dp"
-                android:ems="10"
-                android:hint="카페 이름 입력"
-                android:inputType="text"
-                android:text=""
-                android:gravity="center"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginStart="135dp"
-                android:layout_marginTop="125dp" />
-
-            <!-- resultTextView 추가 -->
-            <TextView
-                android:id="@+id/resultTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Result will be shown here"
-                android:textSize="18sp"
-                android:layout_marginTop="16dp"
-                app:layout_constraintTop_toBottomOf="@id/editcafename"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:gravity="center"/>
-
-            <FrameLayout
-                android:id="@+id/frameLayout"
-                android:layout_width="337dp"
-                android:layout_height="183dp"
-                android:background="@drawable/frame_layout"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginStart="37dp"
-                android:layout_marginTop="233dp">
-
-            </FrameLayout>
-
-            <EditText
-                android:id="@+id/tv_waitingNumber"
-                android:layout_width="169dp"
-                android:layout_height="58dp"
-                android:ems="10"
-                android:hint="대기 번호"
-                android:inputType="numberDecimal"
-                android:textSize="30dp"
-                android:gravity="center"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginStart="77dp"
-                android:layout_marginTop="286dp" />
-
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="103dp"
-                android:layout_height="42dp"
-                android:text="번입니다."
-                android:textColor="@color/light_blue_900"
-                android:textSize="20dp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginStart="246dp"
-                android:layout_marginTop="302dp" />
-
-            <com.google.android.material.bottomnavigation.BottomNavigationView
-                android:id="@+id/bottom_navigation_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:menu="@menu/bottom_nav_menu"
-                app:itemBackground="@android:color/white"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/frameLayout2"
-                android:layout_width="332dp"
-                android:layout_height="138dp"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/frame_layout"
-                app:layout_constraintTop_toBottomOf="@+id/frameLayout"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/layout_toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    tools:ignore="MissingConstraints">
+
+                    <ImageView
+                        android:id="@+id/back_arrow"
+                        android:layout_width="46dp"
+                        android:layout_height="45dp"
+                        android:layout_marginStart="16dp"
+                        android:src="@drawable/back"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+
+                    <TextView
+                        android:id="@+id/editcafename"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="100dp"
+                        android:gravity="center"
+                        android:inputType="text"
+                        android:text="O.O 카페"
+                        android:textAlignment="center"
+                        android:textColor="#000000"
+                        android:textSize="16dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/back_arrow"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.545" />
+
+                    <ImageView
+                        android:layout_width="360dp"
+                        android:layout_height="2dp"
+                        android:background="@color/lightBlue"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                <FrameLayout
+                    android:id="@+id/frameLayout"
+                    android:layout_width="332dp"
+                    android:layout_height="100dp"
+                    android:layout_marginStart="36dp"
+                    android:layout_marginTop="84dp"
+                    android:background="@drawable/boxsmall"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/tv_currentOrderLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical|start"
+                        android:layout_marginStart="16dp"
+                        android:textColor="@color/gray"
+                        android:text="현재 대기중인 주문수"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:id="@+id/labelWaitingNumber"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="대기 번호:"
+                        android:visibility="invisible"
+                        app:layout_constraintStart_toStartOf="@+id/tv_waitingNumber"
+                        app:layout_constraintTop_toTopOf="@+id/tv_waitingNumber"
+                        android:labelFor="@id/tv_waitingNumber" />
+
+                    <EditText
+                        android:id="@+id/tv_waitingNumber"
+                        android:layout_width="50dp"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="190dp"
+                        android:ems="10"
+                        android:inputType="number"
+                        android:background="@null"
+                        android:textSize="20sp"
+                        android:hint="대기 번호 입력"
+                        app:layout_constraintStart_toEndOf="@id/labelWaitingNumber"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+
+                    <TextView
+                        android:id="@+id/tv_unit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical|start"
+                        android:layout_marginStart="250dp"
+                        android:text="건"
+                        android:textSize="20sp" />
+
+
+                </FrameLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/frameLayout2"
+                    android:layout_width="332dp"
+                    android:layout_height="100dp"
+                    android:layout_marginTop="0dp"
+                    android:background="@drawable/boxsmall"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.455"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/frameLayout">
+
+                    <TextView
+                        android:id="@+id/tv_expectedWaitLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="24dp"
+                        android:text="예상 대기시간"
+                        android:textColor="@color/gray"
+                        android:textSize="14sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.468" />
+
+                    <EditText
+                        android:id="@+id/waitingTime"
+                        android:layout_width="50dp"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="88dp"
+                        android:background="@null"
+                        android:ems="10"
+                        android:inputType="number"
+                        android:textColor="@color/gray"
+                        android:textSize="20sp"
+                        android:hint="분"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/tv_expectedWaitLabel"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.438"
+                        android:autofillHints="time"/>
+
+                    <TextView
+                        android:id="@+id/tv_minutesLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="12dp"
+                        android:text="분"
+                        android:textSize="20sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/waitingTime"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintVertical_bias="0.414" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/frameLayout3"
+                    android:layout_width="332dp"
+                    android:layout_height="285dp"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/boxbig"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.455"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/frameLayout2">
+
+                    <ProgressBar
+                        android:id="@+id/circularProgress"
+                        style="@android:style/Widget.ProgressBar.Horizontal"
+                        android:layout_width="200dp"
+                        android:layout_height="200dp"
+                        android:max="100"
+                        android:progress="45"
+                        android:progressDrawable="@drawable/circular_progress_bar"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+
+                    <ImageView
+                        android:id="@+id/imageViewClock"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/clock"
+                        app:layout_constraintEnd_toStartOf="@id/textAvoidCongestion"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintHorizontal_chainStyle="packed"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/circularProgress" />
+
+                    <TextView
+                        android:id="@+id/textAvoidCongestion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="혼잡함을 피하고 싶다면"
+                        android:textSize="16sp"
+                        app:layout_constraintBottom_toBottomOf="@id/imageViewClock"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintStart_toEndOf="@id/imageViewClock"
+                        app:layout_constraintTop_toBottomOf="@id/circularProgress" />
+
+                    <TextView
+                        android:id="@+id/textAmPm"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="오후"
+                        android:textSize="16sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.2"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/imageViewClock" />
+
+                    <EditText
+                        android:id="@+id/editHour"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:ems="2"
+                        android:inputType="number"
+                        android:textSize="16sp"
+                        android:hint="시간"
+                        app:layout_constraintBottom_toBottomOf="@id/textAmPm"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintStart_toEndOf="@id/textAmPm"
+                        app:layout_constraintTop_toTopOf="@id/textAmPm" />
+
+                    <TextView
+                        android:id="@+id/textHourLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="시"
+                        android:textSize="16sp"
+                        app:layout_constraintBaseline_toBaselineOf="@id/editHour"
+                        app:layout_constraintStart_toEndOf="@id/editHour" />
+
+                    <TextView
+                        android:id="@+id/labelMinute"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="분 입력"
+                        android:visibility="invisible"
+                        app:layout_constraintStart_toEndOf="@id/textHourLabel"
+                        app:layout_constraintTop_toTopOf="@id/textHourLabel"
+                        android:labelFor="@id/editMinute" />
+
+                    <EditText
+                        android:id="@+id/editMinute"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:ems="2"
+                        android:inputType="number"
+                        android:textSize="16sp"
+                        android:hint="분"
+                        app:layout_constraintBottom_toBottomOf="@id/textHourLabel"
+                        app:layout_constraintStart_toEndOf="@id/labelMinute"
+                        app:layout_constraintTop_toTopOf="@id/textHourLabel"
+                        />
+
+                    <TextView
+                        android:id="@+id/textMinuteLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="분"
+                        android:textSize="16sp"
+                        app:layout_constraintBaseline_toBaselineOf="@id/editMinute"
+                        app:layout_constraintStart_toEndOf="@id/editMinute" />
+
+                    <TextView
+                        android:id="@+id/textVisit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="에 방문하세요."
+                        android:textSize="16sp"
+                        app:layout_constraintBottom_toBottomOf="@id/textMinuteLabel"
+                        app:layout_constraintStart_toEndOf="@id/textMinuteLabel"
+                        app:layout_constraintTop_toTopOf="@id/textMinuteLabel" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <ImageView
+                    android:id="@+id/imageViewCeoOrderChange"
+                    android:layout_width="35dp"
+                    android:layout_height="25dp"
+                    android:layout_marginTop="25dp"
+                    android:src="@drawable/orderchange"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.12"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/frameLayout3" />
 
                 <TextView
-                    android:id="@+id/tv_minutes"
-                    android:layout_width="125dp"
-                    android:layout_height="32dp"
-                    android:text="분 입니다."
-                    android:textSize="20sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:id="@+id/orderchage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="23dp"
+                    android:layout_marginStart="5dp"
+                    android:text="주문 내역 변경"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    app:layout_constraintTop_toBottomOf="@id/frameLayout3"
+                    app:layout_constraintStart_toEndOf="@id/imageViewCeoOrderChange"/>
+
+                <ImageView
+                    android:id="@+id/imageViewCeoTimeChange"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginTop="24dp"
+                    android:src="@drawable/clock"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="1.0"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintHorizontal_bias="0.43"
+                    app:layout_constraintStart_toEndOf="@id/imageViewCeoOrderChange"
+                    app:layout_constraintTop_toBottomOf="@+id/frameLayout3" />
 
-                <!-- 여기에서 bias 값을 조정합니다 -->
+                <TextView
+                    android:id="@+id/timechage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="23dp"
+                    android:layout_marginStart="5dp"
+                    android:text="대기 시간 변경"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    app:layout_constraintTop_toBottomOf="@id/frameLayout3"
+                    app:layout_constraintStart_toEndOf="@id/imageViewCeoTimeChange"/>
+
+
+
             </androidx.constraintlayout.widget.ConstraintLayout>
+        </ScrollView>
 
-            <EditText
-                android:id="@+id/waitingTime"
-                android:layout_width="169dp"
-                android:layout_height="58dp"
-                android:ems="10"
-                android:hint="최대대기시간 (분)"
-                android:inputType="numberDecimal"
-                android:textSize="28dp"
-                android:gravity="center"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_marginStart="65dp"
-                android:layout_marginTop="470dp" />
-
-            <ImageView
-                android:id="@+id/imageViewCeoOrderChange"
-                android:layout_width="35dp"
-                android:layout_height="53dp"
-                android:layout_marginBottom="24dp"
-                android:src="@drawable/orderchange"
-                app:layout_constraintBottom_toTopOf="@id/bottom_navigation_view"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.265"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/waitingTime"
-                app:layout_constraintVertical_bias="1.0" />
-
-            <ImageView
-                android:id="@+id/imageViewCeoTimeChange"
-                android:layout_width="35dp"
-                android:layout_height="53dp"
-                android:layout_marginBottom="24dp"
-                android:src="@drawable/timechange"
-                app:layout_constraintBottom_toTopOf="@id/bottom_navigation_view"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.731"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/waitingTime"
-                app:layout_constraintVertical_bias="1.0" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-    </ScrollView>
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigation_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            app:itemBackground="@android:color/white"
+            app:menu="@menu/bottom_nav_menu"/>
+    </LinearLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

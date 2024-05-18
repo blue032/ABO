@@ -1,5 +1,4 @@
 package com.example.myapplication;
-//다시
 
 import android.animation.ObjectAnimator;
 import android.Manifest;
@@ -77,10 +76,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private long maxWaitingTimeMillis = 0;
     private int totalCount = 0;
     private BottomSheetDialog bottomSheetDialog;
-    private TextView tv_recommend_time;
-
-    private Runnable countRunnable;
-    private Runnable dataRunnable;
 
     private PriorityQueue<Orders> ordersQueue = new PriorityQueue<>(new Comparator<Orders>() {
         @Override
@@ -95,7 +90,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_map);
         mapView = findViewById(R.id.map);
         initGoogleMap(savedInstanceState);
-
 
         sharedPreferences = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
 
@@ -132,7 +126,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         });
 
         setupFirebaseListener();
-        setupRunnables();  // Runnable 설정 추가
+        setupRunnable();  // Runnable 설정 추가
     }
 
     private void initGoogleMap(Bundle savedInstanceState) {
@@ -354,108 +348,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         databaseReference.addValueEventListener(valueEventListener);
     }
 
-    private void setupRunnables() {
-        // 1초마다 실행하여 totalCount 업데이트
-        countRunnable = new Runnable() {
+    private void setupRunnable(){
+        runnable = new Runnable() {
             @Override
             public void run() {
-                checkOrdersTime(); // 현재 시간에 해당하는 대기 번호 확인
+                checkOrdersTime(); // 현재시간에 해당하는 대기번호 확인
                 handler.postDelayed(this, 1000); // 1초마다 실행
             }
         };
-        handler.post(countRunnable); // Runnable 실행
-
-        // 1분마다 실행하여 Firebase 데이터 가져와서 resultTextView 업데이트
-        dataRunnable = new Runnable() {
-            @Override
-            public void run() {
-                updateData(); // 현재 시간에 해당하는 데이터 확인 및 업데이트
-                handler.postDelayed(this, 60000); // 1분마다 실행
-            }
-        };
-        handler.post(dataRunnable); // Runnable 실행
+        handler.post(runnable); // Runnable 실행
     }
-
-    private void showBottomSheetDialog(String congestionTime) {
-        LayoutInflater inflater = getLayoutInflater();
-        View dialogLayout = inflater.inflate(R.layout.bottom_sheet_layout, null);
-
-        TextView tvRecommendTime = dialogLayout.findViewById(R.id.tv_recommend_time);
-        if (tvRecommendTime != null) {
-            tvRecommendTime.setText(congestionTime);
-            Log.d("showBottomSheetDialog", "추천 시간 설정: " + congestionTime);
-        } else {
-            Log.e("showBottomSheetDialog", "tv_recommend_time을 찾을 수 없습니다.");
-        }
-
-        bottomSheetDialog = new BottomSheetDialog(this);
-        bottomSheetDialog.setContentView(dialogLayout);
-        bottomSheetDialog.show();
-    }
-
-    private void updateData() {
-        // 현재 날짜와 시간을 가져와 요일과 시간을 추출합니다.
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.KOREAN);
-        String dayOfWeek = dayFormat.format(calendar.getTime());  // 요일 추출 (예: 월요일)
-
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);  // 시간 추출
-        int minute = calendar.get(Calendar.MINUTE);  // 분 추출
-
-        // 분 단위를 5분 단위로 반올림합니다.
-        minute = ((minute + 2) / 5) * 5;
-        if (minute == 60) {
-            minute = 0;
-            hour += 1;
-        }
-
-        // 시간대 문자열 생성 (예: 09:00:00)
-        String timeOfDay = String.format(Locale.getDefault(), "%02d:%02d:00", hour, minute);
-
-        // Firebase 경로 설정 (예: "ai/월요일/09:00:00")
-        String prompt = dayOfWeek + "/" + timeOfDay;
-        Log.d("updateData", "Firebase 경로: ai/" + prompt);
-
-        // Firebase에서 데이터 가져오기
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("ai/" + prompt);
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    String status = snapshot.child("status").getValue(String.class);
-                    Object timeObj = snapshot.child("time").getValue();
-                    int timeInMinutes = timeObj != null ? Integer.parseInt(timeObj.toString()) : 0;
-                    String formattedTime;
-
-                    if (timeInMinutes >= 60) {
-                        int hours = timeInMinutes / 60;
-                        int minutes = timeInMinutes % 60;
-                        if (minutes > 0) {
-                            formattedTime = String.format("현재 %s 상태로 %d시간 %d분 후 방문하세요.", status, hours, minutes);
-                        } else {
-                            formattedTime = String.format("현재 %s 상태로 %d시간 후 방문하세요.", status, hours);
-                        }
-                    } else {
-                        formattedTime = String.format("현재 %s 상태로 %d분 후 방문하세요.", status, timeInMinutes);
-                    }
-
-                    // 결과를 TextView에 표시
-                    showBottomSheetDialog(formattedTime);
-                    Log.d("updateData", "데이터 가져옴: " + formattedTime);
-                } else {
-                    showBottomSheetDialog("추천 시간 정보를 찾을 수 없습니다.");
-                    Log.d("updateData", "데이터를 찾을 수 없습니다.");
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                showBottomSheetDialog("데이터를 가져오는 데 실패했습니다.");
-                Log.e("updateData", "데이터를 가져오는 데 실패했습니다.", error.toException());
-            }
-        });
-    }
-
 
     public void updateDailyStatsInFirebase() {
         // 현재 날짜와 시간 구하기
@@ -488,24 +390,38 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Calendar now = Calendar.getInstance();
         long nowMillis = now.getTimeInMillis();
 
+        // 영업시간 설정
+        Calendar startTime = Calendar.getInstance();
+        startTime.set(Calendar.HOUR_OF_DAY, 9);
+        startTime.set(Calendar.MINUTE, 0);
+        startTime.set(Calendar.SECOND, 0);
+        long startTimeMillis = startTime.getTimeInMillis();
+
+        Calendar endTime = Calendar.getInstance();
+        endTime.set(Calendar.HOUR_OF_DAY, 20);
+        endTime.set(Calendar.MINUTE, 0);
+        endTime.set(Calendar.SECOND, 0);
+        long endTimeMillis = endTime.getTimeInMillis();
+
+        if (nowMillis < startTimeMillis || nowMillis > endTimeMillis) {
+            saveWaitingInfo(0, 0); // 영업 종료 시 대기 번호와 대기 시간을 0으로 설정
+            updateBottomSheetData(0, 0); // Bottom sheet 업데이트
+            return;
+        }
+
         int currentCount = 0;
         maxWaitingTimeMillis = 0; // 최대대기시간을 재설정
-
-        Log.d("checkOrdersTime", "현재 시간 (밀리초): " + nowMillis);
-        Log.d("checkOrdersTime", "주문 목록 크기: " + ordersList.size());
 
         // 주문 목록을 반복하여 현재 대기 번호 수를 계산
         for (Iterator<Orders> iterator = ordersList.iterator(); iterator.hasNext(); ) {
             Orders order = iterator.next();
 
             long orderTimeMillis = getOrderTimeMillis(order);
+            // 메뉴 아이템의 총 대기 시간 계산
             long totalWaitTimeMillis = calculateTotalWaitTimeMillis(order);
             long orderEndTimeMillis = orderTimeMillis + totalWaitTimeMillis;
 
-            Log.d("checkOrdersTime", "주문 시간 (밀리초): " + orderTimeMillis);
-            Log.d("checkOrdersTime", "주문 완료 시간 (밀리초): " + orderEndTimeMillis);
-            Log.d("checkOrdersTime", "현재 시간과의 비교: " + (orderEndTimeMillis > nowMillis));
-
+            // 주문이 현재 시간 이전에 들어왔다면
             if (orderTimeMillis <= nowMillis) {
                 if (orderEndTimeMillis > nowMillis) {
                     currentCount++;
@@ -522,6 +438,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         int maxWaitingTimeMinutes = (int) (maxWaitingTimeMillis / 60000);
 
         int additionalMinutes = 0;
+        // 대기번호에 따른 추가 시간 계산
         if (totalCount > 6) {
             additionalMinutes = 10;
         } else if (totalCount > 2) {
@@ -529,13 +446,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
         int totalWaitingTime = maxWaitingTimeMinutes + additionalMinutes;
 
-        Log.d("checkOrdersTime", "총 대기 수: " + totalCount);
-        Log.d("checkOrdersTime", "총 대기 시간 (분): " + totalWaitingTime);
-
         saveWaitingInfo(totalCount, totalWaitingTime);
         updateBottomSheetData(totalCount, totalWaitingTime);
     }
-
 
     private long getOrderTimeMillis(Orders order) {
         Calendar orderCalendar = Calendar.getInstance();
@@ -562,7 +475,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private long calculateTotalWaitTimeMillis(Orders order) {
         return order.getMenu().stream()
-                .mapToLong(item -> item.getQuantity() * 4 * 60 * 1000) // 각 메뉴 아이템의 대기 시간을 계산
+                .mapToLong(item -> item.getQuantity() * 2 * 60 * 1000) // 각 메뉴 아이템의 대기 시간을 계산
                 .sum();
     }
 
