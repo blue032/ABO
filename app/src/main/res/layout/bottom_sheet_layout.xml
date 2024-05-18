@@ -48,6 +48,7 @@
 
     <!-- 네모 박스들 -->
     <LinearLayout
+        android:id="@+id/order_and_waiting_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -128,6 +129,7 @@
 
     <!-- 그래프와 방문 시간 추천 박스 -->
     <androidx.cardview.widget.CardView
+        android:id="@+id/graph_and_recommendation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -176,4 +178,5 @@
             </LinearLayout>
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
 </LinearLayout>

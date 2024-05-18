@@ -74,7 +74,7 @@
             android:textSize="24sp"
             android:textColor="@android:color/black"
             android:textStyle="bold"
-            android:text=""
+            android:text="영업 종료"
             android:background="@android:color/white"
             android:gravity="center"/>
     </FrameLayout>
