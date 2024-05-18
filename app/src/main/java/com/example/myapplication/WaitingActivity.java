@@ -1,4 +1,5 @@
 package com.example.myapplication;
+//다시
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -72,12 +73,6 @@ public class WaitingActivity extends AppCompatActivity {
             refreshLayout.setRefreshing(false);
         });
 
-        // Intent에서 카페 이름 가져오기
-        String cafeName = getIntent().getStringExtra("cafeName");
-
-        // EditText에 카페 이름 설정
-        EditText editTextCafeName = findViewById(R.id.editcafename);
-        editTextCafeName.setText(cafeName);
 
         // EditTexts
         tv_waitingNumber = findViewById(R.id.tv_waitingNumber);
