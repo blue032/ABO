@@ -317,7 +317,7 @@
                         <EditText
                             android:id="@+id/signPW2"
                             android:layout_width="238dp"
-                            android:layout_height="41dp"
+                            android:layout_height="49dp"
                             android:layout_marginTop="4dp"
                             android:background="@drawable/box1"
                             android:ems="10"
