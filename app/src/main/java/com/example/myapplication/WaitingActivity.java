@@ -6,6 +6,9 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -13,7 +16,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -86,6 +88,10 @@ public class WaitingActivity extends AppCompatActivity {
         TextView timechange = findViewById(R.id.timechange);
         TextView orderchange = findViewById(R.id.orderchange);
 
+        // 밑줄 추가
+        underlineTextView(timechange);
+        underlineTextView(orderchange);
+
         // 클릭 리스너 설정
         timechange.setOnClickListener(v -> {
             Log.d("WaitingActivity", "Time Change Clicked");
@@ -139,6 +145,12 @@ public class WaitingActivity extends AppCompatActivity {
 
             return false;
         });
+    }
+
+    private void underlineTextView(TextView textView) {
+        SpannableString content = new SpannableString(textView.getText());
+        content.setSpan(new UnderlineSpan(), 0, content.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        textView.setText(content);
     }
 
     @Override

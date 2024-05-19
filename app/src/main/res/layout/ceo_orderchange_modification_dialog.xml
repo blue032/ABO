@@ -50,7 +50,7 @@
         <TextView
             android:id="@+id/textViewWaitNumber"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:textAlignment="viewStart"
             android:layout_marginBottom="8dp"/>
 
@@ -69,10 +69,11 @@
 
         <TextView
             android:id="@+id/textViewTime"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="350dp"
+            android:layout_height="48dp"
             android:textAlignment="viewStart"
             android:layout_marginBottom="8dp"
+            android:hint="시간"
             android:clickable="true"
             android:focusable="true"
             android:onClick="onTimeTextViewClick" />
@@ -113,7 +114,7 @@
         <TextView
             android:id="@+id/textViewTotalPrice"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:textAlignment="viewStart"
             android:layout_marginBottom="8dp"/>
 
@@ -127,8 +128,8 @@
 
         <Spinner
             android:id="@+id/spinnerInOrTakeout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="350dp"
+            android:layout_height="48dp"
             android:entries="@array/in_or_takeout_options" />
 
         <ImageView
@@ -146,7 +147,7 @@
         android:weightSum="2">
 
         <TextView
-            android:id="@+id/buttonSetTime"
+            android:id="@+id/buttonconfirm"
             android:layout_width="16dp"
             android:layout_height="39dp"
             android:layout_gravity="center"
@@ -159,7 +160,7 @@
             android:textSize="18sp" />  <!-- 오른쪽 마진 추가 -->
 
         <TextView
-            android:id="@+id/button_cancel"
+            android:id="@+id/buttoncancel"
             android:layout_width="0dp"
             android:layout_height="39dp"
             android:layout_gravity="center"

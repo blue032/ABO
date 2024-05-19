@@ -3,12 +3,11 @@ package com.example.myapplication;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -16,7 +15,6 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.text.InputType;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,9 +25,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -45,6 +45,7 @@ public class Ceo_OrderChange extends AppCompatActivity {
     private String currentFormattedDate;
     private ImageView buttonStartDate;  // ImageView로 변경
     private TextView buttonEdit;
+    private TextView textView1; // 추가된 부분: 날짜를 표시할 TextView
     private String[] order_menu;
     private final int[] menu_prices = {3000, 3000, 3500, 3500, 4000, 4000, 4000, 4500, 4500, 5000, 4500, 3500, 3500, 3500, 4000, 5000, 6000, 3500, 4500, 4500};
 
@@ -58,13 +59,24 @@ public class Ceo_OrderChange extends AppCompatActivity {
         buttonEdit = findViewById(R.id.buttonEdit);
         editTextWaitingNumber = findViewById(R.id.editTextWaitingNumber);
         buttonSearch = findViewById(R.id.buttonSearch);
+        textView1 = findViewById(R.id.textView1); // 추가된 부분: 날짜를 표시할 TextView
         mDatabase = FirebaseDatabase.getInstance().getReference();
         textViewOrderDetails = findViewById(R.id.textViewOrderDetails);
+
+        // 기본 날짜 설정
+        String defaultDate = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()).format(new Date());
+        buttonStartDate.setTag(defaultDate);
 
         buttonStartDate.setOnClickListener(view -> showDatePickerDialog());
 
         buttonSearch.setOnClickListener(view -> {
-            String selectedDate = buttonStartDate.getTag().toString(); // 수정된 부분: getText() 대신 getTag() 사용
+            Object tag = buttonStartDate.getTag();
+            if (tag == null) {
+                textViewOrderDetails.setText("날짜를 선택해주세요.");
+                return;
+            }
+
+            String selectedDate = tag.toString();
             try {
                 int waitNumber = Integer.parseInt(editTextWaitingNumber.getText().toString());
                 searchOrder(selectedDate, waitNumber);
@@ -89,6 +101,7 @@ public class Ceo_OrderChange extends AppCompatActivity {
                 (view, year1, monthOfYear, dayOfMonth) -> {
                     String date = String.format(Locale.getDefault(), "%d/%02d/%02d", year1, monthOfYear + 1, dayOfMonth);
                     buttonStartDate.setTag(date); // 수정된 부분: setText() 대신 setTag() 사용
+                    textView1.setText(date); // 추가된 부분: 선택된 날짜를 textView1에 표시
                 },
                 year, month, 1);
 
@@ -193,14 +206,17 @@ public class Ceo_OrderChange extends AppCompatActivity {
         TextView textViewWaitNumber = dialog.findViewById(R.id.textViewWaitNumber);
         textViewWaitNumber.setText(String.valueOf(currentOrder.getWaitNumber()));
 
-        TextView textViewTime = dialog.findViewById(R.id.textViewTime);
-        textViewTime.setText(String.format(Locale.getDefault(), "%02d:%02d:%02d", currentOrder.getTime().getHour(), currentOrder.getTime().getMinute(), currentOrder.getTime().getSecond()));
-        textViewTime.setOnClickListener(v -> showTimeChangeDialog());
-
         TextView textViewTotalPrice = dialog.findViewById(R.id.textViewTotalPrice);
         textViewTotalPrice.setText(String.format(Locale.getDefault(), "%,d", currentOrder.getTotalPrice()));
 
-        Button buttonConfirm = dialog.findViewById(R.id.buttonConfirm);
+        // TextView를 버튼처럼 동작하도록 설정
+        TextView buttonConfirm = dialog.findViewById(R.id.buttonconfirm);
+        TextView buttonCancel = dialog.findViewById(R.id.buttoncancel);
+
+        // 주문 내역의 시간 설정
+        TextView textViewTime = dialog.findViewById(R.id.textViewTime);
+        textViewTime.setText(String.format(Locale.getDefault(), "%02d:%02d:%02d", currentOrder.getTime().getHour(), currentOrder.getTime().getMinute(), currentOrder.getTime().getSecond()));
+
         buttonConfirm.setOnClickListener(v -> {
             int totalPrice = 0;
             ArrayList<Orders.MenuItem> updatedItems = new ArrayList<>();
@@ -228,7 +244,6 @@ public class Ceo_OrderChange extends AppCompatActivity {
             dialog.dismiss();
         });
 
-        Button buttonCancel = dialog.findViewById(R.id.buttonCancel);
         buttonCancel.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
@@ -255,31 +270,5 @@ public class Ceo_OrderChange extends AppCompatActivity {
             Log.e("UpdateOrder", "Failed to update order", e);
             Toast.makeText(Ceo_OrderChange.this, "Failed to update order", Toast.LENGTH_SHORT).show();
         });
-    }
-
-    private void showTimeChangeDialog() {
-        final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.dialog_time_change); // 올바른 레이아웃 파일 이름을 확인하세요
-
-        Window window = dialog.getWindow();
-        if (window != null) {
-            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        }
-
-        final EditText editTime = dialog.findViewById(R.id.editminute); // 올바른 ID를 확인하세요
-        Button buttonConfirm = dialog.findViewById(R.id.buttonSetTime); // 올바른 ID를 확인하세요
-        Button buttonCancel = dialog.findViewById(R.id.button_cancel); // 취소 버튼
-
-        buttonConfirm.setOnClickListener(v -> {
-            // 시간 변경 로직
-            String newTime = editTime.getText().toString();
-            // 로직 구현...
-            dialog.dismiss();
-        });
-
-        buttonCancel.setOnClickListener(v -> dialog.dismiss());
-
-        dialog.show();
     }
 }
