@@ -3,6 +3,7 @@ package com.example.myapplication;
 import android.animation.ObjectAnimator;
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,6 +14,9 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -98,6 +102,34 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mapView = findViewById(R.id.map);
         initGoogleMap(savedInstanceState);
 
+        ImageView back = (ImageView)findViewById(R.id.back);
+
+        back.setOnClickListener(v -> {
+            Intent intent = new Intent(MapActivity.this, MainActivity.class);
+            startActivity(intent);
+        });
+
+        // TextView 찾기
+        TextView tvTop = findViewById(R.id.tv_top);
+
+// 전체 텍스트
+        String text = "CertaIN U";
+        SpannableString spannableString = new SpannableString(text);
+
+// 색상 적용할 텍스트의 시작과 끝 위치 계산
+        int start = text.indexOf("IN U");
+        int end = start + "IN U".length();
+
+// 리소스에서 색상 가져오기
+        int color = ContextCompat.getColor(this, R.color.lightBlue);
+
+// SpannableString에 색상 적용
+        spannableString.setSpan(new ForegroundColorSpan(color), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+// TextView에 SpannableString 설정
+        tvTop.setText(spannableString);
+
+
         sharedPreferences = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
 
         preferenceChangeListener = (sharedPreferences, key) -> {
@@ -114,23 +146,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             updateCongestionStatus();
         });
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.action_home) {
-                startActivity(new Intent(MapActivity.this, MainActivity.class));
-                return true;
-            } else if (itemId == R.id.action_board) {
-                startActivity(new Intent(MapActivity.this, BoardActivity.class));
-                return true;
-            } else if (itemId == R.id.action_notification) {
-                return true;
-            } else if (itemId == R.id.action_mypage) {
-                startActivity(new Intent(MapActivity.this, MypageActivity.class));
-                return true;
-            }
-            return false;
-        });
 
         setupFirebaseListener();
         setupRunnable();  // Runnable 설정 추가
