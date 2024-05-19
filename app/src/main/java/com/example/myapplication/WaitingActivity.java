@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
@@ -16,6 +17,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -30,9 +32,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.HashMap;
 
 public class WaitingActivity extends AppCompatActivity {
 
@@ -85,7 +87,7 @@ public class WaitingActivity extends AppCompatActivity {
         // 클릭 리스너 설정
         timechange.setOnClickListener(v -> {
             Log.d("WaitingActivity", "Time Change Clicked");
-            // 시간 변경 관련 로직을 여기 추가하십시오.
+            showTimeChangeDialog();
         });
 
         orderchange.setOnClickListener(v -> {
@@ -110,7 +112,6 @@ public class WaitingActivity extends AppCompatActivity {
             timechange.setVisibility(View.GONE);
             orderchange.setVisibility(View.GONE);
         }
-
 
         // BottomNavigationView 설정
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
@@ -137,6 +138,7 @@ public class WaitingActivity extends AppCompatActivity {
             return false;
         });
     }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -147,6 +149,30 @@ public class WaitingActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         Log.d("WaitingActivity", "Activity paused");
+    }
+
+    private void showTimeChangeDialog() {
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.dialog_time_change, null);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(dialogView);
+
+        AlertDialog dialog = builder.create();
+
+        TextView buttonSetTime = dialogView.findViewById(R.id.buttonSetTime);
+        TextView buttonCancel = dialogView.findViewById(R.id.button_cancel);
+
+        buttonSetTime.setOnClickListener(v -> {
+            EditText editMinute = dialogView.findViewById(R.id.editminute);
+            String minuteText = editMinute.getText().toString();
+            // 시간 설정 로직을 여기 추가하십시오.
+            dialog.dismiss();
+        });
+
+        buttonCancel.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 
     private void setupFirebaseListener() {
