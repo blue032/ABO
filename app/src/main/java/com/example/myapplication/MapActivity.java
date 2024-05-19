@@ -55,6 +55,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.TimeZone;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -63,6 +64,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private static final String MAP_VIEW_BUNDLE_KEY = "MapViewBundleKey";
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private Marker cafeMarker;
+    private List<Marker> markersList = new ArrayList<>();
     private SharedPreferences sharedPreferences;
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceChangeListener;
     private Button refreshButton;
@@ -151,16 +153,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 new LatLng(37.37591543320427, 126.63281734018747),
                 new LatLng(37.372401288059535, 126.6313160023207),
                 new LatLng(37.37340586676641, 126.62985469283342),
-                new LatLng(37.37439777449398, 126.63154896625312)
+                new LatLng(37.37439777449398, 126.63154896625312),
+                new LatLng(37.37452483159567, 126.6332926552895) // O.O 카페 위치
         );
 
-        BitmapDescriptor icon = resizeMapIcons(R.drawable.location_green, 130, 130); // Adjust the size as needed
+        BitmapDescriptor defaultIcon = resizeMapIcons(R.drawable.location_green, 130, 130); // 기본 아이콘 설정
 
         for (LatLng location : locations) {
-            gMap.addMarker(new MarkerOptions().position(location).icon(icon));
+            Marker marker = gMap.addMarker(new MarkerOptions().position(location).icon(defaultIcon));
+            markersList.add(marker);
         }
-        LatLng cafeLocation = new LatLng(37.37452483159567, 126.6332926552895); // O.O 카페 위치
-        cafeMarker = googleMap.addMarker(new MarkerOptions().position(cafeLocation).title("O.O 카페").icon(icon));
 
         updateCongestionStatus();
 
@@ -195,6 +197,22 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
             return false;
         });
+    }
+
+    // 영업 시간 여부를 확인하는 메소드 추가
+    private boolean isBusinessHours() {
+        Calendar now = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"));
+        Calendar startTime = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"));
+        startTime.set(Calendar.HOUR_OF_DAY, 9);
+        startTime.set(Calendar.MINUTE, 0);
+        startTime.set(Calendar.SECOND, 0);
+
+        Calendar endTime = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"));
+        endTime.set(Calendar.HOUR_OF_DAY, 20);
+        endTime.set(Calendar.MINUTE, 0);
+        endTime.set(Calendar.SECOND, 0);
+
+        return now.after(startTime) && now.before(endTime);
     }
 
     private BitmapDescriptor resizeMapIcons(int resId, int width, int height){
@@ -248,6 +266,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         }
     }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -260,7 +279,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         int maxWaitingTime = prefs.getInt("MaxWaitingTime", 0);
 
         BitmapDescriptor iconDescriptor;
-        if (maxWaitingTime <= 8) {
+        if (!isBusinessHours()) {
+            iconDescriptor = resizeMapIcons(R.drawable.location_gray, 130, 130);
+        } else if (maxWaitingTime <= 8) {
             iconDescriptor = resizeMapIcons(R.drawable.location_green, 130, 130);
         } else if (maxWaitingTime >= 20) {
             iconDescriptor = resizeMapIcons(R.drawable.location_red, 130, 130);
@@ -268,8 +289,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             iconDescriptor = resizeMapIcons(R.drawable.location_blue, 130, 130);
         }
 
-        if (cafeMarker != null) {
-            cafeMarker.setIcon(iconDescriptor);
+        for (Marker marker : markersList) {
+            marker.setIcon(iconDescriptor);
         }
     }
 
@@ -387,17 +408,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     private void checkOrdersTime() {
-        Calendar now = Calendar.getInstance();
+        Calendar now = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"));
         long nowMillis = now.getTimeInMillis();
 
         // 영업시간 설정
-        Calendar startTime = Calendar.getInstance();
+        Calendar startTime = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"));
         startTime.set(Calendar.HOUR_OF_DAY, 9);
         startTime.set(Calendar.MINUTE, 0);
         startTime.set(Calendar.SECOND, 0);
         long startTimeMillis = startTime.getTimeInMillis();
 
-        Calendar endTime = Calendar.getInstance();
+        Calendar endTime = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"));
         endTime.set(Calendar.HOUR_OF_DAY, 20);
         endTime.set(Calendar.MINUTE, 0);
         endTime.set(Calendar.SECOND, 0);
@@ -451,7 +472,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     private long getOrderTimeMillis(Orders order) {
-        Calendar orderCalendar = Calendar.getInstance();
+        Calendar orderCalendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Seoul"));
         Orders.Time orderTime = order.getTime();
         orderCalendar.set(Calendar.HOUR_OF_DAY, orderTime.getHour());
         orderCalendar.set(Calendar.MINUTE, orderTime.getMinute());

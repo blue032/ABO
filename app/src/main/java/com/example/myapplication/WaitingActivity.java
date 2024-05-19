@@ -87,6 +87,8 @@ public class WaitingActivity extends AppCompatActivity {
         // ImageView 참조
         ImageView imageViewTimeChange = findViewById(R.id.imageViewCeoTimeChange);
         ImageView imageViewOrderChange = findViewById(R.id.imageViewCeoOrderChange);
+        TextView orderchange = findViewById(R.id.orderchage);
+        TextView timechange = findViewById(R.id.timechage);
         if (imageViewTimeChange != null) {
             imageViewTimeChange.setOnClickListener(v -> showTimeChangeDialog());
         } else {
@@ -107,9 +109,13 @@ public class WaitingActivity extends AppCompatActivity {
         if (isCeo) {
             imageViewTimeChange.setVisibility(View.VISIBLE);
             imageViewOrderChange.setVisibility(View.VISIBLE);
+            orderchange.setVisibility(View.VISIBLE);
+            timechange.setVisibility(View.VISIBLE);
         } else {
             imageViewTimeChange.setVisibility(View.GONE);
             imageViewOrderChange.setVisibility(View.GONE);
+            orderchange.setVisibility(View.GONE);
+            timechange.setVisibility(View.GONE);
         }
 
         imageViewOrderChange.setOnClickListener(v -> {
