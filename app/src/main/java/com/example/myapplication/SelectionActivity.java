@@ -23,40 +23,35 @@ public class SelectionActivity extends AppCompatActivity {
 
 
         ceoButton.setOnClickListener(v -> {
-            Intent intent = new Intent(SelectionActivity.this, IdPwSelectionActivity.class);
+            Intent intent = null;
             if ("signup".equals(actionType)) {
-                // 회원가입 - 사장님 전용
                 intent = new Intent(SelectionActivity.this, CeoSignupActivity.class);
             } else if ("findId".equals(actionType)) {
-                // ID/PW 찾기 - 사장님 전용
                 intent = new Intent(SelectionActivity.this, CeoIdSearchActivity.class);
                 intent.putExtra("userType", "ceo");
-            }
-            else if ("findPw".equals(actionType)) {
-                // ID/PW 찾기 - 사장님 전용
+            } else if ("findPw".equals(actionType)) {
                 intent = new Intent(SelectionActivity.this, CeoPwSearchActivity.class);
                 intent.putExtra("userType", "ceo");
             }
-            startActivity(intent);
+            if (intent != null) {
+                startActivity(intent);
+            }
         });
 
-
         userButton.setOnClickListener(v -> {
-            Intent intent = new Intent(SelectionActivity.this, IdPwSelectionActivity.class);
+            Intent intent = null;
             if ("signup".equals(actionType)) {
-                // 회원가입 - 사장님 전용
                 intent = new Intent(SelectionActivity.this, UserSignupActivity.class);
             } else if ("findId".equals(actionType)) {
-                // ID/PW 찾기 - 사장님 전용
                 intent = new Intent(SelectionActivity.this, IdSearchActivity.class);
-                intent.putExtra("userType", "ceo");
-            }
-            else if ("findPw".equals(actionType)) {
-                // ID/PW 찾기 - 사장님 전용
+                intent.putExtra("userType", "user"); // userType을 "user"로 설정
+            } else if ("findPw".equals(actionType)) {
                 intent = new Intent(SelectionActivity.this, PwSearchActivity.class);
-                intent.putExtra("userType", "ceo");
+                intent.putExtra("userType", "user"); // userType을 "user"로 설정
             }
-            startActivity(intent);
+            if (intent != null) {
+                startActivity(intent);
+            }
         });
 
 
