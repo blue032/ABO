@@ -22,7 +22,7 @@ public class SplashActivity extends AppCompatActivity {
         SpannableString spannableString = new SpannableString(text);
         int start = text.indexOf("IN U");
         int end = start + "IN U".length();
-        int customBlueColor = ContextCompat.getColor(this, R.color.custom_blue);
+        int customBlueColor = ContextCompat.getColor(this, R.color.lightBlue);
         spannableString.setSpan(new ForegroundColorSpan(customBlueColor), start, end, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
         textViewSplash.setText(spannableString);
 
