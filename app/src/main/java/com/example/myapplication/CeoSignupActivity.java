@@ -29,7 +29,7 @@ public class CeoSignupActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         // UI 요소 참조
-        ImageView back = (ImageView)findViewById(R.id.back);
+        ImageView backTextView = findViewById(R.id.back);
         EditText passwordEditText = findViewById(R.id.signPW);
         EditText confirmPasswordEditText = findViewById(R.id.signPW2);
         EditText NicknameEditText = findViewById(R.id.signceoNickName);
@@ -42,7 +42,7 @@ public class CeoSignupActivity extends AppCompatActivity {
         EditText birth2Text = findViewById(R.id.signBirth2);
         EditText birth3Text = findViewById(R.id.signBirth3);
 
-        back.setOnClickListener(v -> {
+        backTextView.setOnClickListener(v -> {
             Intent intent = new Intent(CeoSignupActivity.this, SelectionActivity.class);
             startActivity(intent);
         });

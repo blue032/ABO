@@ -1,11 +1,13 @@
 package com.example.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,11 +27,17 @@ public class CeoPwSearchActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
+        ImageView back = (ImageView)findViewById(R.id.back);
         editEmail = findViewById(R.id.editID);
         editName = findViewById(R.id.editname);
         editBirth = findViewById(R.id.editbirth);
         editCeoNumber = findViewById(R.id.editmail);
         searchPwButton = findViewById(R.id.search_PW);
+
+        back.setOnClickListener(v -> {
+            Intent intent = new Intent(CeoPwSearchActivity.this, SelectionActivity.class);
+            startActivity(intent);
+        });
 
         TextWatcher textWatcher = new TextWatcher() {
             @Override
