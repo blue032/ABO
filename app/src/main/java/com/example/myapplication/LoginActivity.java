@@ -51,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
         SpannableString spannableString = new SpannableString(text);
         int start = text.indexOf("IN U");
         int end = start + "IN U".length();
-        int customBlueColor = getResources().getColor(R.color.custom_blue);
+        int customBlueColor = getResources().getColor(R.color.lightBlue);
         spannableString.setSpan(new ForegroundColorSpan(customBlueColor), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         textViewCertainU.setText(spannableString);
 
