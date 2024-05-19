@@ -55,33 +55,6 @@ public class LoginActivity extends AppCompatActivity {
         spannableString.setSpan(new ForegroundColorSpan(customBlueColor), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         textViewCertainU.setText(spannableString);
 
-        // 커스텀 마스킹 처리
-        passwordEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                // 입력 전 처리할 로직
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                // 텍스트가 변경될 때마다 호출되는 로직
-                if (count > 0) {
-                    char lastChar = s.charAt(start + count - 1);
-                    actualPassword += lastChar;
-                    passwordEditText.removeTextChangedListener(this);
-                    passwordEditText.setText(passwordMask(actualPassword));
-                    passwordEditText.setSelection(actualPassword.length());
-                    passwordEditText.addTextChangedListener(this);
-                } else if (before > 0 && count == 0) {
-                    actualPassword = actualPassword.substring(0, start);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                // 입력 후 처리할 로직
-            }
-        });
 
         // 로그인 버튼 클릭 리스너 설정
         loginButton.setOnClickListener(v -> loginUser());
