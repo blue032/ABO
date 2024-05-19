@@ -15,6 +15,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -57,6 +58,9 @@ public class WaitingActivity extends AppCompatActivity {
     private ScrollView scrollViewNumbers;
     private int textViewHeight = 0;
 
+    private long estimatedWaitTimeMillis = -1; // 처음에는 -1로 설정
+    private int previousTotalCount = -1; // 이전 totalCount 값
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,8 +91,6 @@ public class WaitingActivity extends AppCompatActivity {
         // ImageView 참조
         ImageView imageViewTimeChange = findViewById(R.id.imageViewCeoTimeChange);
         ImageView imageViewOrderChange = findViewById(R.id.imageViewCeoOrderChange);
-        TextView orderchange = findViewById(R.id.orderchage);
-        TextView timechange = findViewById(R.id.timechage);
         if (imageViewTimeChange != null) {
             imageViewTimeChange.setOnClickListener(v -> showTimeChangeDialog());
         } else {
@@ -109,13 +111,9 @@ public class WaitingActivity extends AppCompatActivity {
         if (isCeo) {
             imageViewTimeChange.setVisibility(View.VISIBLE);
             imageViewOrderChange.setVisibility(View.VISIBLE);
-            orderchange.setVisibility(View.VISIBLE);
-            timechange.setVisibility(View.VISIBLE);
         } else {
             imageViewTimeChange.setVisibility(View.GONE);
             imageViewOrderChange.setVisibility(View.GONE);
-            orderchange.setVisibility(View.GONE);
-            timechange.setVisibility(View.GONE);
         }
 
         imageViewOrderChange.setOnClickListener(v -> {
@@ -244,24 +242,26 @@ public class WaitingActivity extends AppCompatActivity {
 
         // 영업시간 설정
         Calendar startTime = Calendar.getInstance();
-        startTime.set(Calendar.HOUR_OF_DAY, 9);
+        startTime.set(Calendar.HOUR_OF_DAY, 1);
         startTime.set(Calendar.MINUTE, 0);
         startTime.set(Calendar.SECOND, 0);
         long startTimeMillis = startTime.getTimeInMillis();
 
         Calendar endTime = Calendar.getInstance();
-        endTime.set(Calendar.HOUR_OF_DAY, 20);
-        endTime.set(Calendar.MINUTE, 0);
+        endTime.set(Calendar.HOUR_OF_DAY, 23);
+        endTime.set(Calendar.MINUTE, 59);
         endTime.set(Calendar.SECOND, 0);
         long endTimeMillis = endTime.getTimeInMillis();
 
         if (nowMillis < startTimeMillis || nowMillis > endTimeMillis) {
             saveWaitingInfo(0, 0); // 영업 종료 시 대기 번호와 대기 시간을 0으로 설정
+            estimatedWaitTimeMillis = 0; // 추가: 예상 대기 시간도 초기화
+            previousTotalCount = 0;
             return;
         }
 
         int currentCount = 0;
-        maxWaitingTimeMillis = 0; // 최대대기시간을 재설정
+        long totalWaitTime = 0;
 
         // 주문 목록을 반복하여 현재 대기 번호 수를 계산
         for (Iterator<Orders> iterator = ordersList.iterator(); iterator.hasNext(); ) {
@@ -276,20 +276,27 @@ public class WaitingActivity extends AppCompatActivity {
             if (orderTimeMillis <= nowMillis) {
                 if (orderEndTimeMillis > nowMillis) {
                     currentCount++;
-                    if (totalWaitTimeMillis > maxWaitingTimeMillis) {
-                        maxWaitingTimeMillis = totalWaitTimeMillis;
-                    }
+                    totalWaitTime += totalWaitTimeMillis;
                 } else { // 주문 완료 시간이 현재 시간을 지났을 경우
                     iterator.remove();
                 }
             }
         }
 
-        totalCount = currentCount; // 현재 계산된 대기 수를 totalCount에 반영
-        int maxWaitingTimeMinutes = (int) (maxWaitingTimeMillis / 60000);
-        saveWaitingInfo(totalCount, maxWaitingTimeMinutes);
-        updateWaitingTimeUI();
+        totalCount = currentCount;
+
+        // 예상 대기 시간 계산
+        if (currentCount != previousTotalCount) { // totalCount가 변경된 경우에만 업데이트
+            previousTotalCount = totalCount;
+            updateWaitingTimeUI(); // 예상 대기 시간을 업데이트
+        } else {
+            waitingTime.setText(String.valueOf(estimatedWaitTimeMillis / (60 * 1000)));
+            tv_waitingNumber.setText(String.valueOf(totalCount));
+        }
+
+        saveWaitingInfo(totalCount, estimatedWaitTimeMillis);
     }
+
 
     private long getOrderTimeMillis(Orders order) {
         Calendar orderCalendar = Calendar.getInstance();
@@ -300,26 +307,88 @@ public class WaitingActivity extends AppCompatActivity {
         return orderCalendar.getTimeInMillis();
     }
 
+    // 주문 완료 시간 계산 메서드 수정
     private long calculateTotalWaitTimeMillis(Orders order) {
+        Calendar now = Calendar.getInstance();
+        int hour = now.get(Calendar.HOUR_OF_DAY);
+
+        // 점심 시간대(12시 ~ 14시)에 메뉴 1개당 4분
+        int minutesPerItem = (hour >= 12 && hour < 14) ? 4 : 2;
+
         return order.getMenu().stream()
-                .mapToLong(item -> item.getQuantity() * 2 * 60 * 1000) // 각 메뉴 아이템의 대기 시간을 계산
+                .mapToLong(item -> item.getQuantity() * minutesPerItem * 60 * 1000) // 각 메뉴 아이템의 대기 시간을 계산
                 .sum();
     }
 
-    private void updateWaitingTimeUI() {
-        int maxWaitingTimeMinutes = (int) (maxWaitingTimeMillis / 60000); // 밀리초를 분으로 바꾸기
-        int additionalMinutes = 0;
+    private void updateCongestionStatusUI() {
+        TextView textStatus = findViewById(R.id.textAvoidCongestion);
+        TextView textVisitNow = findViewById(R.id.textVisitNow);
+        TextView textVisitLater = findViewById(R.id.textVisitLater);
+        LinearLayout timeInputLayout = findViewById(R.id.timeInputLayout);
 
-        // 대기번호에 따른 추가 시간 계산
-        if (totalCount > 6) {
-            additionalMinutes = 10;
-        } else if (totalCount > 2) {
-            additionalMinutes = 5;
+        if (totalCount == 0 || estimatedWaitTimeMillis <= 3 * 60 * 1000) {
+            // 여유 상태일 때의 텍스트 설정
+            textStatus.setText("현재 여유 상태입니다");
+            textVisitNow.setVisibility(View.VISIBLE);
+            timeInputLayout.setVisibility(View.GONE);
+            textVisitLater.setVisibility(View.GONE);
+        } else {
+            // 혼잡 또는 보통 상태일 때의 텍스트 설정
+            if (estimatedWaitTimeMillis >= 10 * 60 * 1000) {
+                textStatus.setText("현재 혼잡 상태입니다");
+            } else {
+                textStatus.setText("현재 보통 상태입니다");
+            }
+
+            Calendar now = Calendar.getInstance();
+            long cumulativeWaitTimeMillis = 0;
+            int count = 0;
+
+            for (Orders order : ordersList) {
+                if (count >= totalCount) break; // 화면에 표시된 대기 번호의 수만큼 계산
+                cumulativeWaitTimeMillis += calculateTotalWaitTimeMillis(order);
+                count++;
+            }
+
+            // 밀리초를 분 단위로 변환
+            long cumulativeWaitTimeMinutes = cumulativeWaitTimeMillis / (60 * 1000);
+
+            // 예상 방문 시간 계산
+            Calendar estimatedVisitTime = (Calendar) now.clone();
+            estimatedVisitTime.add(Calendar.MINUTE, (int) cumulativeWaitTimeMinutes);
+            int hour = estimatedVisitTime.get(Calendar.HOUR_OF_DAY);
+            int minute = estimatedVisitTime.get(Calendar.MINUTE);
+
+            textVisitLater.setText(String.format("%02d시 %02d분에 방문하세요", hour, minute));
+
+            textVisitNow.setVisibility(View.GONE);
+            timeInputLayout.setVisibility(View.GONE);
+            textVisitLater.setVisibility(View.VISIBLE);
         }
-        int totalWaitingTime = maxWaitingTimeMinutes + additionalMinutes;
-        waitingTime.setText(String.valueOf(totalWaitingTime));
-        tv_waitingNumber.setText(String.valueOf(totalCount));
     }
+
+
+    private void updateWaitingTimeUI() {
+        SharedPreferences prefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
+        estimatedWaitTimeMillis = prefs.getLong("EstimatedWaitTimeMillis", 0); // SharedPreferences에서 예상 대기 시간을 가져오기
+
+        int estimatedWaitTimeMinutes = (int) (estimatedWaitTimeMillis / (60 * 1000));
+        waitingTime.setText(String.valueOf(estimatedWaitTimeMinutes));
+        tv_waitingNumber.setText(String.valueOf(totalCount));
+
+        updateCongestionStatusUI(); // 혼잡 상태 업데이트
+
+        saveWaitingInfo(totalCount, estimatedWaitTimeMillis); // 예상 대기 시간을 밀리초로 저장
+    }
+
+
+
+
+    // 랜덤 숫자를 생성하는 유틸리티 메서드
+    private long getRandomNumber(long min, long max) {
+        return min + (long) (Math.random() * (max - min));
+    }
+
 
     public void addOrder(Orders newOrder) {
         // 새 주문을 주문 리스트에 추가
@@ -332,14 +401,15 @@ public class WaitingActivity extends AppCompatActivity {
         // UI 업데이트
         updateWaitingTimeUI();
     }
-
-    private void saveWaitingInfo(int waitingNumber, int maxWaitingTime) {
+    private void saveWaitingInfo(int waitingNumber, long estimatedWaitTimeMillis) {
         SharedPreferences prefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putInt("WaitingNumber", waitingNumber);
-        editor.putInt("MaxWaitingTime", maxWaitingTime);
+        editor.putLong("EstimatedWaitTimeMillis", estimatedWaitTimeMillis); // 예상 대기 시간을 밀리초로 저장
         editor.apply();
     }
+
+
 
     @Override
     protected void onDestroy() {
