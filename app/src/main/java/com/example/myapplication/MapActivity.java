@@ -112,23 +112,22 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         // TextView 찾기
         TextView tvTop = findViewById(R.id.tv_top);
 
-// 전체 텍스트
+        // 전체 텍스트
         String text = "CertaIN U";
         SpannableString spannableString = new SpannableString(text);
 
-// 색상 적용할 텍스트의 시작과 끝 위치 계산
+        // 색상 적용할 텍스트의 시작과 끝 위치 계산
         int start = text.indexOf("IN U");
         int end = start + "IN U".length();
 
-// 리소스에서 색상 가져오기
+        // 리소스에서 색상 가져오기
         int color = ContextCompat.getColor(this, R.color.lightBlue);
 
-// SpannableString에 색상 적용
+        // SpannableString에 색상 적용
         spannableString.setSpan(new ForegroundColorSpan(color), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-// TextView에 SpannableString 설정
+        // TextView에 SpannableString 설정
         tvTop.setText(spannableString);
-
 
         sharedPreferences = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
 
@@ -145,7 +144,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         refreshButton.setOnClickListener(v -> {
             updateCongestionStatus();
         });
-
 
         setupFirebaseListener();
         setupRunnable();  // Runnable 설정 추가
@@ -199,9 +197,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                 TextView tvOrderCount = dialogLayout.findViewById(R.id.tv_order_count);
                 TextView tvWaitTime = dialogLayout.findViewById(R.id.tv_wait_time);
+                ImageView graphIcon = dialogLayout.findViewById(R.id.graph_icon); // 그래프 아이콘 추가
 
                 tvOrderCount.setText(String.format("%d건", waitingNumber));
                 tvWaitTime.setText(String.format("%d분 예상", estimatedWaitTimeMillis / (60 * 1000))); // 밀리초를 분으로 변환
+
+                // 대기 시간에 따라 그래프 아이콘 업데이트
+                updateGraphIcon(graphIcon, estimatedWaitTimeMillis);
 
                 ImageView reloadIcon = dialogLayout.findViewById(R.id.reload_icon);
                 reloadIcon.setOnClickListener(v -> {
@@ -209,7 +211,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     rotateAnimator.setDuration(1000);
                     rotateAnimator.start();
 
-                    refreshCafeData(tvOrderCount, tvWaitTime);
+                    refreshCafeData(tvOrderCount, tvWaitTime, graphIcon);
                 });
 
                 bottomSheetDialog = new BottomSheetDialog(MapActivity.this);
@@ -219,6 +221,16 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
             return false;
         });
+    }
+
+    private void updateGraphIcon(ImageView graphIcon, long estimatedWaitTimeMillis) {
+        if (estimatedWaitTimeMillis <= 7 * 60 * 1000) { // 7분 이하
+            graphIcon.setImageResource(R.drawable.graph_30);
+        } else if (estimatedWaitTimeMillis >= 20 * 60 * 1000) { // 20분 이상
+            graphIcon.setImageResource(R.drawable.graph_60);
+        } else { // 나머지
+            graphIcon.setImageResource(R.drawable.graph_90);
+        }
     }
 
     private BitmapDescriptor resizeMapIcons(int resId, int width, int height){
@@ -272,6 +284,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         }
     }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -474,7 +487,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         int currentCount = 0;
 
-
         // 주문 목록을 반복하여 현재 대기 번호 수를 계산
         for (Iterator<Orders> iterator = ordersList.iterator(); iterator.hasNext(); ) {
             Orders order = iterator.next();
@@ -571,12 +583,17 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             TextView tvWaitTime = bottomSheetDialog.findViewById(R.id.tv_wait_time);
             TextView tvCongestionStatus = bottomSheetDialog.findViewById(R.id.tv_congestion_status);
             TextView tvRecommendTime = bottomSheetDialog.findViewById(R.id.tv_recommend_time);
+            ImageView graphIcon = bottomSheetDialog.findViewById(R.id.graph_icon); // 그래프 아이콘 추가
 
             if (tvOrderCount != null) {
                 tvOrderCount.setText(String.format("%d건", waitingNumber));
             }
             if (tvWaitTime != null) {
                 tvWaitTime.setText(String.format("%d분 예상", estimatedWaitTimeMinutes));
+            }
+
+            if (graphIcon != null) {
+                updateGraphIcon(graphIcon, estimatedWaitTimeMillis);
             }
 
             SharedPreferences prefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
@@ -635,7 +652,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         editor.apply();
     }
 
-    private void refreshCafeData(TextView tvOrderCount, TextView tvWaitTime) {
+    private void refreshCafeData(TextView tvOrderCount, TextView tvWaitTime, ImageView graphIcon) {
         checkOrdersTime();
 
         SharedPreferences prefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
@@ -647,6 +664,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         tvOrderCount.setText(String.format("%d건", waitingNumber));
         tvWaitTime.setText(String.format("%d분 예상", estimatedWaitTimeMillis / (60 * 1000))); // 밀리초를 분으로 변환
-    }
 
+        if (graphIcon != null) {
+            updateGraphIcon(graphIcon, estimatedWaitTimeMillis);
+        }
+    }
 }

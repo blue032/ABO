@@ -51,6 +51,8 @@ public class WaitingActivity extends AppCompatActivity {
 
     private long estimatedWaitTimeMillis = -1; // 처음에는 -1로 설정
     private int previousTotalCount = -1; // 이전 totalCount 값
+    private Handler changeHandler = new Handler(); // 추가된 핸들러
+    private Runnable resetRunnable;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -166,13 +168,33 @@ public class WaitingActivity extends AppCompatActivity {
         buttonSetTime.setOnClickListener(v -> {
             EditText editMinute = dialogView.findViewById(R.id.editminute);
             String minuteText = editMinute.getText().toString();
-            // 시간 설정 로직을 여기 추가하십시오.
+            if (!minuteText.isEmpty()) {
+                int minutes = Integer.parseInt(minuteText);
+                setTemporaryWaitTime(minutes);
+            }
             dialog.dismiss();
         });
 
         buttonCancel.setOnClickListener(v -> dialog.dismiss());
 
         dialog.show();
+    }
+
+    private void setTemporaryWaitTime(int minutes) {
+        // 일시적인 대기 시간을 설정하고 화면에 표시
+        long temporaryWaitTimeMillis = minutes * 60 * 1000;
+        waitingTime.setText(String.valueOf(minutes));
+        estimatedWaitTimeMillis = temporaryWaitTimeMillis;
+        tv_waitingNumber.setText(String.valueOf(totalCount));
+
+        // 3분 후 원래 대기 시간 계산 방식으로 돌아가기 위한 Runnable 설정
+        resetRunnable = () -> {
+            setupFirebaseListener(); // Firebase 리스너 재설정
+            updateWaitingTimeUI(); // 대기 시간 UI 업데이트
+        };
+
+        // 3분(180000밀리초) 후에 Runnable 실행
+        changeHandler.postDelayed(resetRunnable, 180000);
     }
 
     private void setupFirebaseListener() {
@@ -381,6 +403,18 @@ public class WaitingActivity extends AppCompatActivity {
         }
     }
 
+    private void updateCircularProgress() {
+        ImageView circularProgress = findViewById(R.id.circularProgress);
+
+        if (estimatedWaitTimeMillis <= 7 * 60 * 1000) { // 7분 이하
+            circularProgress.setImageResource(R.drawable.graph_30);
+        } else if (estimatedWaitTimeMillis >= 20 * 60 * 1000) { // 20분 이상
+            circularProgress.setImageResource(R.drawable.graph_90);
+        } else { // 나머지
+            circularProgress.setImageResource(R.drawable.graph_60);
+        }
+    }
+
     private void updateWaitingTimeUI() {
         SharedPreferences prefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
         estimatedWaitTimeMillis = prefs.getLong("EstimatedWaitTimeMillis", 0); // SharedPreferences에서 예상 대기 시간을 가져오기
@@ -389,6 +423,7 @@ public class WaitingActivity extends AppCompatActivity {
         waitingTime.setText(String.valueOf(estimatedWaitTimeMinutes));
         tv_waitingNumber.setText(String.valueOf(totalCount));
 
+        updateCircularProgress(); // circularProgress 업데이트
         updateCongestionStatusUI(); // 혼잡 상태 업데이트
 
         saveWaitingInfo(totalCount, estimatedWaitTimeMillis); // 예상 대기 시간을 밀리초로 저장
@@ -409,6 +444,7 @@ public class WaitingActivity extends AppCompatActivity {
             databaseReference.removeEventListener(valueEventListener);
         }
         handler.removeCallbacks(runnable);
+        changeHandler.removeCallbacks(resetRunnable); // 추가된 부분: 핸들러 콜백 제거
         Log.d("WaitingActivity", "Activity destroyed");
     }
 }
