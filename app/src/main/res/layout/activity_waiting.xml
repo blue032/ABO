@@ -217,88 +217,96 @@
                         android:id="@+id/textAvoidCongestion"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="혼잡함을 피하고 싶다면"
                         android:textSize="16sp"
+                        android:textColor="@android:color/black"
+                        android:textStyle="bold"
                         app:layout_constraintBottom_toBottomOf="@id/imageViewClock"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="0.5"
                         app:layout_constraintStart_toEndOf="@id/imageViewClock"
-                        app:layout_constraintTop_toBottomOf="@id/circularProgress" />
+                        app:layout_constraintTop_toBottomOf="@id/circularProgress"
+                        app:layout_constraintVertical_bias="0.0" />
 
                     <TextView
-                        android:id="@+id/textAmPm"
+                        android:id="@+id/textVisitNow"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="오후"
+                        android:text="지금 바로 방문하세요!"
                         android:textSize="16sp"
+                        android:visibility="gone"
+                        app:layout_constraintTop_toBottomOf="@id/textAvoidCongestion"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintHorizontal_bias="0.2"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/imageViewClock" />
-
-                    <EditText
-                        android:id="@+id/editHour"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:ems="2"
-                        android:inputType="number"
-                        android:textSize="16sp"
-                        android:hint="시간"
-                        app:layout_constraintBottom_toBottomOf="@id/textAmPm"
                         app:layout_constraintHorizontal_bias="0.5"
-                        app:layout_constraintStart_toEndOf="@id/textAmPm"
-                        app:layout_constraintTop_toTopOf="@id/textAmPm" />
+                        app:layout_constraintStart_toStartOf="parent" />
 
                     <TextView
-                        android:id="@+id/textHourLabel"
+                        android:id="@+id/textVisitLater"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="시"
                         android:textSize="16sp"
-                        app:layout_constraintBaseline_toBaselineOf="@id/editHour"
-                        app:layout_constraintStart_toEndOf="@id/editHour" />
+                        android:visibility="gone"
+                        app:layout_constraintTop_toBottomOf="@id/textAvoidCongestion"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintStart_toStartOf="parent" />
 
-                    <TextView
-                        android:id="@+id/labelMinute"
+                    <LinearLayout
+                        android:id="@+id/timeInputLayout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="분 입력"
-                        android:visibility="invisible"
-                        app:layout_constraintStart_toEndOf="@id/textHourLabel"
-                        app:layout_constraintTop_toTopOf="@id/textHourLabel"
-                        android:labelFor="@id/editMinute" />
+                        android:orientation="horizontal"
+                        android:visibility="gone"
+                        app:layout_constraintTop_toBottomOf="@id/textVisitLater"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.5"
+                        app:layout_constraintStart_toStartOf="parent">
 
-                    <EditText
-                        android:id="@+id/editMinute"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:ems="2"
-                        android:inputType="number"
-                        android:textSize="16sp"
-                        android:hint="분"
-                        app:layout_constraintBottom_toBottomOf="@id/textHourLabel"
-                        app:layout_constraintStart_toEndOf="@id/labelMinute"
-                        app:layout_constraintTop_toTopOf="@id/textHourLabel"
-                        />
+                        <EditText
+                            android:id="@+id/editHour"
+                            android:layout_width="48dp"
+                            android:layout_height="wrap_content"
+                            android:ems="2"
+                            android:textColor="@android:color/black"
+                            android:textStyle="bold"
+                            android:inputType="number"
+                            android:textSize="16sp"
+                            android:hint="시간" />
 
-                    <TextView
-                        android:id="@+id/textMinuteLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="분"
-                        android:textSize="16sp"
-                        app:layout_constraintBaseline_toBaselineOf="@id/editMinute"
-                        app:layout_constraintStart_toEndOf="@id/editMinute" />
+                        <TextView
+                            android:id="@+id/textHourLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="시"
+                            android:textSize="16sp" />
 
-                    <TextView
-                        android:id="@+id/textVisit"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="에 방문하세요."
-                        android:textSize="16sp"
-                        app:layout_constraintBottom_toBottomOf="@id/textMinuteLabel"
-                        app:layout_constraintStart_toEndOf="@id/textMinuteLabel"
-                        app:layout_constraintTop_toTopOf="@id/textMinuteLabel" />
+                        <EditText
+                            android:id="@+id/editMinute"
+                            android:layout_width="48dp"
+                            android:layout_height="wrap_content"
+                            android:ems="2"
+                            android:textColor="@android:color/black"
+                            android:textStyle="bold"
+                            android:inputType="number"
+                            android:textSize="16sp"
+                            android:hint="분" />
+
+                        <TextView
+                            android:id="@+id/textMinuteLabel"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="분"
+                            android:textSize="16sp" />
+
+                        <TextView
+                            android:id="@+id/textVisitSuffix"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="에 방문하세요."
+                            android:textSize="16sp" />
+                    </LinearLayout>
+
+
+
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
