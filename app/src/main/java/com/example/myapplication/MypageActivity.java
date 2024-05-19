@@ -34,21 +34,23 @@ public class MypageActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
+        TextView emailTextView = findViewById(R.id.email);
+        TextView nameTextView = findViewById(R.id.username);
+
         // 현재 로그인한 사용자의 정보를 가져옵니다.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            // 현재 로그인한 사용자의 이메일을 사용하여 데이터베이스에서 사용자 정보 조회
             String userEmail = currentUser.getEmail();
-            mDatabase.child("Users").orderByChild("mail").equalTo(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
+            emailTextView.setText(userEmail); // 이메일 설정
+
+            // 데이터베이스에서 사용자 정보 조회
+            mDatabase.child("Users").orderByChild("email").equalTo(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
-                        for (DataSnapshot userSnapshot: dataSnapshot.getChildren()) {
-                            // 이메일 주소가 일치하는 사용자의 이름을 가져옵니다.
+                        for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                             String name = userSnapshot.child("name").getValue(String.class);
-                            TextView nameTextView = findViewById(R.id.username);
-                            nameTextView.setText(name);
-                            break; // 첫 번째 일치하는 사용자의 이름을 찾았으므로 루프를 종료합니다.
+                            nameTextView.setText(name); // 사용자 이름 설정
                         }
                     }
                 }
@@ -59,17 +61,14 @@ public class MypageActivity extends AppCompatActivity {
                 }
             });
 
-            // 사장님 정보를 조회
+            // 사장님 정보 조회
             mDatabase.child("CeoUsers").orderByChild("email").equalTo(userEmail).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
                         for (DataSnapshot ceoUserSnapshot : dataSnapshot.getChildren()) {
-                            // 이메일 주소가 일치하는 사장님의 이름을 가져옵니다.
                             String ceoName = ceoUserSnapshot.child("name").getValue(String.class);
-                            TextView ceoNameTextView = findViewById(R.id.username);
-                            ceoNameTextView.setText(ceoName);
-                            break; // 첫 번째 일치하는 사장님의 이름을 찾았으므로 루프를 종료합니다.
+                            nameTextView.setText(ceoName); // 사장님 이름 설정
                         }
                     }
                 }
@@ -80,6 +79,7 @@ public class MypageActivity extends AppCompatActivity {
                 }
             });
         }
+
 
         // 학교 홈페이지로 이동하는 버튼
         // 대학교 페이지로 이동하는 이미지뷰 버튼
