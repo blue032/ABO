@@ -242,13 +242,13 @@ public class WaitingActivity extends AppCompatActivity {
 
         // 영업시간 설정
         Calendar startTime = Calendar.getInstance();
-        startTime.set(Calendar.HOUR_OF_DAY, 1);
+        startTime.set(Calendar.HOUR_OF_DAY, 9);
         startTime.set(Calendar.MINUTE, 0);
         startTime.set(Calendar.SECOND, 0);
         long startTimeMillis = startTime.getTimeInMillis();
 
         Calendar endTime = Calendar.getInstance();
-        endTime.set(Calendar.HOUR_OF_DAY, 23);
+        endTime.set(Calendar.HOUR_OF_DAY, 20);
         endTime.set(Calendar.MINUTE, 59);
         endTime.set(Calendar.SECOND, 0);
         long endTimeMillis = endTime.getTimeInMillis();
@@ -326,7 +326,7 @@ public class WaitingActivity extends AppCompatActivity {
         TextView textVisitLater = findViewById(R.id.textVisitLater);
         LinearLayout timeInputLayout = findViewById(R.id.timeInputLayout);
 
-        if (totalCount == 0 || estimatedWaitTimeMillis <= 3 * 60 * 1000) {
+        if (totalCount == 0 || estimatedWaitTimeMillis <= 7 * 60 * 1000) {
             // 여유 상태일 때의 텍스트 설정
             textStatus.setText("현재 여유 상태입니다");
             textVisitNow.setVisibility(View.VISIBLE);
@@ -334,7 +334,7 @@ public class WaitingActivity extends AppCompatActivity {
             textVisitLater.setVisibility(View.GONE);
         } else {
             // 혼잡 또는 보통 상태일 때의 텍스트 설정
-            if (estimatedWaitTimeMillis >= 10 * 60 * 1000) {
+            if (estimatedWaitTimeMillis >= 20 * 60 * 1000) {
                 textStatus.setText("현재 혼잡 상태입니다");
             } else {
                 textStatus.setText("현재 보통 상태입니다");

@@ -438,13 +438,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         // 영업시간 설정
         Calendar startTime = Calendar.getInstance();
-        startTime.set(Calendar.HOUR_OF_DAY, 1);
+        startTime.set(Calendar.HOUR_OF_DAY, 9);
         startTime.set(Calendar.MINUTE, 0);
         startTime.set(Calendar.SECOND, 0);
         long startTimeMillis = startTime.getTimeInMillis();
 
         Calendar endTime = Calendar.getInstance();
-        endTime.set(Calendar.HOUR_OF_DAY, 23);
+        endTime.set(Calendar.HOUR_OF_DAY, 20);
         endTime.set(Calendar.MINUTE, 0);
         endTime.set(Calendar.SECOND, 0);
         long endTimeMillis = endTime.getTimeInMillis();
@@ -569,10 +569,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             int estimatedMinute = prefs.getInt("EstimatedVisitMinute", 0);
 
             if (tvCongestionStatus != null && tvRecommendTime != null) {
-                if (waitingNumber == 0 || estimatedWaitTimeMinutes <= 3) {
+                if (waitingNumber == 0 || estimatedWaitTimeMinutes <= 7) {
                     tvCongestionStatus.setText("현재 여유 상태입니다");
                     tvRecommendTime.setText("지금 바로 방문하세요!");
-                } else if (estimatedWaitTimeMinutes >= 10) {
+                } else if (estimatedWaitTimeMinutes >= 20) {
                     tvCongestionStatus.setText("현재 혼잡 상태입니다");
                     setRecommendVisitTime(tvRecommendTime);
                 } else {
