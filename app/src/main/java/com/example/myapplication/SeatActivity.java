@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -35,6 +36,15 @@ public class SeatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_seat);
 
+        ImageView back = (ImageView)findViewById(R.id.back);
+
+
+        // "back" 텍스트뷰 클릭 이벤트
+        back.setOnClickListener(v -> {
+            Intent intent = new Intent(SeatActivity.this, MainActivity.class);
+            startActivity(intent);
+        });
+
         // Firebase 참조 초기화
         tableStatusRef = FirebaseDatabase.getInstance().getReference("카페 테이블 상태");
 
@@ -47,36 +57,6 @@ public class SeatActivity extends AppCompatActivity {
 
         // 현재 시간 확인하여 영업 종료 텍스트 설정
         checkAndSetClosingStatus();
-
-        // BottomNavigationView 설정
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int itemId = item.getItemId();
-
-                if (itemId == R.id.action_home) {
-                    Intent intent = new Intent(SeatActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    return true;
-                } else if (itemId == R.id.action_board) {
-                    // 게시판 아이템이 선택되었을 때의 동작
-                    Intent intent = new Intent(SeatActivity.this, BoardActivity.class);
-                    startActivity(intent);
-                    return true;
-                } else if (itemId == R.id.action_notification) {
-                    startActivity(new Intent(SeatActivity.this, NotificationActivity.class));
-                    return true;
-                } else if (itemId == R.id.action_mypage) {
-                    // 메뉴 페이지 아이템이 선택되었을 때의 동작
-                    Intent intent = new Intent(SeatActivity.this, MypageActivity.class);
-                    startActivity(intent);
-                    return true;
-                }
-
-                return false; // 아무 항목도 선택되지 않았을 경우
-            }
-        });
 
         // Reload 버튼 클릭 이벤트 설정
         reloadIcon.setOnClickListener(v -> {
