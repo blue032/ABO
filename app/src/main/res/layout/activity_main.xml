@@ -109,7 +109,7 @@
         android:id="@+id/miu"
         android:layout_width="148dp"
         android:layout_height="120dp"
-        android:layout_marginStart="48dp"
+        android:layout_marginStart="32dp"
         android:layout_marginTop="260dp"
         android:src="@drawable/cafelogo_miu"
         app:layout_constraintStart_toStartOf="parent"
@@ -129,7 +129,7 @@
         android:id="@+id/snackbar"
         android:layout_width="148dp"
         android:layout_height="120dp"
-        android:layout_marginStart="48dp"
+        android:layout_marginStart="32dp"
         android:layout_marginTop="440dp"
         android:src="@drawable/cafelogo_snackbar"
         app:layout_constraintStart_toStartOf="parent"
@@ -149,8 +149,8 @@
         android:id="@+id/cafedream6"
         android:layout_width="148dp"
         android:layout_height="120dp"
-        android:layout_marginStart="48dp"
-        android:layout_marginTop="624dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="616dp"
         android:src="@drawable/cafelogo_cafedream6"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -159,8 +159,8 @@
         android:id="@+id/cafedream11"
         android:layout_width="148dp"
         android:layout_height="120dp"
-        android:layout_marginStart="236dp"
-        android:layout_marginTop="624dp"
+        android:layout_marginStart="240dp"
+        android:layout_marginTop="616dp"
         android:src="@drawable/cafelogo_cafedream11"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -174,7 +174,7 @@
         android:textColor="@color/black"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.259"
+        app:layout_constraintHorizontal_bias="0.244"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -182,12 +182,12 @@
         android:id="@+id/textViewhyum"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="392dp"
+        android:layout_marginTop="388dp"
         android:text="혜윰"
         android:textColor="@color/black"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.762"
+        app:layout_constraintHorizontal_bias="0.771"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -195,12 +195,12 @@
         android:id="@+id/textViewsnackbar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="576dp"
+        android:layout_marginTop="570dp"
         android:text="스낵바"
         android:textColor="@color/black"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.267"
+        app:layout_constraintHorizontal_bias="0.230"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -208,12 +208,12 @@
         android:id="@+id/textViewoocafe"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="576dp"
+        android:layout_marginTop="570dp"
         android:text="O.O카페"
         android:textColor="@color/black"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.777"
+        app:layout_constraintHorizontal_bias="0.79"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -221,12 +221,12 @@
         android:id="@+id/textViewcafedream6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="760dp"
+        android:layout_marginTop="750dp"
         android:text="카페드림(6호관)"
         android:textColor="@color/black"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.235"
+        app:layout_constraintHorizontal_bias="0.187"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -234,12 +234,12 @@
         android:id="@+id/textViewcafedream11"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="760dp"
+        android:layout_marginTop="750dp"
         android:text="카페드림(11호관)"
         android:textColor="@color/black"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.785"
+        app:layout_constraintHorizontal_bias="0.859"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
