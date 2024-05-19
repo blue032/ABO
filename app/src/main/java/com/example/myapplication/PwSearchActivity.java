@@ -1,8 +1,10 @@
 package com.example.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,6 +30,7 @@ public class PwSearchActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance(); // Firebase 인증 초기화
         databaseReference = FirebaseDatabase.getInstance().getReference("Users");
 
+        ImageView back = (ImageView)findViewById(R.id.back);
         editmail = findViewById(R.id.editmail);
         editName = findViewById(R.id.editname);
         editBirth = findViewById(R.id.editbirth);
@@ -35,6 +38,11 @@ public class PwSearchActivity extends AppCompatActivity {
 
         searchPwButton = findViewById(R.id.search_PW);
         searchPwButton.setOnClickListener(v -> findUserForPasswordReset());
+
+        back.setOnClickListener(v -> {
+            Intent intent = new Intent(PwSearchActivity.this, SelectionActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void findUserForPasswordReset() {
