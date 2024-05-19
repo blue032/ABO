@@ -7,6 +7,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -36,7 +37,12 @@ public class IdSearchActivity extends AppCompatActivity {
         editName = findViewById(R.id.editname);
         editBirth = findViewById(R.id.editbirth);
         editPhone = findViewById(R.id.editmail);
+        ImageView back = findViewById(R.id.back);
 
+        back.setOnClickListener(v -> {
+            Intent intent = new Intent(IdSearchActivity.this, SelectionActivity.class);
+            startActivity(intent);
+        });
         // 입력 상태에 따라 버튼 활성화 상태 업데이트
         TextWatcher textWatcher = new TextWatcher() {
             @Override

@@ -7,6 +7,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -34,6 +35,12 @@ public class CeoIdSearchActivity extends AppCompatActivity {
         editName = findViewById(R.id.editname);
         editBirth = findViewById(R.id.editbirth);
         editCeoNumber = findViewById(R.id.editceonumber);
+        ImageView back = findViewById(R.id.back);
+
+        back.setOnClickListener(v -> {
+            Intent intent = new Intent(CeoIdSearchActivity.this, SelectionActivity.class);
+            startActivity(intent);
+        });
 
         TextWatcher textWatcher = new TextWatcher() {
             @Override
