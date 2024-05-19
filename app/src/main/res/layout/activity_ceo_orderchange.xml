@@ -134,11 +134,11 @@
                 android:layout_height="1dp"
                 android:background="@drawable/line2"
                 app:layout_constraintBottom_toBottomOf="parent" />
-            <TextView
+            <EditText
                 android:id="@+id/editTextWaitingNumber"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="주문번호"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:hint="주문번호"
                 android:textSize="14sp"
                 android:textColor="@color/gray"
                 android:gravity="center"
@@ -149,11 +149,11 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                />
 
-            <TextView
+            <EditText
                 android:id="@+id/editTextMenu"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="메뉴입력"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:hint="메뉴입력"
                 android:textSize="14sp"
                 android:textColor="@color/gray"
                 android:gravity="center"
@@ -163,11 +163,11 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent" />
 
-            <TextView
+            <EditText
                 android:id="@+id/editTextQuantity"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
-                android:text="수량입력"
+                android:layout_height="50dp"
+                android:hint="수량입력"
                 android:textSize="14sp"
                 android:textColor="@color/gray"
                 android:gravity="center"

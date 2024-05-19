@@ -1,18 +1,15 @@
 package com.example.myapplication;
-//다시
 
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -20,6 +17,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -33,30 +31,23 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
-import java.util.PriorityQueue;
+import java.util.HashMap;
 
 public class WaitingActivity extends AppCompatActivity {
 
     private FirebaseDatabase database;
     private DatabaseReference databaseReference;
     private ValueEventListener valueEventListener;
-    private Handler handler = new Handler();
+    private Handler handler = new Handler(Looper.getMainLooper());
     private Runnable runnable;
     private ArrayList<Orders> ordersList = new ArrayList<>();
     private EditText tv_waitingNumber;
     private EditText waitingTime;
     private int totalCount = 0;
     private long maxWaitingTimeMillis = 0;
-
-    // 멤버 변수로 ScrollView와 TextView의 높이를 저장할 수 있습니다.
-    private ScrollView scrollViewNumbers;
-    private int textViewHeight = 0;
 
     private long estimatedWaitTimeMillis = -1; // 처음에는 -1로 설정
     private int previousTotalCount = -1; // 이전 totalCount 값
@@ -73,10 +64,9 @@ public class WaitingActivity extends AppCompatActivity {
         SwipeRefreshLayout refreshLayout = findViewById(R.id.refresh_layout);
 
         refreshLayout.setOnRefreshListener(() -> {
-            System.out.println("SwipeRefreshLayout Test");
+            Log.d("WaitingActivity", "SwipeRefreshLayout Test");
             refreshLayout.setRefreshing(false);
         });
-
 
         // EditTexts
         tv_waitingNumber = findViewById(R.id.tv_waitingNumber);
@@ -88,39 +78,40 @@ public class WaitingActivity extends AppCompatActivity {
         // Runnable 초기화 및 시작
         setupRunnable();
 
-        // ImageView 참조
+        // ImageView 및 TextView 참조
         ImageView imageViewTimeChange = findViewById(R.id.imageViewCeoTimeChange);
         ImageView imageViewOrderChange = findViewById(R.id.imageViewCeoOrderChange);
-        if (imageViewTimeChange != null) {
-            imageViewTimeChange.setOnClickListener(v -> showTimeChangeDialog());
-        } else {
-            Log.e("WaitingActivity", "imageViewTimeChange is null");
-        }
+        TextView timechange = findViewById(R.id.timechange);
+        TextView orderchange = findViewById(R.id.orderchange);
 
-        if (imageViewOrderChange != null) {
-            imageViewOrderChange.setOnClickListener(v -> Log.d("WaitingActivity", "Order Change Clicked"));
-        } else {
-            Log.e("WaitingActivity", "imageViewOrderChange is null");
-        }
+        // 클릭 리스너 설정
+        timechange.setOnClickListener(v -> {
+            Log.d("WaitingActivity", "Time Change Clicked");
+            showTimeChangeDialog();
+        });
+
+        orderchange.setOnClickListener(v -> {
+            Log.d("WaitingActivity", "Order Change Clicked");
+            Intent intent = new Intent(WaitingActivity.this, Ceo_OrderChange.class);
+            startActivity(intent);
+        });
 
         // SharedPreferences에서 사장님 여부 확인
         SharedPreferences prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE);
         boolean isCeo = prefs.getBoolean("IsCeo", false);
 
-        // 사장님일 경우에만 ImageView를 보이게 설정
+        // 사장님일 경우에만 ImageView와 TextView를 보이게 설정
         if (isCeo) {
             imageViewTimeChange.setVisibility(View.VISIBLE);
             imageViewOrderChange.setVisibility(View.VISIBLE);
+            timechange.setVisibility(View.VISIBLE);
+            orderchange.setVisibility(View.VISIBLE);
         } else {
             imageViewTimeChange.setVisibility(View.GONE);
             imageViewOrderChange.setVisibility(View.GONE);
+            timechange.setVisibility(View.GONE);
+            orderchange.setVisibility(View.GONE);
         }
-
-        imageViewOrderChange.setOnClickListener(v -> {
-            // Ceo_OrderChange 액티비티로 전환하기 위한 Intent 생성
-            Intent intent = new Intent(WaitingActivity.this, Ceo_OrderChange.class);
-            startActivity(intent); // 액티비티 시작
-        });
 
         // BottomNavigationView 설정
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
@@ -148,6 +139,42 @@ public class WaitingActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("WaitingActivity", "Activity resumed");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d("WaitingActivity", "Activity paused");
+    }
+
+    private void showTimeChangeDialog() {
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View dialogView = inflater.inflate(R.layout.dialog_time_change, null);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(dialogView);
+
+        AlertDialog dialog = builder.create();
+
+        TextView buttonSetTime = dialogView.findViewById(R.id.buttonSetTime);
+        TextView buttonCancel = dialogView.findViewById(R.id.button_cancel);
+
+        buttonSetTime.setOnClickListener(v -> {
+            EditText editMinute = dialogView.findViewById(R.id.editminute);
+            String minuteText = editMinute.getText().toString();
+            // 시간 설정 로직을 여기 추가하십시오.
+            dialog.dismiss();
+        });
+
+        buttonCancel.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
+    }
+
     private void setupFirebaseListener() {
         database = FirebaseDatabase.getInstance();
         String referencePath = "Order/2024/3/" + Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
@@ -159,12 +186,11 @@ public class WaitingActivity extends AppCompatActivity {
                 ordersList.clear(); // 리스트 초기화
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Orders order = snapshot.getValue(Orders.class);
-
                     if (order != null) {
                         ordersList.add(order); // 업데이트된 주문 리스트에 추가
                     }
                 }
-                updateWaitingTimeUI(); // 최대대기시간 업뎃
+                updateWaitingTimeUI(); // 최대 대기 시간 업데이트
                 checkOrdersTime();
             }
 
@@ -176,23 +202,16 @@ public class WaitingActivity extends AppCompatActivity {
         databaseReference.addValueEventListener(valueEventListener);
     }
 
-    private void setupRunnable(){
+    private void setupRunnable() {
         runnable = new Runnable() {
             @Override
             public void run() {
-                checkOrdersTime(); // 현재시간에 해당하는 대기번호 확인
+                checkOrdersTime(); // 현재 시간에 해당하는 대기 번호 확인
                 handler.postDelayed(this, 1000); // 1초마다 실행
             }
         };
         handler.post(runnable); // Runnable 실행
     }
-    private PriorityQueue<Orders> ordersQueue = new PriorityQueue<>(new Comparator<Orders>() {
-        @Override
-        public int compare(Orders o1, Orders o2) {
-            // 내림차순 정렬을 위한 비교
-            return Long.compare(o2.getTotalWaitTimeMillis(), o1.getTotalWaitTimeMillis());
-        }
-    });
 
     public void updateDailyStatsInFirebase() {
         // 현재 날짜와 시간 구하기
@@ -204,7 +223,7 @@ public class WaitingActivity extends AppCompatActivity {
         // 요일 계산하기
         Calendar calendar = Calendar.getInstance();
         String[] days = new String[]{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
-        String todayDay = days[calendar.get(Calendar.DAY_OF_WEEK) - 1]; // Calendar.DAY_OF_WEEK는 1부터 시작(Sunday = 1)
+        String todayDay = days[calendar.get(Calendar.DAY_OF_WEEK) - 1]; // Calendar.DAY_OF_WEEK는 1부터 시작 (Sunday = 1)
 
         // Firebase 경로 설정
         DatabaseReference dailyStatsRef = FirebaseDatabase.getInstance().getReference("dailyStats/" + todayDate);
@@ -235,7 +254,7 @@ public class WaitingActivity extends AppCompatActivity {
         });
     }
 
-    // 현재시간에 해당하는 대기번호 확인 후 화면에 표시하는 로직
+    // 현재 시간에 해당하는 대기 번호 확인 후 화면에 표시하는 로직
     private void checkOrdersTime() {
         Calendar now = Calendar.getInstance();
         long nowMillis = now.getTimeInMillis();
@@ -264,9 +283,7 @@ public class WaitingActivity extends AppCompatActivity {
         long totalWaitTime = 0;
 
         // 주문 목록을 반복하여 현재 대기 번호 수를 계산
-        for (Iterator<Orders> iterator = ordersList.iterator(); iterator.hasNext(); ) {
-            Orders order = iterator.next();
-
+        for (Orders order : ordersList) {
             long orderTimeMillis = getOrderTimeMillis(order);
             // 메뉴 아이템의 총 대기 시간 계산
             long totalWaitTimeMillis = calculateTotalWaitTimeMillis(order);
@@ -277,8 +294,6 @@ public class WaitingActivity extends AppCompatActivity {
                 if (orderEndTimeMillis > nowMillis) {
                     currentCount++;
                     totalWaitTime += totalWaitTimeMillis;
-                } else { // 주문 완료 시간이 현재 시간을 지났을 경우
-                    iterator.remove();
                 }
             }
         }
@@ -297,7 +312,6 @@ public class WaitingActivity extends AppCompatActivity {
         saveWaitingInfo(totalCount, estimatedWaitTimeMillis);
     }
 
-
     private long getOrderTimeMillis(Orders order) {
         Calendar orderCalendar = Calendar.getInstance();
         Orders.Time orderTime = order.getTime();
@@ -312,7 +326,7 @@ public class WaitingActivity extends AppCompatActivity {
         Calendar now = Calendar.getInstance();
         int hour = now.get(Calendar.HOUR_OF_DAY);
 
-        // 점심 시간대(12시 ~ 14시)에 메뉴 1개당 4분
+        // 점심 시간대 (12시 ~ 14시)에 메뉴 1개당 4분
         int minutesPerItem = (hour >= 12 && hour < 14) ? 4 : 2;
 
         return order.getMenu().stream()
@@ -367,7 +381,6 @@ public class WaitingActivity extends AppCompatActivity {
         }
     }
 
-
     private void updateWaitingTimeUI() {
         SharedPreferences prefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
         estimatedWaitTimeMillis = prefs.getLong("EstimatedWaitTimeMillis", 0); // SharedPreferences에서 예상 대기 시간을 가져오기
@@ -381,26 +394,6 @@ public class WaitingActivity extends AppCompatActivity {
         saveWaitingInfo(totalCount, estimatedWaitTimeMillis); // 예상 대기 시간을 밀리초로 저장
     }
 
-
-
-
-    // 랜덤 숫자를 생성하는 유틸리티 메서드
-    private long getRandomNumber(long min, long max) {
-        return min + (long) (Math.random() * (max - min));
-    }
-
-
-    public void addOrder(Orders newOrder) {
-        // 새 주문을 주문 리스트에 추가
-        ordersList.add(newOrder);
-        long newOrderWaitTime = calculateTotalWaitTimeMillis(newOrder);
-        newOrder.setTotalWaitTimeMillis(newOrderWaitTime);
-        ordersQueue.add(newOrder);
-        // 대기번호 증가
-        totalCount++;
-        // UI 업데이트
-        updateWaitingTimeUI();
-    }
     private void saveWaitingInfo(int waitingNumber, long estimatedWaitTimeMillis) {
         SharedPreferences prefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
@@ -409,8 +402,6 @@ public class WaitingActivity extends AppCompatActivity {
         editor.apply();
     }
 
-
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -418,29 +409,6 @@ public class WaitingActivity extends AppCompatActivity {
             databaseReference.removeEventListener(valueEventListener);
         }
         handler.removeCallbacks(runnable);
-    }
-
-    // 팝업 다이얼로그를 표시하는 메소드
-    private void showTimeChangeDialog() {
-        final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.dialog_time_change); // 올바른 레이아웃 파일 이름을 확인하세요
-
-        Window window = dialog.getWindow();
-        if (window != null) {
-            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        }
-
-        final EditText editTime = dialog.findViewById(R.id.buttonSetTime); // 올바른 ID를 확인하세요
-        Button buttonConfirm = dialog.findViewById(R.id.button_cancel); // 올바른 ID를 확인하세요
-
-        buttonConfirm.setOnClickListener(v -> {
-            // 시간 변경 로직
-            String newTime = editTime.getText().toString();
-            // 로직 구현...
-            dialog.dismiss();
-        });
-
-        dialog.show();
+        Log.d("WaitingActivity", "Activity destroyed");
     }
 }

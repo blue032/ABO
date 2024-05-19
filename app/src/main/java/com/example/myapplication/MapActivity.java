@@ -273,7 +273,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Log.d("updateCongestionStatus", "Estimated wait time (ms): " + estimatedWaitTimeMillis);
 
         BitmapDescriptor iconDescriptor;
-        if (estimatedWaitTimeMillis <= 8 * 60 * 1000) { // 8분 이하
+        if (estimatedWaitTimeMillis <= 7 * 60 * 1000) { // 8분 이하
             iconDescriptor = resizeMapIcons(R.drawable.location_green, 130, 130);
             Log.d("updateCongestionStatus", "Setting icon to green");
         } else if (estimatedWaitTimeMillis >= 20 * 60 * 1000) { // 20분 이상
