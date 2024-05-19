@@ -57,7 +57,7 @@
             <EditText
                 android:id="@+id/signName"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_marginBottom="20dp"
 
                 android:ems="10"
@@ -78,7 +78,7 @@
             <EditText
                 android:id="@+id/signceoNickName"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_marginBottom="20dp"
 
                 android:ems="10"
@@ -99,7 +99,7 @@
             <EditText
                 android:id="@+id/signID"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_marginBottom="20dp"
 
                 android:ems="10"
@@ -172,7 +172,7 @@
             <EditText
                 android:id="@+id/signPW"
                 android:layout_width="match_parent"
-                android:layout_height="36dp"
+                android:layout_height="48dp"
                 android:layout_marginBottom="20dp"
 
                 android:ems="10"
