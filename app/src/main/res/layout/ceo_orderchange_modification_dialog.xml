@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="16dp"
     android:background="@android:color/white"
@@ -27,110 +29,192 @@
 
 
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="start"
         android:padding="16dp">
 
-        <TextView
-            android:id="@+id/textViewLabelWaitNumber"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="대기번호:"
-            android:textAlignment="viewStart"
-            android:layout_marginBottom="8dp"/>
+            android:layout_height="57dp"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/textViewLabelWaitNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="대기번호:"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textViewWaitNumber"
+                android:layout_width="45dp"
+                android:layout_height="27dp"
+                android:layout_marginStart="10dp"
+                android:gravity="center"
+                app:layout_constraintBottom_toBottomOf="@+id/textViewLabelWaitNumber"
+                app:layout_constraintStart_toEndOf="@+id/textViewLabelWaitNumber"
+                app:layout_constraintTop_toTopOf="@+id/textViewLabelWaitNumber" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@drawable/line2" />
 
-        <TextView
-            android:id="@+id/textViewWaitNumber"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:textAlignment="viewStart"
-            android:layout_marginBottom="8dp"/>
 
-        <TextView
-            android:id="@+id/textViewLabelTime"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="시간:"
-            android:textAlignment="viewStart"
-            android:layout_marginBottom="8dp"/>
+            android:layout_height="53dp"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/textViewLabelTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="시간:"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textViewTime"
+                android:layout_width="219dp"
+                android:layout_height="25dp"
+                android:clickable="true"
+                android:focusable="true"
+
+                android:hint="시간"
+                android:onClick="onTimeTextViewClick"
+                android:textAlignment="viewStart"
+                app:layout_constraintBottom_toBottomOf="@id/textViewLabelTime"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.391"
+                app:layout_constraintStart_toEndOf="@id/textViewLabelTime"
+                app:layout_constraintTop_toTopOf="@id/textViewLabelTime"
+                app:layout_constraintVertical_bias="0.545" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@drawable/line2" />
 
-        <TextView
-            android:id="@+id/textViewTime"
-            android:layout_width="350dp"
-            android:layout_height="48dp"
-            android:textAlignment="viewStart"
-            android:layout_marginBottom="8dp"
-            android:hint="시간"
-            android:clickable="true"
-            android:focusable="true"
-            android:onClick="onTimeTextViewClick" />
-
-        <TextView
-            android:id="@+id/textViewLabelMenu"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="메뉴 목록:"
-            android:textAlignment="viewStart"
-            android:layout_marginBottom="8dp"/>
+            android:layout_height="match_parent"
+            android:padding="8dp">
+
+            <!-- 수직 중앙 정렬 -->
+
+            <TextView
+                android:id="@+id/textViewLabelMenu"
+                android:layout_width="70dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="8dp"
+                android:text="메뉴 목록:"
+                android:textAlignment="viewStart"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <LinearLayout
+                android:id="@+id/spinnerContainer"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:orientation="vertical"
+                app:layout_constraintStart_toEndOf="@+id/textViewLabelMenu"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintVertical_bias="0.5"> <!-- 수직 중앙 정렬 -->
+                <!-- 추가적인 내용 (예: Spinner)을 여기에 배치할 수 있습니다 -->
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+
 
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@drawable/line2" />
 
-        <LinearLayout
-            android:id="@+id/spinnerContainer"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="16dp"/>
+            android:layout_height="48dp"
+            android:padding="8dp">
 
-        <TextView
-            android:id="@+id/textViewLabelTotalPrice"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="총 가격:"
-            android:textAlignment="viewStart"
-            android:layout_marginBottom="8dp"/>
+            <TextView
+                android:id="@+id/textViewLabelTotalPrice"
+                android:layout_width="64dp"
+                android:layout_height="23dp"
+                android:layout_marginEnd="8dp"
+                android:text="총 가격:"
+                android:textAlignment="viewStart"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/textViewTotalPrice"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.555" />
+
+            <TextView
+                android:id="@+id/textViewTotalPrice"
+                android:layout_width="237dp"
+                android:layout_height="19dp"
+                android:textAlignment="viewStart"
+
+                app:layout_constraintBottom_toBottomOf="@+id/textViewLabelTotalPrice"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/textViewLabelTotalPrice"
+                app:layout_constraintTop_toTopOf="@+id/textViewLabelTotalPrice" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@drawable/line2" />
 
-        <TextView
-            android:id="@+id/textViewTotalPrice"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:textAlignment="viewStart"
-            android:layout_marginBottom="8dp"/>
 
-        <TextView
-            android:id="@+id/textViewLabelInOrTakeout"
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="매장/포장:"
-            android:textAlignment="viewStart"
-            android:layout_marginBottom="8dp"/>
+            android:padding="8dp">
 
-        <Spinner
-            android:id="@+id/spinnerInOrTakeout"
-            android:layout_width="350dp"
-            android:layout_height="48dp"
-            android:entries="@array/in_or_takeout_options" />
+            <TextView
+                android:id="@+id/textViewLabelInOrTakeout"
+                android:layout_width="133dp"
+                android:layout_height="19dp"
+                android:text="매장/포장:"
+                android:textAlignment="viewStart"
+                android:layout_marginStart="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/spinnerInOrTakeout"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.517" />
+
+            <Spinner
+                android:id="@+id/spinnerInOrTakeout"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:entries="@array/in_or_takeout_options"
+                app:layout_constraintStart_toEndOf="@+id/textViewLabelInOrTakeout"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/textViewLabelInOrTakeout"
+                app:layout_constraintBottom_toBottomOf="@+id/textViewLabelInOrTakeout"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
 
         <ImageView
             android:layout_width="match_parent"
