@@ -36,8 +36,7 @@ public class SeatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_seat);
 
-        ImageView back = (ImageView)findViewById(R.id.back);
-
+        ImageView back = findViewById(R.id.back);
 
         // "back" 텍스트뷰 클릭 이벤트
         back.setOnClickListener(v -> {
@@ -97,18 +96,19 @@ public class SeatActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    // 데이터를 가져온 후 timestamp 필드를 무시하고 TableStatus 객체를 생성합니다.
-                    int tableNumber = snapshot.child("number").getValue(Integer.class);
-                    boolean status = snapshot.child("status").getValue(Boolean.class);
-                    // timestamp는 가져오지 않음
+                    Integer tableNumber = snapshot.child("number").getValue(Integer.class);
+                    Boolean status = snapshot.child("status").getValue(Boolean.class);
 
-                    TableStatus tableStatus = new TableStatus(tableNumber, status);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            updateTableUI(tableStatus.number, tableStatus.status);
-                        }
-                    });
+                    if (tableNumber == null || status == null) {
+                        // 기본값 설정 또는 로그 출력
+                        Log.w("SeatActivity", "Invalid data: tableNumber or status is null");
+                        continue;
+                    }
+
+                    if (tableNumber == 5) {
+                        TableStatus tableStatus = new TableStatus(tableNumber, status);
+                        runOnUiThread(() -> updateTableUI(tableStatus.status));
+                    }
                 }
             }
 
@@ -119,14 +119,13 @@ public class SeatActivity extends AppCompatActivity {
         });
     }
 
-    private void updateTableUI(int tableNumber, boolean isOccupied) {
+    private void updateTableUI(boolean isOccupied) {
         // 현재 시간 확인하여 영업 종료 텍스트 설정
         checkAndSetClosingStatus();
 
         // 영업 종료 시간이 아닐 때만 테이블 상태를 업데이트
         if (!isClosingTime()) {
-            int resId = getResources().getIdentifier("seat" + tableNumber, "id", getPackageName());
-            ImageView seatView = findViewById(resId);
+            ImageView seatView = findViewById(R.id.seat1); // seat1로 변경
             if (seatView != null) {
                 seatView.setImageResource(isOccupied ? R.drawable.fullseat : R.drawable.emptyseat);
             }
