@@ -79,6 +79,15 @@ public class WriteBoardActivity extends AppCompatActivity {
         buttonSubmit = findViewById(R.id.buttonSubmitPost);
 
         imagesRecyclerView = findViewById(R.id.imagesRecyclerView);
+        ImageView backLogo = (ImageView) findViewById(R.id.backlogo);
+        backLogo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(WriteBoardActivity.this, BoardActivity.class);
+                startActivity(intent);
+                finish();  // 현재 액티비티 종료
+            }
+        });
 
         // RecyclerView 설정
         imagesRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
@@ -115,36 +124,6 @@ public class WriteBoardActivity extends AppCompatActivity {
         }
 
         initializeActivityResultLaunchers();
-
-
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int itemId = item.getItemId();
-
-                if (itemId == R.id.action_home) {
-                    Intent intent = new Intent(WriteBoardActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    return true;
-                } else if (itemId == R.id.action_board) {
-                    Intent intent = new Intent(WriteBoardActivity.this, BoardActivity.class);
-                    startActivity(intent);
-                    return true;
-                } else if (itemId == R.id.action_notification) {
-                    startActivity(new Intent(WriteBoardActivity.this, NotificationActivity.class));
-                    return true;
-                } else if (itemId == R.id.action_mypage) {
-                    Intent intent = new Intent(WriteBoardActivity.this, MypageActivity.class);
-                    startActivity(intent);
-                    return true;
-                }
-
-                return false; // 아무 항목도 선택되지 않았을 경우
-            }
-        });
-
-
 
 
         buttonSubmit.setOnClickListener(new View.OnClickListener() {

@@ -70,6 +70,16 @@ public class DetailActivity extends AppCompatActivity {
         final TextView tvNickname = findViewById(R.id.tvnickname);
         final TextView tvTimestamp = findViewById(R.id.tvTimestamp);
 
+        ImageView backLogo = (ImageView) findViewById(R.id.backlogo);
+        backLogo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DetailActivity.this, BoardActivity.class);
+                startActivity(intent);
+                finish();  // 현재 액티비티 종료
+            }
+        });
+
         postReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -164,25 +174,6 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-
-            if (itemId == R.id.action_home) {
-                startActivity(new Intent(DetailActivity.this, MainActivity.class));
-                return true;
-            } else if (itemId == R.id.action_board) {
-                startActivity(new Intent(DetailActivity.this, BoardActivity.class));
-                return true;
-            } else if (itemId == R.id.action_notification) {
-                startActivity(new Intent(DetailActivity.this, NotificationActivity.class));
-                return true;
-            } else if (itemId == R.id.action_mypage) {
-                startActivity(new Intent(DetailActivity.this, MypageActivity.class));
-                return true;
-            }
-            return false;
-        });
 
         loadComments();
 

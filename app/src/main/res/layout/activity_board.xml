@@ -23,7 +23,7 @@
         android:id="@+id/line"
         android:layout_width="380dp"
         android:layout_height="1.5dp"
-        android:background="#558CE0"
+        android:background="@color/lightBlue"
         app:layout_constraintTop_toBottomOf="@id/tv_top"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
