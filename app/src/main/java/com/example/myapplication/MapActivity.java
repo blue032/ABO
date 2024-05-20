@@ -427,6 +427,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void run() {
                 checkOrdersTime(); // 현재시간에 해당하는 대기번호 확인
+                updateCongestionStatus(); // 마커 상태 업데이트
+                updateMarkersBasedOnTime(); // 위치 아이콘 업데이트
                 handler.postDelayed(this, 1000); // 1초마다 실행
             }
         };
