@@ -83,6 +83,16 @@ public class CeoWriteBoardActivity extends AppCompatActivity {
         imageAdapter = new ImageAdapter(this, new ArrayList<>()); // 초기 상태에서는 비어 있는 어댑터
         imagesRecyclerView.setAdapter(imageAdapter);
 
+
+        ImageView backLogo = (ImageView) findViewById(R.id.backlogo);
+        backLogo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CeoWriteBoardActivity.this, CeoBoardActivity.class);
+                startActivity(intent);
+                finish();  // 현재 액티비티 종료
+            }
+        });
         // Firebase 데이터베이스 참조
         databaseReference = FirebaseDatabase.getInstance().getReference("ceoBoard");
 
@@ -115,25 +125,6 @@ public class CeoWriteBoardActivity extends AppCompatActivity {
 
         buttonSubmit.setOnClickListener(v -> submitPost());
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-
-            if (itemId == R.id.action_home) {
-                startActivity(new Intent(CeoWriteBoardActivity.this, MainActivity.class));
-                return true;
-            } else if (itemId == R.id.action_board) {
-                startActivity(new Intent(CeoWriteBoardActivity.this, BoardActivity.class));
-                return true;
-            } else if (itemId == R.id.action_notification) {
-                startActivity(new Intent(CeoWriteBoardActivity.this, NotificationActivity.class));
-                return true;
-            } else if (itemId == R.id.action_mypage) {
-                startActivity(new Intent(CeoWriteBoardActivity.this, MypageActivity.class));
-                return true;
-            }
-            return false;
-        });
     }
 
     private void initializeActivityResultLaunchers() {

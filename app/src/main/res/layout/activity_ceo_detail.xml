@@ -6,6 +6,16 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
+    <ImageView
+        android:id="@+id/backlogo"
+        android:layout_width="45dp"
+        android:layout_height="39dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/backicon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/tv_top"
         android:layout_width="wrap_content"
@@ -97,13 +107,5 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_navigation_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:menu="@menu/bottom_nav_menu"
-        app:itemBackground="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent">
-    </com.google.android.material.bottomnavigation.BottomNavigationView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

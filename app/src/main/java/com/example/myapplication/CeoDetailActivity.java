@@ -56,6 +56,17 @@ public class CeoDetailActivity extends AppCompatActivity {
         TextView tvTimestamp = findViewById(R.id.tvTimestamp);
         ImageView iconMore = findViewById(R.id.iconMore);
 
+        ImageView backLogo = (ImageView) findViewById(R.id.backlogo);
+        backLogo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CeoDetailActivity.this, CeoBoardActivity.class);
+                startActivity(intent);
+                finish();  // 현재 액티비티 종료
+            }
+        });
+
+
         // Fetching post data from Firebase
         databaseReference.child(postId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

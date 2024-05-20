@@ -9,6 +9,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <ImageView
+            android:id="@+id/backlogo"
+            android:layout_width="45dp"
+            android:layout_height="39dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:src="@drawable/backicon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <!-- tv_top을 더 뒤로 이동 -->
 
         <TextView
@@ -35,7 +45,7 @@
             app:layout_constraintBottom_toBottomOf="@id/tv_top"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginEnd="8dp"
-            android:backgroundTint="@color/main"/>
+            android:backgroundTint="@color/lightBlue"/>
 
         <ImageView
             android:id="@+id/iconPhoto"
@@ -94,15 +104,7 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:orientation="horizontal"/>
 
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottom_navigation_view"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:menu="@menu/bottom_nav_menu"
-            app:itemBackground="@android:color/white"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"/>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
