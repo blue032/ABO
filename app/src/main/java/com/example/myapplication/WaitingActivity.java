@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -46,8 +47,6 @@ public class WaitingActivity extends AppCompatActivity {
     private Handler handler = new Handler(Looper.getMainLooper());
     private Runnable runnable;
     private ArrayList<Orders> ordersList = new ArrayList<>();
-    private EditText tv_waitingNumber;
-    private EditText waitingTime;
     private int totalCount = 0;
     private long maxWaitingTimeMillis = 0;
 
@@ -55,6 +54,8 @@ public class WaitingActivity extends AppCompatActivity {
     private int previousTotalCount = -1; // 이전 totalCount 값
     private Handler changeHandler = new Handler(); // 추가된 핸들러
     private Runnable resetRunnable;
+    private TextView tv_waitingNumber;
+    private TextView waitingTime;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -72,9 +73,15 @@ public class WaitingActivity extends AppCompatActivity {
             refreshLayout.setRefreshing(false);
         });
 
-        // EditTexts
-        tv_waitingNumber = findViewById(R.id.tv_waitingNumber);
-        waitingTime = findViewById(R.id.waitingTime);
+        ImageView back = (ImageView) findViewById(R.id.back);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(WaitingActivity.this, CafeDetailPageActivity.class);
+                startActivity(intent);
+                finish();  // 현재 액티비티 종료
+            }
+        });
 
         // 파이어베이스 초기화
         setupFirebaseListener();
@@ -87,6 +94,8 @@ public class WaitingActivity extends AppCompatActivity {
         ImageView imageViewOrderChange = findViewById(R.id.imageViewCeoOrderChange);
         TextView timechange = findViewById(R.id.timechange);
         TextView orderchange = findViewById(R.id.orderchange);
+        tv_waitingNumber = findViewById(R.id.tv_waitingNumber);
+        waitingTime = findViewById(R.id.waitingTime);
 
         // 밑줄 추가
         underlineTextView(timechange);

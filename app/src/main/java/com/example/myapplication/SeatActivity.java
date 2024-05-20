@@ -41,7 +41,7 @@ public class SeatActivity extends AppCompatActivity {
 
         // "back" 텍스트뷰 클릭 이벤트
         back.setOnClickListener(v -> {
-            Intent intent = new Intent(SeatActivity.this, MainActivity.class);
+            Intent intent = new Intent(SeatActivity.this, CafeDetailPageActivity.class);
             startActivity(intent);
         });
 
