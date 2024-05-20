@@ -1,8 +1,10 @@
 package com.example.myapplication;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,6 +49,16 @@ public class NotificationActivity extends AppCompatActivity {
         notificationAdapter = new NotificationAdapter(notificationList);
         recyclerView.setAdapter(notificationAdapter);
 
+        ImageView backLogo = (ImageView) findViewById(R.id.backlogo);
+        backLogo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(NotificationActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();  // 현재 액티비티 종료
+            }
+        });
+
         notificationsReference = FirebaseDatabase.getInstance().getReference("Notifications");
 
         notificationsReference.addValueEventListener(new ValueEventListener() {
@@ -80,24 +92,6 @@ public class NotificationActivity extends AppCompatActivity {
             }
         });
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.action_home) {
-                startActivity(new Intent(NotificationActivity.this, MainActivity.class));
-                return true;
-            } else if (itemId == R.id.action_board) {
-                startActivity(new Intent(NotificationActivity.this, BoardActivity.class));
-                return true;
-            } else if (itemId == R.id.action_notification) {
-                startActivity(new Intent(NotificationActivity.this, NotificationActivity.class)); // 알림 항목 클릭 시 NotificationActivity로 이동
-                return true;
-            } else if (itemId == R.id.action_mypage) {
-                startActivity(new Intent(NotificationActivity.this, MypageActivity.class));
-                return true;
-            }
-            return false;
-        });
     }
 
     private void checkForEmptyList() {
