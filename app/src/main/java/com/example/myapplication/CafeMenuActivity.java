@@ -40,6 +40,16 @@ public class CafeMenuActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cafemenu);
 
+        ImageView backLogo = (ImageView) findViewById(R.id.backlogo);
+        backLogo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CafeMenuActivity.this, CafeDetailPageActivity.class);
+                startActivity(intent);
+                finish();  // 현재 액티비티 종료
+            }
+        });
+
         recyclerView = findViewById(R.id.recyclerViewPosts);
         fabAddPost = findViewById(R.id.fabAddPost);
 

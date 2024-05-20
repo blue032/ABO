@@ -33,6 +33,30 @@ public class MypageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mypage);
 
+        ImageView backLogo = (ImageView) findViewById(R.id.back_arrow);
+        backLogo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MypageActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();  // 현재 액티비티 종료
+            }
+        });
+
+        // ImageView 찾기
+        ImageView alarmLogo = findViewById(R.id.bell);
+
+        // ImageView에 클릭 리스너 추가
+        alarmLogo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // NotificationActivity로 이동하는 Intent 생성
+                Intent intent = new Intent(MypageActivity.this, NotificationActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
         // Firebase 인증 및 데이터베이스 초기화
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
