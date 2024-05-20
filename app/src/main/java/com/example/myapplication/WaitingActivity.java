@@ -121,30 +121,6 @@ public class WaitingActivity extends AppCompatActivity {
             orderchange.setVisibility(View.GONE);
         }
 
-        // BottomNavigationView 설정
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-
-            if (itemId == R.id.action_home) {
-                Intent intent = new Intent(WaitingActivity.this, MainActivity.class);
-                startActivity(intent);
-                return true;
-            } else if (itemId == R.id.action_board) {
-                Intent intent = new Intent(WaitingActivity.this, BoardActivity.class);
-                startActivity(intent);
-                return true;
-            } else if (itemId == R.id.action_notification) {
-                startActivity(new Intent(WaitingActivity.this, NotificationActivity.class));
-                return true;
-            } else if (itemId == R.id.action_mypage) {
-                Intent intent = new Intent(WaitingActivity.this, MypageActivity.class);
-                startActivity(intent);
-                return true;
-            }
-
-            return false;
-        });
     }
 
     private void underlineTextView(TextView textView) {
