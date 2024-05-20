@@ -107,12 +107,8 @@ public class MainActivity extends AppCompatActivity {
         textView.setText(spannableString);
 
 
-
-
-
         bottomNavigationView = findViewById(R.id.bottom_navigation_view);
         bottomNavigationView.setItemIconTintList(null);
-        bottomNavigationView.setItemTextColor(getResources().getColorStateList(R.color.nav_item_color, null));
         resetIcons(); // 초기 상태 설정
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             resetIcons(); // 모든 아이콘을 회색으로 설정
@@ -206,9 +202,9 @@ public class MainActivity extends AppCompatActivity {
         // 메뉴 아이템을 찾아 회색 아이콘으로 설정
         Menu menu = bottomNavigationView.getMenu();
         menu.findItem(R.id.action_home).setIcon(R.drawable.bottom_home_black);
-        menu.findItem(R.id.action_notification).setIcon(R.drawable.bottom_notification_gray);
-        menu.findItem(R.id.action_board).setIcon(R.drawable.bottom_writeboard_gray);
-        menu.findItem(R.id.action_mypage).setIcon(R.drawable.bottom_mypage_gray);
+        menu.findItem(R.id.action_notification).setIcon(R.drawable.bottom_notification_black);
+        menu.findItem(R.id.action_board).setIcon(R.drawable.bottom_writeboard_black);
+        menu.findItem(R.id.action_mypage).setIcon(R.drawable.bottom_mypage_black);
     }
     // 권한 거부 리스너 내부
 

@@ -1,10 +1,12 @@
 package com.example.myapplication;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +38,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 public class BoardActivity extends AppCompatActivity {
+    private BottomNavigationView bottomNavigationView;
 
     private RecyclerView recyclerView;
     private BoardPostAdapter adapter;
@@ -90,22 +93,31 @@ public class BoardActivity extends AppCompatActivity {
 
         // BottomNavigationView 설정
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
+        bottomNavigationView = findViewById(R.id.bottom_navigation_view);
+        bottomNavigationView.setItemIconTintList(null);
+        resetIcons(); // 초기 상태 설정
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            resetIcons(); // 모든 아이콘을 회색으로 설정
             int itemId = item.getItemId();
+
             if (itemId == R.id.action_home) {
+                item.setIcon(R.drawable.bottom_home_black); // 선택된 아이콘으로 변경
                 startActivity(new Intent(BoardActivity.this, MainActivity.class));
                 return true;
+            } else if (itemId == R.id.action_notification) {
+                item.setIcon(R.drawable.bottom_notification_black);
+                startActivity(new Intent(BoardActivity.this, CeoBoardActivity.class));
+                return true;
             } else if (itemId == R.id.action_board) {
+                item.setIcon(R.drawable.bottom_writeboard_black);
                 startActivity(new Intent(BoardActivity.this, BoardActivity.class));
                 return true;
-            } else if (itemId == R.id.action_notification) {
-                startActivity(new Intent(BoardActivity.this, NotificationActivity.class)); // 알림 항목 클릭 시 NotificationActivity로 이동
-                return true;
             } else if (itemId == R.id.action_mypage) {
+                item.setIcon(R.drawable.bottom_mypage_black);
                 startActivity(new Intent(BoardActivity.this, MypageActivity.class));
                 return true;
             }
+
             return false;
         });
 
@@ -229,5 +241,13 @@ public class BoardActivity extends AppCompatActivity {
                 textViewNickname = itemView.findViewById(R.id.textViewNickname);
             }
         }
+    }
+    private void resetIcons() {
+        // 메뉴 아이템을 찾아 회색 아이콘으로 설정
+        Menu menu = bottomNavigationView.getMenu();
+        menu.findItem(R.id.action_home).setIcon(R.drawable.bottom_home_black);
+        menu.findItem(R.id.action_notification).setIcon(R.drawable.bottom_notification_black);
+        menu.findItem(R.id.action_board).setIcon(R.drawable.bottom_writeboard_black);
+        menu.findItem(R.id.action_mypage).setIcon(R.drawable.bottom_mypage_black);
     }
 }

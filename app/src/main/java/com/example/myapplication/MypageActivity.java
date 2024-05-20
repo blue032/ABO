@@ -1,8 +1,10 @@
 package com.example.myapplication;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -21,6 +23,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class MypageActivity extends AppCompatActivity {
+    private BottomNavigationView bottomNavigationView;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
@@ -93,34 +96,32 @@ public class MypageActivity extends AppCompatActivity {
         });
 
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation_view);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int itemId = item.getItemId();
+        bottomNavigationView = findViewById(R.id.bottom_navigation_view);
+        bottomNavigationView.setItemIconTintList(null);
+        resetIcons(); // 초기 상태 설정
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            resetIcons(); // 모든 아이콘을 회색으로 설정
+            int itemId = item.getItemId();
 
-                if (itemId == R.id.action_home) {
-                    Intent intent = new Intent(MypageActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    return true;
-                } else if (itemId == R.id.action_board) {
-                    // 게시판 아이템이 선택되었을 때의 동작
-                    Intent intent = new Intent(MypageActivity.this, BoardActivity.class);
-                    startActivity(intent);
-                    return true;
-                } else if (itemId == R.id.action_notification) {
-                    startActivity(new Intent(MypageActivity.this, NotificationActivity.class));
-                    return true;
-                } else if (itemId == R.id.action_mypage) {
-                    // 메뉴 페이지 아이템이 선택되었을 때의 동작
-                    Intent intent = new Intent(MypageActivity.this, MypageActivity.class);
-                    startActivity(intent);
-                    return true;
-                }
-
-                return false; // 아무 항목도 선택되지 않았을 경우
-
+            if (itemId == R.id.action_home) {
+                item.setIcon(R.drawable.bottom_home_black); // 선택된 아이콘으로 변경
+                startActivity(new Intent(MypageActivity.this, MainActivity.class));
+                return true;
+            } else if (itemId == R.id.action_notification) {
+                item.setIcon(R.drawable.bottom_notification_black);
+                startActivity(new Intent(MypageActivity.this, CeoBoardActivity.class));
+                return true;
+            } else if (itemId == R.id.action_board) {
+                item.setIcon(R.drawable.bottom_writeboard_black);
+                startActivity(new Intent(MypageActivity.this, BoardActivity.class));
+                return true;
+            } else if (itemId == R.id.action_mypage) {
+                item.setIcon(R.drawable.bottom_mypage_black);
+                startActivity(new Intent(MypageActivity.this, MypageActivity.class));
+                return true;
             }
+
+            return false;
         });
 
         // 로그아웃 버튼
@@ -147,6 +148,14 @@ public class MypageActivity extends AppCompatActivity {
             }
         });
 
+    }
+    private void resetIcons() {
+        // 메뉴 아이템을 찾아 회색 아이콘으로 설정
+        Menu menu = bottomNavigationView.getMenu();
+        menu.findItem(R.id.action_home).setIcon(R.drawable.bottom_home_black);
+        menu.findItem(R.id.action_notification).setIcon(R.drawable.bottom_notification_black);
+        menu.findItem(R.id.action_board).setIcon(R.drawable.bottom_writeboard_black);
+        menu.findItem(R.id.action_mypage).setIcon(R.drawable.bottom_mypage_black);
     }
 }
 
