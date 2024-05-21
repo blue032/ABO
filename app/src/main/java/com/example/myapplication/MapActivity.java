@@ -227,9 +227,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if (estimatedWaitTimeMillis <= 7 * 60 * 1000) { // 7분 이하
             graphIcon.setImageResource(R.drawable.graph_30);
         } else if (estimatedWaitTimeMillis >= 20 * 60 * 1000) { // 20분 이상
-            graphIcon.setImageResource(R.drawable.graph_60);
-        } else { // 나머지
             graphIcon.setImageResource(R.drawable.graph_90);
+        } else { // 나머지
+            graphIcon.setImageResource(R.drawable.graph_60);
         }
     }
 
