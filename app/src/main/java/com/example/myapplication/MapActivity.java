@@ -527,9 +527,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         } else if (totalCount <= 2) {
             estimatedWaitTimeMillis = getRandomNumber(2 * 60 * 1000, 3 * 60 * 1000);
         } else if (totalCount <= 4) {
-            estimatedWaitTimeMillis = getRandomNumber(4 * 60 * 1000, 5 * 60 * 1000);
+            estimatedWaitTimeMillis = getRandomNumber(4 * 60 * 1000, 6 * 60 * 1000);
         } else if (totalCount <= 9) {
-            estimatedWaitTimeMillis = getRandomNumber(6 * 60 * 1000, 10 * 60 * 1000);
+            estimatedWaitTimeMillis = getRandomNumber(7 * 60 * 1000, 10 * 60 * 1000);
         } else if (totalCount <= 15) {
             estimatedWaitTimeMillis = getRandomNumber(10 * 60 * 1000, 15 * 60 * 1000);
         } else {
@@ -607,10 +607,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     tvCongestionStatus.setText("현재 여유 상태입니다");
                     tvRecommendTime.setText("지금 바로 방문하세요!");
                 } else if (estimatedWaitTimeMinutes >= 20) {
-                    tvCongestionStatus.setText("현재 혼잡 상태입니다");
+                    tvCongestionStatus.setText("현재 혼잡 상태를 피하려면");
                     setRecommendVisitTime(tvRecommendTime);
                 } else {
-                    tvCongestionStatus.setText("현재 보통 상태입니다");
+                    tvCongestionStatus.setText("현재 보통 상태를 피하려면");
                     setRecommendVisitTime(tvRecommendTime);
                 }
             }
@@ -644,13 +644,29 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
         // TextView에 예상 방문 시간을 설정
         tvRecommendTime.setText(String.format("%02d시 %02d분에 방문하세요", hour, minute));
+        // 방문 추천 시간을 저장
+        saveRecommendedVisitTime(cumulativeWaitTimeMillis);
     }
+    private void saveRecommendedVisitTime(long cumulativeWaitTimeMillis) {
+        // SharedPreferences 인스턴스를 가져옵니다.
+        SharedPreferences prefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        // 방문 추천 시간을 밀리초 단위로 현재 시간에 더하여 저장합니다.
+        long recommendedVisitTimeMillis = System.currentTimeMillis() + cumulativeWaitTimeMillis;
+
+        // 저장
+        editor.putLong("RecommendedVisitTimeMillis", recommendedVisitTimeMillis);
+        editor.apply();
+    }
+
 
     private void saveWaitingInfo(int waitingNumber, long estimatedWaitTimeMillis) {
         SharedPreferences prefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putInt("WaitingNumber", waitingNumber);
         editor.putLong("EstimatedWaitTimeMillis", estimatedWaitTimeMillis); // 예상 대기 시간을 밀리초로 저장
+
         editor.apply();
     }
 

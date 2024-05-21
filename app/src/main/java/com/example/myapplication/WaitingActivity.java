@@ -359,46 +359,35 @@ public class WaitingActivity extends AppCompatActivity {
         TextView textVisitLater = findViewById(R.id.textVisitLater);
         LinearLayout timeInputLayout = findViewById(R.id.timeInputLayout);
 
+        SharedPreferences prefs = getSharedPreferences("CafeStatusPrefs", MODE_PRIVATE);
+        long recommendedVisitTimeMillis = prefs.getLong("RecommendedVisitTimeMillis", 0);
+
+        if (recommendedVisitTimeMillis > 0) {
+            // 방문 추천 시간을 Calendar 객체로 변환
+            Calendar recommendedVisitTime = Calendar.getInstance();
+            recommendedVisitTime.setTimeInMillis(recommendedVisitTimeMillis);
+            int hour = recommendedVisitTime.get(Calendar.HOUR_OF_DAY);
+            int minute = recommendedVisitTime.get(Calendar.MINUTE);
+
+            // TextView에 예상 방문 시간을 설정
+            textVisitLater.setText(String.format("%02d시 %02d분에 방문하세요", hour, minute));
+        }
+
         if (totalCount == 0 || estimatedWaitTimeMillis <= 7 * 60 * 1000) {
-            // 여유 상태일 때의 텍스트 설정
             textStatus.setText("현재 여유 상태입니다");
             textVisitNow.setVisibility(View.VISIBLE);
-            timeInputLayout.setVisibility(View.GONE);
             textVisitLater.setVisibility(View.GONE);
         } else {
-            // 혼잡 또는 보통 상태일 때의 텍스트 설정
             if (estimatedWaitTimeMillis >= 20 * 60 * 1000) {
-                textStatus.setText("현재 혼잡 상태입니다");
+                textStatus.setText("현재 혼잡 상태를 피하려면");
             } else {
-                textStatus.setText("현재 보통 상태입니다");
+                textStatus.setText("현재 보통 상태를 피하려면");
             }
-
-            Calendar now = Calendar.getInstance();
-            long cumulativeWaitTimeMillis = 0;
-            int count = 0;
-
-            for (Orders order : ordersList) {
-                if (count >= totalCount) break; // 화면에 표시된 대기 번호의 수만큼 계산
-                cumulativeWaitTimeMillis += calculateTotalWaitTimeMillis(order);
-                count++;
-            }
-
-            // 밀리초를 분 단위로 변환
-            long cumulativeWaitTimeMinutes = cumulativeWaitTimeMillis / (60 * 1000);
-
-            // 예상 방문 시간 계산
-            Calendar estimatedVisitTime = (Calendar) now.clone();
-            estimatedVisitTime.add(Calendar.MINUTE, (int) cumulativeWaitTimeMinutes);
-            int hour = estimatedVisitTime.get(Calendar.HOUR_OF_DAY);
-            int minute = estimatedVisitTime.get(Calendar.MINUTE);
-
-            textVisitLater.setText(String.format("%02d시 %02d분에 방문하세요", hour, minute));
-
             textVisitNow.setVisibility(View.GONE);
-            timeInputLayout.setVisibility(View.GONE);
             textVisitLater.setVisibility(View.VISIBLE);
         }
     }
+
 
     private void updateCircularProgress() {
         ImageView circularProgress = findViewById(R.id.circularProgress);
