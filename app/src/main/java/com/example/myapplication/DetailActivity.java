@@ -1,42 +1,38 @@
 package com.example.myapplication;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
-import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class DetailActivity extends AppCompatActivity {
 
+    private static final int EDIT_POST_REQUEST = 1;
     private EditText etComment;
     private List<Comment> commentList;
     private ArrayList<String> keyList;
@@ -51,8 +47,10 @@ public class DetailActivity extends AppCompatActivity {
     private ImageView iconMore;
     private DatabaseReference databaseReference;
     private RecyclerView imagesRecyclerView;
-    private ArrayList<String> photoUrls; // 사진 URL을 저장할 멤버 변수 선언
-
+    private ArrayList<String> photoUrls;
+    private ImageAdapter imageAdapter;
+    private TextView tvTitle, tvContent, tvNickname, tvTimestamp;
+    private String currentUserId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,21 +63,56 @@ public class DetailActivity extends AppCompatActivity {
         commentReference = FirebaseDatabase.getInstance().getReference("Comments").child(postId);
         notificationsReference = FirebaseDatabase.getInstance().getReference("Notifications");
 
-        final TextView tvTitle = findViewById(R.id.tvTitle);
-        final TextView tvContent = findViewById(R.id.tvContent);
-        final TextView tvNickname = findViewById(R.id.tvnickname);
-        final TextView tvTimestamp = findViewById(R.id.tvTimestamp);
+        tvTitle = findViewById(R.id.tvTitle);
+        tvContent = findViewById(R.id.tvContent);
+        tvNickname = findViewById(R.id.tvnickname);
+        tvTimestamp = findViewById(R.id.tvTimestamp);
+        iconMore = findViewById(R.id.iconMore);
 
-        ImageView backLogo = (ImageView) findViewById(R.id.backlogo);
+        ImageView backLogo = findViewById(R.id.backlogo);
         backLogo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(DetailActivity.this, BoardActivity.class);
                 startActivity(intent);
-                finish();  // 현재 액티비티 종료
+                finish();
             }
         });
 
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            currentUserId = currentUser.getUid();
+        }
+
+        loadPost();
+
+        etComment = findViewById(R.id.etComment);
+        commentList = new ArrayList<>();
+        keyList = new ArrayList<>();
+        commentAdapter = new CommentAdapter(commentReference, commentList, keyList, this);
+
+        RecyclerView recyclerView = findViewById(R.id.recyclerViewComments);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(commentAdapter);
+
+        findViewById(R.id.btnSubmitComment).setOnClickListener(v -> {
+            String commentText = etComment.getText().toString().trim();
+            if (!commentText.isEmpty()) {
+                addComment(commentText);
+            }
+        });
+
+        loadComments();
+
+        iconMore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showPopupMenu(view);
+            }
+        });
+    }
+
+    private void loadPost() {
         postReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -95,7 +128,6 @@ public class DetailActivity extends AppCompatActivity {
                                 String nickname = userSnapshot.child("Nickname").getValue(String.class);
                                 tvNickname.setText(nickname);
                             } else {
-                                // Users에서 찾을 수 없다면 CeoUsers에서 찾기
                                 DatabaseReference ceoUserRef = FirebaseDatabase.getInstance().getReference("CeoUsers").child(postUserName);
                                 ceoUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
@@ -145,8 +177,18 @@ public class DetailActivity extends AppCompatActivity {
 
                     imagesRecyclerView = findViewById(R.id.imagesRecyclerView);
                     imagesRecyclerView.setLayoutManager(new LinearLayoutManager(DetailActivity.this, LinearLayoutManager.HORIZONTAL, false));
-                    ImageAdapter adapter = new ImageAdapter(DetailActivity.this, photoUris);
-                    imagesRecyclerView.setAdapter(adapter);
+                    imageAdapter = new ImageAdapter(DetailActivity.this, photoUris);
+                    imagesRecyclerView.setAdapter(imageAdapter);
+
+                    // Check if the current user is the post owner
+                    if (postUserName != null && currentUserId != null) {
+                        if (postUserName.equals(currentUserId)) {
+                            iconMore.setVisibility(View.VISIBLE);
+                        } else {
+                            iconMore.setVisibility(View.GONE);
+                        }
+                    }
+
                 } else {
                     Toast.makeText(DetailActivity.this, "게시글을 찾을 수 없습니다.", Toast.LENGTH_SHORT).show();
                 }
@@ -157,42 +199,6 @@ public class DetailActivity extends AppCompatActivity {
                 Toast.makeText(DetailActivity.this, "게시글 정보를 불러올 수 없습니다.", Toast.LENGTH_SHORT).show();
             }
         });
-
-        etComment = findViewById(R.id.etComment);
-        commentList = new ArrayList<>();
-        keyList = new ArrayList<>();
-        commentAdapter = new CommentAdapter(commentReference, commentList, keyList, this);
-
-        RecyclerView recyclerView = findViewById(R.id.recyclerViewComments);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(commentAdapter);
-
-        findViewById(R.id.btnSubmitComment).setOnClickListener(v -> {
-            String commentText = etComment.getText().toString().trim();
-            if (!commentText.isEmpty()) {
-                addComment(commentText);
-            }
-        });
-
-
-        loadComments();
-
-
-        // 여기에 iconMore 초기화와 클릭 이벤트 리스너를 추가합니다.
-        iconMore = findViewById(R.id.iconMore);
-        iconMore.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showPopupMenu(view);
-            }
-        });
-    }
-
-
-    private String formatTimestampToKST(long timestamp) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.KOREA);
-        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul")); // 한국 시간대로 설정
-        return sdf.format(new Date(timestamp));
     }
 
     private void showPopupMenu(View view) {
@@ -213,26 +219,20 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void editPost() {
-        Intent intentFromDetail = getIntent();
-        String title = intentFromDetail.getStringExtra("title");
-        String content = intentFromDetail.getStringExtra("content");
-        String postId = intentFromDetail.getStringExtra("postId");
-
-        ArrayList<String> photoUrlsString = getIntent().getStringArrayListExtra("photoUrls"); // 이미 있는 photoUrlsString을 직접 사용
-
         Intent intentToEdit = new Intent(DetailActivity.this, WriteBoardActivity.class);
-        intentToEdit.putExtra("title", title);
-        intentToEdit.putExtra("content", content);
+        intentToEdit.putExtra("title", tvTitle.getText().toString());
+        intentToEdit.putExtra("content", tvContent.getText().toString());
         intentToEdit.putExtra("isEditing", true);
-        intentToEdit.putExtra("postId", postId); // 여기에 postId를 다시 추가
-        // 이미지 URI를 String으로 변환하여 ArrayList에 추가
-        // 변환된 String 리스트를 인텐트에 추가
-        if (photoUrlsString != null) {
-            intentToEdit.putStringArrayListExtra("photoUrls", photoUrlsString);
-        }
-        startActivity(intentToEdit);
-    }
+        intentToEdit.putExtra("postId", postId);
 
+        ArrayList<String> photoUrlsString = new ArrayList<>();
+        for (Uri uri : imageAdapter.getImageUris()) {
+            photoUrlsString.add(uri.toString());
+        }
+        intentToEdit.putStringArrayListExtra("photoUrls", photoUrlsString);
+
+        startActivityForResult(intentToEdit, EDIT_POST_REQUEST);
+    }
 
     private void deletePost() {
         if (postId != null) {
@@ -302,7 +302,6 @@ public class DetailActivity extends AppCompatActivity {
                 }
                 commentAdapter.notifyDataSetChanged();
 
-                // Check if there are comments and set visibility accordingly
                 if (commentList.isEmpty()) {
                     findViewById(R.id.imageView3).setVisibility(View.GONE);
                     findViewById(R.id.tvcommentet).setVisibility(View.GONE);
@@ -317,5 +316,19 @@ public class DetailActivity extends AppCompatActivity {
                 Toast.makeText(DetailActivity.this, "댓글을 불러올 수 없습니다.", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == EDIT_POST_REQUEST && resultCode == RESULT_OK) {
+            loadPost();
+        }
+    }
+
+    private String formatTimestampToKST(long timestamp) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.KOREA);
+        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
+        return sdf.format(new Date(timestamp));
     }
 }

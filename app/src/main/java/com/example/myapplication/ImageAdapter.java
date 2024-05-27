@@ -23,12 +23,16 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ImageViewHol
         this.inflater = LayoutInflater.from(context);
         this.imageUris = imageUris;
     }
+
     // Uri 리스트를 설정하는 새 메소드
     public void setImageUris(List<Uri> imageUris) {
         this.imageUris = imageUris;
         notifyDataSetChanged(); // 데이터 변경을 알림
     }
 
+    public List<Uri> getImageUris() { // getImageUris 메서드 추가
+        return imageUris;
+    }
 
     @NonNull
     @Override

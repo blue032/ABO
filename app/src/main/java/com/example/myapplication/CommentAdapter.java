@@ -12,24 +12,24 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentViewHolder> {
 
@@ -37,7 +37,8 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
     private ArrayList<String> keyList;
     private Context context;
     private DatabaseReference databaseReference;
-    private Map<String, String> userNicknames; // UID와 닉네임을 매핑하기 위한 맵
+    private Map<String, String> userNicknames;
+    private String currentUserId;
 
     public CommentAdapter(DatabaseReference databaseReference, List<Comment> commentList, ArrayList<String> keyList, Context context) {
         this.databaseReference = databaseReference;
@@ -45,6 +46,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         this.keyList = keyList;
         this.context = context;
         this.userNicknames = new HashMap<>();
+        this.currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid(); // 현재 로그인한 사용자 UID
     }
 
     @NonNull
@@ -67,10 +69,21 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
             loadUserNickname(userId, holder.tvCommentAuthor);
         }
 
-        holder.iconMore.setOnClickListener(view -> showPopupMenu(view, position, comment.getContent()));
+        // 현재 사용자와 댓글 작성자가 동일할 때만 iconMore를 표시
+        if (userId != null && userId.equals(currentUserId)) {
+            holder.iconMore.setVisibility(View.VISIBLE);
+            holder.iconMore.setOnClickListener(view -> showPopupMenu(view, position, comment.getContent()));
+        } else {
+            holder.iconMore.setVisibility(View.GONE);
+        }
     }
 
     private void loadUserNickname(String userId, TextView textView) {
+        if (userId == null) {
+            textView.setText("Unknown");
+            return;
+        }
+
         DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("Users").child(userId);
         userRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -80,7 +93,6 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
                     userNicknames.put(userId, nickname);
                     textView.setText(nickname);
                 } else {
-                    // Users에서 닉네임을 찾을 수 없는 경우 CeoUsers에서 확인
                     DatabaseReference ceoUserRef = FirebaseDatabase.getInstance().getReference("CeoUsers").child(userId);
                     ceoUserRef.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -111,7 +123,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
     private String getReadableTimestamp(long timestamp) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd HH:mm", Locale.KOREA);
-        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul")); // 한국 시간대로 설정
+        sdf.setTimeZone(TimeZone.getTimeZone("Asia/Seoul"));
         return sdf.format(new Date(timestamp));
     }
 
